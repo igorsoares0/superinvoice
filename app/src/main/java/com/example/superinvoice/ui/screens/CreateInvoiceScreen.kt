@@ -47,7 +47,8 @@ import com.example.superinvoice.ui.components.InvoiceTotalCard
 fun CreateInvoiceScreen(
     onClose: () -> Unit,
     onSave: () -> Unit,
-    onNavigateToClients: () -> Unit = {}
+    onNavigateToClients: () -> Unit = {},
+    onNavigateToProductsServices: () -> Unit = {}
 ) {
     var invoiceName by remember { mutableStateOf("#820") }
     var dueDate by remember { mutableStateOf("dez 19") }
@@ -126,7 +127,7 @@ fun CreateInvoiceScreen(
                 InvoiceOptionItem(
                     text = "Add Product or Service",
                     icon = Icons.Default.Add,
-                    onClick = { }
+                    onClick = onNavigateToProductsServices
                 )
 
                 InvoiceOptionItem(

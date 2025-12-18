@@ -9,12 +9,14 @@ import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
+import com.example.superinvoice.ui.screens.ProductsServicesScreen
 
 enum class Screen {
     HOME,
     CREATE_INVOICE,
     CLIENTS,
-    ADD_CLIENT
+    ADD_CLIENT,
+    PRODUCTS_SERVICES
 }
 
 @Composable
@@ -28,7 +30,8 @@ fun AppNavigation() {
         Screen.CREATE_INVOICE -> CreateInvoiceScreen(
             onClose = { currentScreen = Screen.HOME },
             onSave = { currentScreen = Screen.HOME },
-            onNavigateToClients = { currentScreen = Screen.CLIENTS }
+            onNavigateToClients = { currentScreen = Screen.CLIENTS },
+            onNavigateToProductsServices = { currentScreen = Screen.PRODUCTS_SERVICES }
         )
         Screen.CLIENTS -> ClientsScreen(
             onClose = { currentScreen = Screen.CREATE_INVOICE },
@@ -37,6 +40,9 @@ fun AppNavigation() {
         Screen.ADD_CLIENT -> AddClientScreen(
             onClose = { currentScreen = Screen.CLIENTS },
             onSave = { currentScreen = Screen.CLIENTS }
+        )
+        Screen.PRODUCTS_SERVICES -> ProductsServicesScreen(
+            onClose = { currentScreen = Screen.CREATE_INVOICE }
         )
     }
 }
