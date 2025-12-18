@@ -30,7 +30,8 @@ import com.example.superinvoice.ui.components.SettingsOption
 @Composable
 fun SettingsScreen(
     selectedBottomNavItem: Int,
-    onBottomNavItemSelected: (Int) -> Unit
+    onBottomNavItemSelected: (Int) -> Unit,
+    onNavigateToTemplates: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
@@ -107,7 +108,7 @@ fun SettingsScreen(
                     SettingsOption(text = "Currency", onClick = { })
                     SettingsOption(text = "Date format", onClick = { })
                     SettingsOption(text = "Language", onClick = { })
-                    SettingsOption(text = "Templates", onClick = { })
+                    SettingsOption(text = "Templates", onClick = onNavigateToTemplates)
                     SettingsOption(text = "Terms", onClick = { })
                     SettingsOption(text = "Policy", onClick = { })
                     SettingsOption(text = "Support", onClick = { })

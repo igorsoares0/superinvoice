@@ -12,6 +12,8 @@ import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
 import com.example.superinvoice.ui.screens.EditInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
+import com.example.superinvoice.ui.screens.InvoicePreviewScreen
+import com.example.superinvoice.ui.screens.InvoiceTemplateScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
 import com.example.superinvoice.ui.screens.SettingsScreen
 
@@ -23,7 +25,9 @@ enum class Screen {
     PRODUCTS_SERVICES,
     ADD_PRODUCT,
     SETTINGS,
-    EDIT_INVOICE
+    EDIT_INVOICE,
+    INVOICE_TEMPLATE,
+    INVOICE_PREVIEW
 }
 
 @Composable
@@ -74,13 +78,22 @@ fun AppNavigation() {
                     0 -> currentScreen = Screen.HOME
                     2 -> currentScreen = Screen.SETTINGS
                 }
-            }
+            },
+            onNavigateToTemplates = { currentScreen = Screen.INVOICE_TEMPLATE }
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
             onClose = { currentScreen = Screen.HOME },
             onSaveChanges = { currentScreen = Screen.HOME },
-            onPreview = { },
+            onPreview = { currentScreen = Screen.INVOICE_PREVIEW },
             onDelete = { currentScreen = Screen.HOME }
+        )
+        Screen.INVOICE_TEMPLATE -> InvoiceTemplateScreen(
+            onClose = { currentScreen = Screen.SETTINGS }
+        )
+        Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
+            onClose = { currentScreen = Screen.EDIT_INVOICE },
+            onShare = { },
+            onSaveAsPdf = { }
         )
     }
 }
