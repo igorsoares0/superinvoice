@@ -11,6 +11,8 @@ import com.example.superinvoice.ui.screens.AddProductScreen
 import com.example.superinvoice.ui.screens.BusinessInformationScreen
 import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
+import com.example.superinvoice.ui.screens.CurrencyScreen
+import com.example.superinvoice.ui.screens.DateFormatScreen
 import com.example.superinvoice.ui.screens.EditInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
 import com.example.superinvoice.ui.screens.InvoicePreviewScreen
@@ -35,7 +37,9 @@ enum class Screen {
     BUSINESS_INFO,
     PAYMENT_INSTRUCTIONS,
     LOGO,
-    SIGNATURE
+    SIGNATURE,
+    CURRENCY,
+    DATE_FORMAT
 }
 
 @Composable
@@ -91,7 +95,9 @@ fun AppNavigation() {
             onNavigateToBusinessInfo = { currentScreen = Screen.BUSINESS_INFO },
             onNavigateToPaymentInstructions = { currentScreen = Screen.PAYMENT_INSTRUCTIONS },
             onNavigateToLogo = { currentScreen = Screen.LOGO },
-            onNavigateToSignature = { currentScreen = Screen.SIGNATURE }
+            onNavigateToSignature = { currentScreen = Screen.SIGNATURE },
+            onNavigateToCurrency = { currentScreen = Screen.CURRENCY },
+            onNavigateToDateFormat = { currentScreen = Screen.DATE_FORMAT }
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
             onClose = { currentScreen = Screen.HOME },
@@ -124,6 +130,14 @@ fun AppNavigation() {
             onClose = { currentScreen = Screen.SETTINGS },
             onSave = { currentScreen = Screen.SETTINGS },
             onUploadSignature = { }
+        )
+        Screen.CURRENCY -> CurrencyScreen(
+            onClose = { currentScreen = Screen.SETTINGS },
+            onSave = { currentScreen = Screen.SETTINGS }
+        )
+        Screen.DATE_FORMAT -> DateFormatScreen(
+            onClose = { currentScreen = Screen.SETTINGS },
+            onSave = { currentScreen = Screen.SETTINGS }
         )
     }
 }

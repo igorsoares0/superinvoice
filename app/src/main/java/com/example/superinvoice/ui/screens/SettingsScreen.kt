@@ -35,7 +35,9 @@ fun SettingsScreen(
     onNavigateToBusinessInfo: () -> Unit = {},
     onNavigateToPaymentInstructions: () -> Unit = {},
     onNavigateToLogo: () -> Unit = {},
-    onNavigateToSignature: () -> Unit = {}
+    onNavigateToSignature: () -> Unit = {},
+    onNavigateToCurrency: () -> Unit = {},
+    onNavigateToDateFormat: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
@@ -109,8 +111,8 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.padding(bottom = 24.dp)
                 ) {
-                    SettingsOption(text = "Currency", onClick = { })
-                    SettingsOption(text = "Date format", onClick = { })
+                    SettingsOption(text = "Currency", onClick = onNavigateToCurrency)
+                    SettingsOption(text = "Date format", onClick = onNavigateToDateFormat)
                     SettingsOption(text = "Language", onClick = { })
                     SettingsOption(text = "Templates", onClick = onNavigateToTemplates)
                     SettingsOption(text = "Terms", onClick = { })
