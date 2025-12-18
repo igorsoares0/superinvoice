@@ -38,7 +38,8 @@ import com.example.superinvoice.ui.components.ClientSearchBar
 
 @Composable
 fun ClientsScreen(
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onNavigateToAddClient: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -124,7 +125,7 @@ fun ClientsScreen(
         }
 
         FloatingActionButton(
-            onClick = { },
+            onClick = onNavigateToAddClient,
             containerColor = Color(0xFF9DEA6E),
             contentColor = Color.Black,
             modifier = Modifier
