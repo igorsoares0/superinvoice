@@ -26,6 +26,7 @@ import com.example.superinvoice.R
 fun InvoiceNotesField(
     value: String,
     onValueChange: (String) -> Unit,
+    placeholder: String = "Notes",
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -55,7 +56,7 @@ fun InvoiceNotesField(
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 androidx.compose.material3.Text(
-                    text = "Notes",
+                    text = placeholder,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Normal,
                     fontSize = 16.sp,

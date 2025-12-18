@@ -31,7 +31,11 @@ import com.example.superinvoice.ui.components.SettingsOption
 fun SettingsScreen(
     selectedBottomNavItem: Int,
     onBottomNavItemSelected: (Int) -> Unit,
-    onNavigateToTemplates: () -> Unit = {}
+    onNavigateToTemplates: () -> Unit = {},
+    onNavigateToBusinessInfo: () -> Unit = {},
+    onNavigateToPaymentInstructions: () -> Unit = {},
+    onNavigateToLogo: () -> Unit = {},
+    onNavigateToSignature: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
@@ -86,10 +90,10 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.padding(bottom = 32.dp)
                 ) {
-                    SettingsOption(text = "Logo", onClick = { })
-                    SettingsOption(text = "Business Information", onClick = { })
-                    SettingsOption(text = "Signature", onClick = { })
-                    SettingsOption(text = "Payment Instructions", onClick = { })
+                    SettingsOption(text = "Logo", onClick = onNavigateToLogo)
+                    SettingsOption(text = "Business Information", onClick = onNavigateToBusinessInfo)
+                    SettingsOption(text = "Signature", onClick = onNavigateToSignature)
+                    SettingsOption(text = "Payment Instructions", onClick = onNavigateToPaymentInstructions)
                 }
 
                 Text(

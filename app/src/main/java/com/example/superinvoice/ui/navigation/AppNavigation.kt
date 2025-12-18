@@ -8,14 +8,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
+import com.example.superinvoice.ui.screens.BusinessInformationScreen
 import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
 import com.example.superinvoice.ui.screens.EditInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
 import com.example.superinvoice.ui.screens.InvoicePreviewScreen
 import com.example.superinvoice.ui.screens.InvoiceTemplateScreen
+import com.example.superinvoice.ui.screens.LogoScreen
+import com.example.superinvoice.ui.screens.PaymentInstructionsScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
 import com.example.superinvoice.ui.screens.SettingsScreen
+import com.example.superinvoice.ui.screens.SignatureScreen
 
 enum class Screen {
     HOME,
@@ -27,7 +31,11 @@ enum class Screen {
     SETTINGS,
     EDIT_INVOICE,
     INVOICE_TEMPLATE,
-    INVOICE_PREVIEW
+    INVOICE_PREVIEW,
+    BUSINESS_INFO,
+    PAYMENT_INSTRUCTIONS,
+    LOGO,
+    SIGNATURE
 }
 
 @Composable
@@ -79,7 +87,11 @@ fun AppNavigation() {
                     2 -> currentScreen = Screen.SETTINGS
                 }
             },
-            onNavigateToTemplates = { currentScreen = Screen.INVOICE_TEMPLATE }
+            onNavigateToTemplates = { currentScreen = Screen.INVOICE_TEMPLATE },
+            onNavigateToBusinessInfo = { currentScreen = Screen.BUSINESS_INFO },
+            onNavigateToPaymentInstructions = { currentScreen = Screen.PAYMENT_INSTRUCTIONS },
+            onNavigateToLogo = { currentScreen = Screen.LOGO },
+            onNavigateToSignature = { currentScreen = Screen.SIGNATURE }
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
             onClose = { currentScreen = Screen.HOME },
@@ -94,6 +106,24 @@ fun AppNavigation() {
             onClose = { currentScreen = Screen.EDIT_INVOICE },
             onShare = { },
             onSaveAsPdf = { }
+        )
+        Screen.BUSINESS_INFO -> BusinessInformationScreen(
+            onClose = { currentScreen = Screen.SETTINGS },
+            onSave = { currentScreen = Screen.SETTINGS }
+        )
+        Screen.PAYMENT_INSTRUCTIONS -> PaymentInstructionsScreen(
+            onClose = { currentScreen = Screen.SETTINGS },
+            onSave = { currentScreen = Screen.SETTINGS }
+        )
+        Screen.LOGO -> LogoScreen(
+            onClose = { currentScreen = Screen.SETTINGS },
+            onSave = { currentScreen = Screen.SETTINGS },
+            onUploadLogo = { }
+        )
+        Screen.SIGNATURE -> SignatureScreen(
+            onClose = { currentScreen = Screen.SETTINGS },
+            onSave = { currentScreen = Screen.SETTINGS },
+            onUploadSignature = { }
         )
     }
 }
