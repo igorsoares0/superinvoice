@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.superinvoice.ui.screens.AddClientScreen
+import com.example.superinvoice.ui.screens.AddProductScreen
 import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
@@ -16,7 +17,8 @@ enum class Screen {
     CREATE_INVOICE,
     CLIENTS,
     ADD_CLIENT,
-    PRODUCTS_SERVICES
+    PRODUCTS_SERVICES,
+    ADD_PRODUCT
 }
 
 @Composable
@@ -42,7 +44,12 @@ fun AppNavigation() {
             onSave = { currentScreen = Screen.CLIENTS }
         )
         Screen.PRODUCTS_SERVICES -> ProductsServicesScreen(
-            onClose = { currentScreen = Screen.CREATE_INVOICE }
+            onClose = { currentScreen = Screen.CREATE_INVOICE },
+            onNavigateToAddProductService = { currentScreen = Screen.ADD_PRODUCT }
+        )
+        Screen.ADD_PRODUCT -> AddProductScreen(
+            onClose = { currentScreen = Screen.PRODUCTS_SERVICES },
+            onSave = { currentScreen = Screen.PRODUCTS_SERVICES }
         )
     }
 }
