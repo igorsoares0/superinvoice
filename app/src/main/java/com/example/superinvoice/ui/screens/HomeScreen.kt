@@ -35,7 +35,9 @@ import com.example.superinvoice.ui.components.InvoiceFilter
 import com.example.superinvoice.ui.components.InvoiceFilterTabs
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToCreateInvoice: () -> Unit = {}
+) {
     var selectedFilter by remember { mutableStateOf(InvoiceFilter.PAID) }
     var selectedBottomNavItem by remember { mutableStateOf(0) }
 
@@ -75,7 +77,7 @@ fun HomeScreen() {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = onNavigateToCreateInvoice,
                 containerColor = Color(0xFF9DEA6E),
                 contentColor = Color.Black
             ) {
