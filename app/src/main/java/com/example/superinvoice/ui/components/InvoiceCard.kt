@@ -2,6 +2,7 @@ package com.example.superinvoice.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import com.example.superinvoice.data.Invoice
 @Composable
 fun InvoiceCard(
     invoice: Invoice,
+    onClick: () -> Unit = {},
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -38,7 +40,8 @@ fun InvoiceCard(
                 width = 1.dp,
                 color = Color(0xFFE0E0E0),
                 shape = RoundedCornerShape(12.dp)
-            ),
+            )
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White

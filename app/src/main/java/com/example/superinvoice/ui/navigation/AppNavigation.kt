@@ -10,6 +10,7 @@ import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
 import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
+import com.example.superinvoice.ui.screens.EditInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
 import com.example.superinvoice.ui.screens.SettingsScreen
@@ -21,7 +22,8 @@ enum class Screen {
     ADD_CLIENT,
     PRODUCTS_SERVICES,
     ADD_PRODUCT,
-    SETTINGS
+    SETTINGS,
+    EDIT_INVOICE
 }
 
 @Composable
@@ -32,6 +34,7 @@ fun AppNavigation() {
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
             onNavigateToCreateInvoice = { currentScreen = Screen.CREATE_INVOICE },
+            onNavigateToEditInvoice = { currentScreen = Screen.EDIT_INVOICE },
             selectedBottomNavItem = selectedBottomNavItem,
             onBottomNavItemSelected = { index ->
                 selectedBottomNavItem = index
@@ -72,6 +75,12 @@ fun AppNavigation() {
                     2 -> currentScreen = Screen.SETTINGS
                 }
             }
+        )
+        Screen.EDIT_INVOICE -> EditInvoiceScreen(
+            onClose = { currentScreen = Screen.HOME },
+            onSaveChanges = { currentScreen = Screen.HOME },
+            onPreview = { },
+            onDelete = { currentScreen = Screen.HOME }
         )
     }
 }

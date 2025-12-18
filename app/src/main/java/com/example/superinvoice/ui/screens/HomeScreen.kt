@@ -37,6 +37,7 @@ import com.example.superinvoice.ui.components.InvoiceFilterTabs
 @Composable
 fun HomeScreen(
     onNavigateToCreateInvoice: () -> Unit = {},
+    onNavigateToEditInvoice: () -> Unit = {},
     selectedBottomNavItem: Int = 0,
     onBottomNavItemSelected: (Int) -> Unit = {}
 ) {
@@ -139,6 +140,7 @@ fun HomeScreen(
                 items(filteredInvoices) { invoice ->
                     InvoiceCard(
                         invoice = invoice,
+                        onClick = onNavigateToEditInvoice,
                         onMenuClick = { }
                     )
                 }
