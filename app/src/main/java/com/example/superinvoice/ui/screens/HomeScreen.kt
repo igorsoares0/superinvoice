@@ -36,10 +36,11 @@ import com.example.superinvoice.ui.components.InvoiceFilterTabs
 
 @Composable
 fun HomeScreen(
-    onNavigateToCreateInvoice: () -> Unit = {}
+    onNavigateToCreateInvoice: () -> Unit = {},
+    selectedBottomNavItem: Int = 0,
+    onBottomNavItemSelected: (Int) -> Unit = {}
 ) {
     var selectedFilter by remember { mutableStateOf(InvoiceFilter.PAID) }
-    var selectedBottomNavItem by remember { mutableStateOf(0) }
 
     val sampleInvoices = remember {
         listOf(
@@ -72,7 +73,7 @@ fun HomeScreen(
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
-                onItemSelected = { selectedBottomNavItem = it }
+                onItemSelected = onBottomNavItemSelected
             )
         },
         floatingActionButton = {

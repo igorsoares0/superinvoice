@@ -2,6 +2,7 @@ package com.example.superinvoice.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -11,6 +12,7 @@ import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
+import com.example.superinvoice.ui.screens.SettingsScreen
 
 enum class Screen {
     HOME,
@@ -18,16 +20,26 @@ enum class Screen {
     CLIENTS,
     ADD_CLIENT,
     PRODUCTS_SERVICES,
-    ADD_PRODUCT
+    ADD_PRODUCT,
+    SETTINGS
 }
 
 @Composable
 fun AppNavigation() {
     var currentScreen by remember { mutableStateOf(Screen.HOME) }
+    var selectedBottomNavItem by remember { mutableIntStateOf(0) }
 
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
-            onNavigateToCreateInvoice = { currentScreen = Screen.CREATE_INVOICE }
+            onNavigateToCreateInvoice = { currentScreen = Screen.CREATE_INVOICE },
+            selectedBottomNavItem = selectedBottomNavItem,
+            onBottomNavItemSelected = { index ->
+                selectedBottomNavItem = index
+                when (index) {
+                    0 -> currentScreen = Screen.HOME
+                    2 -> currentScreen = Screen.SETTINGS
+                }
+            }
         )
         Screen.CREATE_INVOICE -> CreateInvoiceScreen(
             onClose = { currentScreen = Screen.HOME },
@@ -50,6 +62,16 @@ fun AppNavigation() {
         Screen.ADD_PRODUCT -> AddProductScreen(
             onClose = { currentScreen = Screen.PRODUCTS_SERVICES },
             onSave = { currentScreen = Screen.PRODUCTS_SERVICES }
+        )
+        Screen.SETTINGS -> SettingsScreen(
+            selectedBottomNavItem = selectedBottomNavItem,
+            onBottomNavItemSelected = { index ->
+                selectedBottomNavItem = index
+                when (index) {
+                    0 -> currentScreen = Screen.HOME
+                    2 -> currentScreen = Screen.SETTINGS
+                }
+            }
         )
     }
 }
