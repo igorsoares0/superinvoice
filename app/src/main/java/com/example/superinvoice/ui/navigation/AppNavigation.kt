@@ -1,5 +1,6 @@
 package com.example.superinvoice.ui.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -46,6 +47,12 @@ enum class Screen {
 fun AppNavigation() {
     var currentScreen by remember { mutableStateOf(Screen.HOME) }
     var selectedBottomNavItem by remember { mutableIntStateOf(0) }
+
+    // Handle back button - always go to HOME except when already at HOME
+    BackHandler(enabled = currentScreen != Screen.HOME) {
+        currentScreen = Screen.HOME
+        selectedBottomNavItem = 0
+    }
 
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
