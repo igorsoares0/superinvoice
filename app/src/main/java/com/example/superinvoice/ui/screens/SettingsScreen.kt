@@ -37,14 +37,18 @@ fun SettingsScreen(
     onNavigateToLogo: () -> Unit = {},
     onNavigateToSignature: () -> Unit = {},
     onNavigateToCurrency: () -> Unit = {},
-    onNavigateToDateFormat: () -> Unit = {}
+    onNavigateToDateFormat: () -> Unit = {},
+    onNavigateToAddClient: () -> Unit = {},
+    onNavigateToAddProduct: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
-                onItemSelected = onBottomNavItemSelected
+                onItemSelected = onBottomNavItemSelected,
+                onAddClient = onNavigateToAddClient,
+                onAddProduct = onNavigateToAddProduct
             )
         }
     ) { paddingValues ->

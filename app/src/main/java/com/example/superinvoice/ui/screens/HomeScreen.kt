@@ -38,6 +38,8 @@ import com.example.superinvoice.ui.components.InvoiceFilterTabs
 fun HomeScreen(
     onNavigateToCreateInvoice: () -> Unit = {},
     onNavigateToEditInvoice: () -> Unit = {},
+    onNavigateToAddClient: () -> Unit = {},
+    onNavigateToAddProduct: () -> Unit = {},
     selectedBottomNavItem: Int = 0,
     onBottomNavItemSelected: (Int) -> Unit = {}
 ) {
@@ -74,7 +76,9 @@ fun HomeScreen(
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
-                onItemSelected = onBottomNavItemSelected
+                onItemSelected = onBottomNavItemSelected,
+                onAddClient = onNavigateToAddClient,
+                onAddProduct = onNavigateToAddProduct
             )
         },
         floatingActionButton = {

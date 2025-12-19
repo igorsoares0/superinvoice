@@ -51,6 +51,8 @@ fun AppNavigation() {
         Screen.HOME -> HomeScreen(
             onNavigateToCreateInvoice = { currentScreen = Screen.CREATE_INVOICE },
             onNavigateToEditInvoice = { currentScreen = Screen.EDIT_INVOICE },
+            onNavigateToAddClient = { currentScreen = Screen.ADD_CLIENT },
+            onNavigateToAddProduct = { currentScreen = Screen.ADD_PRODUCT },
             selectedBottomNavItem = selectedBottomNavItem,
             onBottomNavItemSelected = { index ->
                 selectedBottomNavItem = index
@@ -71,16 +73,16 @@ fun AppNavigation() {
             onNavigateToAddClient = { currentScreen = Screen.ADD_CLIENT }
         )
         Screen.ADD_CLIENT -> AddClientScreen(
-            onClose = { currentScreen = Screen.CLIENTS },
-            onSave = { currentScreen = Screen.CLIENTS }
+            onClose = { currentScreen = Screen.HOME },
+            onSave = { currentScreen = Screen.HOME }
         )
         Screen.PRODUCTS_SERVICES -> ProductsServicesScreen(
             onClose = { currentScreen = Screen.CREATE_INVOICE },
             onNavigateToAddProductService = { currentScreen = Screen.ADD_PRODUCT }
         )
         Screen.ADD_PRODUCT -> AddProductScreen(
-            onClose = { currentScreen = Screen.PRODUCTS_SERVICES },
-            onSave = { currentScreen = Screen.PRODUCTS_SERVICES }
+            onClose = { currentScreen = Screen.HOME },
+            onSave = { currentScreen = Screen.HOME }
         )
         Screen.SETTINGS -> SettingsScreen(
             selectedBottomNavItem = selectedBottomNavItem,
@@ -97,7 +99,9 @@ fun AppNavigation() {
             onNavigateToLogo = { currentScreen = Screen.LOGO },
             onNavigateToSignature = { currentScreen = Screen.SIGNATURE },
             onNavigateToCurrency = { currentScreen = Screen.CURRENCY },
-            onNavigateToDateFormat = { currentScreen = Screen.DATE_FORMAT }
+            onNavigateToDateFormat = { currentScreen = Screen.DATE_FORMAT },
+            onNavigateToAddClient = { currentScreen = Screen.ADD_CLIENT },
+            onNavigateToAddProduct = { currentScreen = Screen.ADD_PRODUCT }
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
             onClose = { currentScreen = Screen.HOME },
