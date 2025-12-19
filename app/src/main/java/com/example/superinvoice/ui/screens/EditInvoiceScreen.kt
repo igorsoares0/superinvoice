@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.superinvoice.R
+import com.example.superinvoice.ui.components.DatePickerField
 import com.example.superinvoice.ui.components.InvoiceInputField
 import com.example.superinvoice.ui.components.InvoiceNotesField
 import com.example.superinvoice.ui.components.InvoiceOptionItem
@@ -52,7 +53,7 @@ fun EditInvoiceScreen(
     onDelete: () -> Unit
 ) {
     var invoiceName by remember { mutableStateOf("#820") }
-    var dueDate by remember { mutableStateOf("dez 19") }
+    var dueDate by remember { mutableStateOf("dec, 19") }
     var notes by remember { mutableStateOf("") }
     var isPaid by remember { mutableStateOf(true) }
     var tax by remember { mutableStateOf("") }
@@ -114,7 +115,7 @@ fun EditInvoiceScreen(
                         onValueChange = { invoiceName = it },
                         modifier = Modifier.weight(1f)
                     )
-                    InvoiceInputField(
+                    DatePickerField(
                         label = "Due Date",
                         value = dueDate,
                         onValueChange = { dueDate = it },
