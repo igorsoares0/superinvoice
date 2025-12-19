@@ -55,6 +55,8 @@ fun EditInvoiceScreen(
     var dueDate by remember { mutableStateOf("dez 19") }
     var notes by remember { mutableStateOf("") }
     var isPaid by remember { mutableStateOf(true) }
+    var tax by remember { mutableStateOf("") }
+    var discount by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -132,16 +134,16 @@ fun EditInvoiceScreen(
                     onClick = { }
                 )
 
-                InvoiceOptionItem(
-                    text = "Tax",
-                    iconRes = R.drawable.ic_tax,
-                    onClick = { }
+                InvoiceInputField(
+                    label = "Tax (Optional)",
+                    value = tax,
+                    onValueChange = { tax = it }
                 )
 
-                InvoiceOptionItem(
-                    text = "Discount",
-                    iconRes = R.drawable.ic_discount,
-                    onClick = { }
+                InvoiceInputField(
+                    label = "Discount (Optional)",
+                    value = discount,
+                    onValueChange = { discount = it }
                 )
 
                 PaidToggle(
