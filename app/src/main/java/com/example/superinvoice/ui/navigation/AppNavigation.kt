@@ -47,108 +47,154 @@ enum class Screen {
 fun AppNavigation() {
     var currentScreen by remember { mutableStateOf(Screen.HOME) }
     var selectedBottomNavItem by remember { mutableIntStateOf(0) }
+    var navigationStack by remember { mutableStateOf(listOf<Screen>()) }
 
-    // Handle back button - always go to HOME except when already at HOME
-    BackHandler(enabled = currentScreen != Screen.HOME) {
-        currentScreen = Screen.HOME
-        selectedBottomNavItem = 0
+    // Navigate to a screen and add to history
+    fun navigateTo(screen: Screen) {
+        if (currentScreen != screen) {
+            navigationStack = navigationStack + currentScreen
+            currentScreen = screen
+        }
+    }
+
+    // Navigate back to previous screen
+    fun navigateBack() {
+        if (navigationStack.isNotEmpty()) {
+            currentScreen = navigationStack.last()
+            navigationStack = navigationStack.dropLast(1)
+        }
+    }
+
+    // Handle back button - go to previous screen in stack
+    BackHandler(enabled = navigationStack.isNotEmpty()) {
+        navigateBack()
+        // Update bottom nav if returning to HOME or SETTINGS
+        when (currentScreen) {
+            Screen.HOME -> selectedBottomNavItem = 0
+            Screen.SETTINGS -> selectedBottomNavItem = 2
+            else -> {}
+        }
     }
 
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
-            onNavigateToCreateInvoice = { currentScreen = Screen.CREATE_INVOICE },
-            onNavigateToEditInvoice = { currentScreen = Screen.EDIT_INVOICE },
-            onNavigateToAddClient = { currentScreen = Screen.ADD_CLIENT },
-            onNavigateToAddProduct = { currentScreen = Screen.ADD_PRODUCT },
+            onNavigateToCreateInvoice = { navigateTo(Screen.CREATE_INVOICE) },
+            onNavigateToEditInvoice = { navigateTo(Screen.EDIT_INVOICE) },
+            onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
+            onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
             selectedBottomNavItem = selectedBottomNavItem,
             onBottomNavItemSelected = { index ->
                 selectedBottomNavItem = index
                 when (index) {
-                    0 -> currentScreen = Screen.HOME
-                    2 -> currentScreen = Screen.SETTINGS
+                    0 -> {
+                        navigationStack = emptyList()
+                        currentScreen = Screen.HOME
+                    }
+                    2 -> navigateTo(Screen.SETTINGS)
                 }
             }
         )
         Screen.CREATE_INVOICE -> CreateInvoiceScreen(
-            onClose = { currentScreen = Screen.HOME },
-            onSave = { currentScreen = Screen.HOME },
-            onNavigateToClients = { currentScreen = Screen.CLIENTS },
-            onNavigateToProductsServices = { currentScreen = Screen.PRODUCTS_SERVICES }
+            onClose = { navigateBack() },
+            onSave = {
+                navigationStack = emptyList()
+                currentScreen = Screen.HOME
+            },
+            onNavigateToClients = { navigateTo(Screen.CLIENTS) },
+            onNavigateToProductsServices = { navigateTo(Screen.PRODUCTS_SERVICES) }
         )
         Screen.CLIENTS -> ClientsScreen(
-            onClose = { currentScreen = Screen.CREATE_INVOICE },
-            onNavigateToAddClient = { currentScreen = Screen.ADD_CLIENT }
+            onClose = { navigateBack() },
+            onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) }
         )
         Screen.ADD_CLIENT -> AddClientScreen(
-            onClose = { currentScreen = Screen.HOME },
-            onSave = { currentScreen = Screen.HOME }
+            onClose = { navigateBack() },
+            onSave = {
+                navigationStack = emptyList()
+                currentScreen = Screen.HOME
+            }
         )
         Screen.PRODUCTS_SERVICES -> ProductsServicesScreen(
-            onClose = { currentScreen = Screen.CREATE_INVOICE },
-            onNavigateToAddProductService = { currentScreen = Screen.ADD_PRODUCT }
+            onClose = { navigateBack() },
+            onNavigateToAddProductService = { navigateTo(Screen.ADD_PRODUCT) }
         )
         Screen.ADD_PRODUCT -> AddProductScreen(
-            onClose = { currentScreen = Screen.HOME },
-            onSave = { currentScreen = Screen.HOME }
+            onClose = { navigateBack() },
+            onSave = {
+                navigationStack = emptyList()
+                currentScreen = Screen.HOME
+            }
         )
         Screen.SETTINGS -> SettingsScreen(
             selectedBottomNavItem = selectedBottomNavItem,
             onBottomNavItemSelected = { index ->
                 selectedBottomNavItem = index
                 when (index) {
-                    0 -> currentScreen = Screen.HOME
-                    2 -> currentScreen = Screen.SETTINGS
+                    0 -> {
+                        navigationStack = emptyList()
+                        currentScreen = Screen.HOME
+                    }
+                    2 -> {
+                        navigationStack = emptyList()
+                        currentScreen = Screen.SETTINGS
+                    }
                 }
             },
-            onNavigateToTemplates = { currentScreen = Screen.INVOICE_TEMPLATE },
-            onNavigateToBusinessInfo = { currentScreen = Screen.BUSINESS_INFO },
-            onNavigateToPaymentInstructions = { currentScreen = Screen.PAYMENT_INSTRUCTIONS },
-            onNavigateToLogo = { currentScreen = Screen.LOGO },
-            onNavigateToSignature = { currentScreen = Screen.SIGNATURE },
-            onNavigateToCurrency = { currentScreen = Screen.CURRENCY },
-            onNavigateToDateFormat = { currentScreen = Screen.DATE_FORMAT },
-            onNavigateToAddClient = { currentScreen = Screen.ADD_CLIENT },
-            onNavigateToAddProduct = { currentScreen = Screen.ADD_PRODUCT }
+            onNavigateToTemplates = { navigateTo(Screen.INVOICE_TEMPLATE) },
+            onNavigateToBusinessInfo = { navigateTo(Screen.BUSINESS_INFO) },
+            onNavigateToPaymentInstructions = { navigateTo(Screen.PAYMENT_INSTRUCTIONS) },
+            onNavigateToLogo = { navigateTo(Screen.LOGO) },
+            onNavigateToSignature = { navigateTo(Screen.SIGNATURE) },
+            onNavigateToCurrency = { navigateTo(Screen.CURRENCY) },
+            onNavigateToDateFormat = { navigateTo(Screen.DATE_FORMAT) },
+            onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
+            onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) }
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
-            onClose = { currentScreen = Screen.HOME },
-            onSaveChanges = { currentScreen = Screen.HOME },
-            onPreview = { currentScreen = Screen.INVOICE_PREVIEW },
-            onDelete = { currentScreen = Screen.HOME }
+            onClose = { navigateBack() },
+            onSaveChanges = {
+                navigationStack = emptyList()
+                currentScreen = Screen.HOME
+            },
+            onPreview = { navigateTo(Screen.INVOICE_PREVIEW) },
+            onDelete = {
+                navigationStack = emptyList()
+                currentScreen = Screen.HOME
+            }
         )
         Screen.INVOICE_TEMPLATE -> InvoiceTemplateScreen(
-            onClose = { currentScreen = Screen.SETTINGS }
+            onClose = { navigateBack() }
         )
         Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
-            onClose = { currentScreen = Screen.EDIT_INVOICE },
+            onClose = { navigateBack() },
             onShare = { },
             onSaveAsPdf = { }
         )
         Screen.BUSINESS_INFO -> BusinessInformationScreen(
-            onClose = { currentScreen = Screen.SETTINGS },
-            onSave = { currentScreen = Screen.SETTINGS }
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
         )
         Screen.PAYMENT_INSTRUCTIONS -> PaymentInstructionsScreen(
-            onClose = { currentScreen = Screen.SETTINGS },
-            onSave = { currentScreen = Screen.SETTINGS }
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
         )
         Screen.LOGO -> LogoScreen(
-            onClose = { currentScreen = Screen.SETTINGS },
-            onSave = { currentScreen = Screen.SETTINGS },
+            onClose = { navigateBack() },
+            onSave = { navigateBack() },
             onUploadLogo = { }
         )
         Screen.SIGNATURE -> SignatureScreen(
-            onClose = { currentScreen = Screen.SETTINGS },
-            onSave = { currentScreen = Screen.SETTINGS },
+            onClose = { navigateBack() },
+            onSave = { navigateBack() },
             onUploadSignature = { }
         )
         Screen.CURRENCY -> CurrencyScreen(
-            onClose = { currentScreen = Screen.SETTINGS },
-            onSave = { currentScreen = Screen.SETTINGS }
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
         )
         Screen.DATE_FORMAT -> DateFormatScreen(
-            onClose = { currentScreen = Screen.SETTINGS },
-            onSave = { currentScreen = Screen.SETTINGS }
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
         )
     }
 }
