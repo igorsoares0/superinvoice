@@ -146,10 +146,16 @@ class EditInvoiceViewModel @Inject constructor(
     }
 
     fun togglePaidStatus() {
-        _status.value = if (_status.value == InvoiceStatus.PAID) {
+        val newStatus = if (_status.value == InvoiceStatus.PAID) {
             InvoiceStatus.DRAFT
         } else {
             InvoiceStatus.PAID
+        }
+        _status.value = newStatus
+
+        // Also update the invoice object
+        _invoice.value?.let { currentInvoice ->
+            _invoice.value = currentInvoice.copy(status = newStatus)
         }
     }
 
