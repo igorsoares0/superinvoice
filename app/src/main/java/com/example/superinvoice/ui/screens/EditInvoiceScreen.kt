@@ -324,13 +324,13 @@ fun EditInvoiceScreen(
                         Box(
                             modifier = Modifier
                                 .background(
-                                    color = Color(0xFF9DEA6E).copy(alpha = 0.3f),
+                                    color = if (isPaid) Color(0xFF9DEA6E) else Color(0xFF9DEA6E).copy(alpha = 0.3f),
                                     shape = RoundedCornerShape(4.dp)
                                 )
                                 .padding(horizontal = 8.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "Unpaid",
+                                text = if (isPaid) "Paid" else "Unpaid",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Black

@@ -112,6 +112,20 @@ fun InvoiceCard(
                         fontSize = 10.sp,
                         color = Color.Black
                     )
+                } else {
+                    Text(
+                        text = "UNPAID",
+                        modifier = Modifier
+                            .background(
+                                color = Color(0xFF9DEA6E).copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 10.sp,
+                        color = Color.Black
+                    )
                 }
             }
 
