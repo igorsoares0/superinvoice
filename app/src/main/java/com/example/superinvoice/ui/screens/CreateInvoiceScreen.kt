@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -65,6 +66,7 @@ fun CreateInvoiceScreen(
     productSelectionVersion: Int = 0,
     onClientSelectionProcessed: () -> Unit = {},
     onProductSelectionProcessed: () -> Unit = {},
+    shouldReset: Boolean = false,
     viewModel: CreateInvoiceViewModel = hiltViewModel()
 ) {
     val invoiceNumber by viewModel.invoiceNumber.collectAsStateWithLifecycle()
@@ -81,6 +83,13 @@ fun CreateInvoiceScreen(
     var showDiscountDialog by remember { mutableStateOf(false) }
     var taxInput by remember { mutableStateOf("") }
     var discountInput by remember { mutableStateOf("") }
+
+    // Reset form only when shouldReset is true (first open)
+    LaunchedEffect(shouldReset) {
+        if (shouldReset) {
+            viewModel.resetForm()
+        }
+    }
 
     // Process pending client selection using version counter
     LaunchedEffect(clientSelectionVersion) {
@@ -148,52 +157,57 @@ fun CreateInvoiceScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Invoice name #",
-                            fontSize = 12.sp,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        OutlinedTextField(
-                            value = invoiceNumber,
-                            onValueChange = { },
-                            enabled = false,
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = Color.Black,
-                                disabledBorderColor = Color(0xFFE0E0E0),
-                                disabledContainerColor = Color(0xFFF5F5F5)
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
+                    // Invoice Number Field (editable)
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .border(
+                                width = 1.dp,
+                                color = Color(0xFFE0E0E0),
+                                shape = RoundedCornerShape(8.dp)
                             )
-                        )
-                    }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Due Date",
-                            fontSize = 12.sp,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        OutlinedTextField(
-                            value = dueDate,
-                            onValueChange = { viewModel.setDueDate(it) },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color(0xFF9DEA6E),
-                                unfocusedBorderColor = Color(0xFFE0E0E0)
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 16.sp
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(8.dp)
                             )
-                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            // Label at top
+                            Text(
+                                text = "Invoice name #",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+
+                            // Editable value field
+                            BasicTextField(
+                                value = invoiceNumber,
+                                onValueChange = { viewModel.setInvoiceNumber(it) },
+                                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = Color.Black
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 4.dp, bottom = 16.dp)
+                            )
+                        }
                     }
+
+                    // Due Date Field
+                    DatePickerField(
+                        label = "Due Date",
+                        value = dueDate,
+                        onValueChange = { viewModel.setDueDate(it) },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -208,9 +222,61 @@ fun CreateInvoiceScreen(
                 // Add Product or Service Button
                 NavigationButton(
                     icon = Icons.Default.Add,
-                    text = if (lineItems.isEmpty()) "Add Product or Service" else "${lineItems.size} item(s) added",
+                    text = "Add Product or Service",
                     onClick = onNavigateToSelectProduct
                 )
+
+                // Items Section (below the button)
+                if (lineItems.isNotEmpty()) {
+                    Text(
+                        text = "Items",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                    )
+
+                    lineItems.forEachIndexed { index, item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = item.productService.name,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp
+                                )
+                                Text(
+                                    text = "${item.quantity} x $${String.format("%.2f", item.productService.pricePerUnit)}",
+                                    fontSize = 12.sp,
+                                    color = Color.Gray
+                                )
+                                Text(
+                                    text = "Total: $${String.format("%.2f", item.lineTotal)}",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                            IconButton(onClick = { viewModel.removeLineItem(index) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Remove",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+                        if (index < lineItems.size - 1) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 // Tax Button
                 NavigationButton(

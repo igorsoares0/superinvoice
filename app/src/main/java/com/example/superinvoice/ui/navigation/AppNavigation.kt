@@ -54,6 +54,7 @@ fun AppNavigation() {
     var pendingProductSelection by remember { mutableStateOf<com.example.superinvoice.data.ProductService?>(null) }
     var productSelectionVersion by remember { mutableIntStateOf(0) }
     var clientSelectionVersion by remember { mutableIntStateOf(0) }
+    var shouldResetCreateInvoice by remember { mutableStateOf(false) }
 
     // Navigate to a screen and add to history
     fun navigateTo(screen: Screen) {
@@ -90,7 +91,10 @@ fun AppNavigation() {
 
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
-            onNavigateToCreateInvoice = { navigateTo(Screen.CREATE_INVOICE) },
+            onNavigateToCreateInvoice = {
+                shouldResetCreateInvoice = true
+                navigateTo(Screen.CREATE_INVOICE)
+            },
             onNavigateToEditInvoice = { invoiceId -> navigateToEditInvoice(invoiceId) },
             onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
             onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
@@ -107,16 +111,22 @@ fun AppNavigation() {
             }
         )
         Screen.CREATE_INVOICE -> CreateInvoiceScreen(
-            onClose = { navigateBack() },
+            onClose = {
+                shouldResetCreateInvoice = false
+                navigateBack()
+            },
             onSave = {
+                shouldResetCreateInvoice = false
                 navigationStack = emptyList()
                 currentScreen = Screen.HOME
             },
             onNavigateToSelectClient = {
+                shouldResetCreateInvoice = false
                 isSelectingForInvoice = true
                 navigateTo(Screen.CLIENTS)
             },
             onNavigateToSelectProduct = {
+                shouldResetCreateInvoice = false
                 isSelectingForInvoice = true
                 navigateTo(Screen.PRODUCTS_SERVICES)
             },
@@ -125,7 +135,8 @@ fun AppNavigation() {
             clientSelectionVersion = clientSelectionVersion,
             productSelectionVersion = productSelectionVersion,
             onClientSelectionProcessed = { pendingClientSelection = null },
-            onProductSelectionProcessed = { pendingProductSelection = null }
+            onProductSelectionProcessed = { pendingProductSelection = null },
+            shouldReset = shouldResetCreateInvoice
         )
         Screen.CLIENTS -> ClientsScreen(
             onClose = {

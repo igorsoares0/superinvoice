@@ -42,38 +42,46 @@ fun DatePickerField(
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
 
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Black,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE0E0E0),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .clickable { showDatePicker = true }
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-        ) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = Color(0xFFE0E0E0),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clickable { showDatePicker = true }
+    ) {
+        // Label floating at top
+        if (value.isNotEmpty()) {
             Text(
-                text = value.ifEmpty { "Select date" },
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-                color = if (value.isEmpty()) Color.Gray else Color.Black
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 8.dp)
             )
         }
+
+        // Value or placeholder
+        Text(
+            text = if (value.isEmpty()) label else value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (value.isEmpty()) FontWeight.Normal else FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = if (value.isEmpty()) Color.Gray else Color.Black,
+            modifier = Modifier.padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = if (value.isEmpty()) 16.dp else 28.dp,
+                bottom = 16.dp
+            )
+        )
     }
 
     if (showDatePicker) {

@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 data class LineItem(
@@ -80,6 +83,7 @@ class CreateInvoiceViewModel @Inject constructor(
 
     init {
         generateInvoiceNumber()
+        setCurrentDateAsDueDate()
     }
 
     private fun generateInvoiceNumber() {
@@ -87,6 +91,12 @@ class CreateInvoiceViewModel @Inject constructor(
             val number = invoiceRepository.generateNextInvoiceNumber()
             _invoiceNumber.value = number
         }
+    }
+
+    private fun setCurrentDateAsDueDate() {
+        val dateFormat = SimpleDateFormat("MMM, dd", Locale.getDefault())
+        val currentDate = dateFormat.format(Date()).lowercase()
+        _dueDate.value = currentDate
     }
 
     fun setInvoiceNumber(value: String) {
@@ -193,13 +203,12 @@ class CreateInvoiceViewModel @Inject constructor(
             }
 
             invoiceRepository.insertInvoiceWithItems(invoice, items)
+            resetForm()
             onSuccess()
         }
     }
 
     fun resetForm() {
-        _invoiceNumber.value = ""
-        _dueDate.value = ""
         _notes.value = ""
         _tax.value = ""
         _discount.value = ""
@@ -208,5 +217,7 @@ class CreateInvoiceViewModel @Inject constructor(
         _lineItems.value = emptyList()
         _subtotal.value = 0.0
         _totalAmount.value = 0.0
+        generateInvoiceNumber()
+        setCurrentDateAsDueDate()
     }
 }
