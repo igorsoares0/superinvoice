@@ -48,6 +48,12 @@ fun AppNavigation() {
     var currentScreen by remember { mutableStateOf(Screen.HOME) }
     var selectedBottomNavItem by remember { mutableIntStateOf(0) }
     var navigationStack by remember { mutableStateOf(listOf<Screen>()) }
+    var selectedInvoiceId by remember { mutableIntStateOf(0) }
+    var isSelectingForInvoice by remember { mutableStateOf(false) }
+    var pendingClientSelection by remember { mutableStateOf<com.example.superinvoice.data.Client?>(null) }
+    var pendingProductSelection by remember { mutableStateOf<com.example.superinvoice.data.ProductService?>(null) }
+    var productSelectionVersion by remember { mutableIntStateOf(0) }
+    var clientSelectionVersion by remember { mutableIntStateOf(0) }
 
     // Navigate to a screen and add to history
     fun navigateTo(screen: Screen) {
@@ -55,6 +61,12 @@ fun AppNavigation() {
             navigationStack = navigationStack + currentScreen
             currentScreen = screen
         }
+    }
+
+    // Navigate to edit invoice with ID
+    fun navigateToEditInvoice(invoiceId: Int) {
+        selectedInvoiceId = invoiceId
+        navigateTo(Screen.EDIT_INVOICE)
     }
 
     // Navigate back to previous screen
@@ -79,7 +91,7 @@ fun AppNavigation() {
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
             onNavigateToCreateInvoice = { navigateTo(Screen.CREATE_INVOICE) },
-            onNavigateToEditInvoice = { navigateTo(Screen.EDIT_INVOICE) },
+            onNavigateToEditInvoice = { invoiceId -> navigateToEditInvoice(invoiceId) },
             onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
             onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
             selectedBottomNavItem = selectedBottomNavItem,
@@ -100,30 +112,58 @@ fun AppNavigation() {
                 navigationStack = emptyList()
                 currentScreen = Screen.HOME
             },
-            onNavigateToClients = { navigateTo(Screen.CLIENTS) },
-            onNavigateToProductsServices = { navigateTo(Screen.PRODUCTS_SERVICES) }
+            onNavigateToSelectClient = {
+                isSelectingForInvoice = true
+                navigateTo(Screen.CLIENTS)
+            },
+            onNavigateToSelectProduct = {
+                isSelectingForInvoice = true
+                navigateTo(Screen.PRODUCTS_SERVICES)
+            },
+            pendingClientSelection = pendingClientSelection,
+            pendingProductSelection = pendingProductSelection,
+            clientSelectionVersion = clientSelectionVersion,
+            productSelectionVersion = productSelectionVersion,
+            onClientSelectionProcessed = { pendingClientSelection = null },
+            onProductSelectionProcessed = { pendingProductSelection = null }
         )
         Screen.CLIENTS -> ClientsScreen(
-            onClose = { navigateBack() },
-            onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) }
+            onClose = {
+                isSelectingForInvoice = false
+                navigateBack()
+            },
+            onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
+            onClientSelected = if (isSelectingForInvoice) {
+                { client: com.example.superinvoice.data.Client ->
+                    pendingClientSelection = client
+                    clientSelectionVersion++
+                    isSelectingForInvoice = false
+                    navigateBack()
+                }
+            } else null
         )
         Screen.ADD_CLIENT -> AddClientScreen(
             onClose = { navigateBack() },
-            onSave = {
-                navigationStack = emptyList()
-                currentScreen = Screen.HOME
-            }
+            onSave = { navigateBack() }
         )
         Screen.PRODUCTS_SERVICES -> ProductsServicesScreen(
-            onClose = { navigateBack() },
-            onNavigateToAddProductService = { navigateTo(Screen.ADD_PRODUCT) }
+            onClose = {
+                isSelectingForInvoice = false
+                navigateBack()
+            },
+            onNavigateToAddProductService = { navigateTo(Screen.ADD_PRODUCT) },
+            onProductSelected = if (isSelectingForInvoice) {
+                { product: com.example.superinvoice.data.ProductService ->
+                    pendingProductSelection = product
+                    productSelectionVersion++
+                    isSelectingForInvoice = false
+                    navigateBack()
+                }
+            } else null
         )
         Screen.ADD_PRODUCT -> AddProductScreen(
             onClose = { navigateBack() },
-            onSave = {
-                navigationStack = emptyList()
-                currentScreen = Screen.HOME
-            }
+            onSave = { navigateBack() }
         )
         Screen.SETTINGS -> SettingsScreen(
             selectedBottomNavItem = selectedBottomNavItem,
@@ -151,16 +191,26 @@ fun AppNavigation() {
             onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) }
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
+            invoiceId = selectedInvoiceId,
             onClose = { navigateBack() },
-            onSaveChanges = {
+            onSave = {
                 navigationStack = emptyList()
                 currentScreen = Screen.HOME
             },
-            onPreview = { navigateTo(Screen.INVOICE_PREVIEW) },
-            onDelete = {
-                navigationStack = emptyList()
-                currentScreen = Screen.HOME
-            }
+            onNavigateToSelectClient = {
+                isSelectingForInvoice = true
+                navigateTo(Screen.CLIENTS)
+            },
+            onNavigateToSelectProduct = {
+                isSelectingForInvoice = true
+                navigateTo(Screen.PRODUCTS_SERVICES)
+            },
+            pendingClientSelection = pendingClientSelection,
+            pendingProductSelection = pendingProductSelection,
+            clientSelectionVersion = clientSelectionVersion,
+            productSelectionVersion = productSelectionVersion,
+            onClientSelectionProcessed = { pendingClientSelection = null },
+            onProductSelectionProcessed = { pendingProductSelection = null }
         )
         Screen.INVOICE_TEMPLATE -> InvoiceTemplateScreen(
             onClose = { navigateBack() }

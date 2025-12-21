@@ -32,39 +32,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.ui.components.ClientCard
 import com.example.superinvoice.ui.components.ClientSearchBar
+import com.example.superinvoice.ui.components.EmptyState
+import com.example.superinvoice.ui.viewmodel.ClientsViewModel
 
 @Composable
 fun ClientsScreen(
     onClose: () -> Unit,
-    onNavigateToAddClient: () -> Unit = {}
+    onNavigateToAddClient: () -> Unit = {},
+    onClientSelected: ((Client) -> Unit)? = null,
+    viewModel: ClientsViewModel = hiltViewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val clients by viewModel.clients.collectAsStateWithLifecycle()
 
-    val sampleClients = remember {
-        listOf(
-            Client(
-                id = 1,
-                name = "John",
-                email = "john@gmail.com",
-                phone = "549999999999"
-            ),
-            Client(
-                id = 2,
-                name = "John",
-                email = "john@gmail.com",
-                phone = "549999999999"
-            )
-        )
-    }
-
-    val filteredClients = sampleClients.filter {
+    val filteredClients = clients.filter {
         it.name.contains(searchQuery, ignoreCase = true) ||
                 it.email.contains(searchQuery, ignoreCase = true) ||
                 it.phone.contains(searchQuery, ignoreCase = true)
     }
+
+    val isSelectionMode = onClientSelected != null
 
     Box(
         modifier = Modifier
@@ -112,14 +104,29 @@ fun ClientsScreen(
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(filteredClients) { client ->
-                    ClientCard(
-                        client = client,
-                        onMenuClick = { }
-                    )
+            if (filteredClients.isEmpty()) {
+                EmptyState(
+                    title = if (searchQuery.isEmpty()) "No clients yet" else "No clients found",
+                    message = if (searchQuery.isEmpty())
+                        "Tap the + button to add your first client and start creating invoices."
+                    else
+                        "No clients match your search. Try a different keyword."
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(filteredClients) { client ->
+                        ClientCard(
+                            client = client,
+                            onClick = if (isSelectionMode) {
+                                { onClientSelected?.invoke(client) }
+                            } else null,
+                            onDelete = if (!isSelectionMode) {
+                                { viewModel.deleteClient(client) }
+                            } else null
+                        )
+                    }
                 }
             }
         }

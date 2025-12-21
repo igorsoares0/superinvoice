@@ -38,13 +38,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
+import com.example.superinvoice.ui.viewmodel.ClientsViewModel
 
 @Composable
 fun AddClientScreen(
     onClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: ClientsViewModel = hiltViewModel()
 ) {
     var clientName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -194,7 +197,16 @@ fun AddClientScreen(
                 }
 
                 Button(
-                    onClick = onSave,
+                    onClick = {
+                        if (clientName.isNotBlank()) {
+                            viewModel.addClient(
+                                name = clientName,
+                                email = email,
+                                phone = phone
+                            )
+                            onSave()
+                        }
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(52.dp),
@@ -202,7 +214,8 @@ fun AddClientScreen(
                         containerColor = Color(0xFF9DEA6E),
                         contentColor = Color.Black
                     ),
-                    shape = RoundedCornerShape(26.dp)
+                    shape = RoundedCornerShape(26.dp),
+                    enabled = clientName.isNotBlank()
                 ) {
                     Text(
                         text = "Save",

@@ -36,13 +36,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
+import com.example.superinvoice.ui.viewmodel.ProductsServicesViewModel
 
 @Composable
 fun AddProductScreen(
     onClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: ProductsServicesViewModel = hiltViewModel()
 ) {
     var productName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -175,7 +178,16 @@ fun AddProductScreen(
                 }
 
                 Button(
-                    onClick = onSave,
+                    onClick = {
+                        val priceValue = price.toDoubleOrNull()
+                        if (productName.isNotBlank() && priceValue != null && priceValue > 0) {
+                            viewModel.addProductService(
+                                name = productName,
+                                pricePerUnit = priceValue
+                            )
+                            onSave()
+                        }
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(52.dp),
@@ -183,7 +195,8 @@ fun AddProductScreen(
                         containerColor = Color(0xFF9DEA6E),
                         contentColor = Color.Black
                     ),
-                    shape = RoundedCornerShape(26.dp)
+                    shape = RoundedCornerShape(26.dp),
+                    enabled = productName.isNotBlank() && price.toDoubleOrNull() != null
                 ) {
                     Text(
                         text = "Save",

@@ -22,7 +22,8 @@ fun InvoiceInputField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Column(modifier = modifier) {
         Text(
@@ -35,6 +36,7 @@ fun InvoiceInputField(
         TextField(
             value = value,
             onValueChange = onValueChange,
+            enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
@@ -43,16 +45,19 @@ fun InvoiceInputField(
                     shape = RoundedCornerShape(8.dp)
                 )
                 .background(
-                    color = Color.White,
+                    color = if (enabled) Color.White else Color(0xFFF5F5F5),
                     shape = RoundedCornerShape(8.dp)
                 ),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color(0xFFF5F5F5),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
                 focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black
+                unfocusedTextColor = Color.Black,
+                disabledTextColor = Color.Gray
             ),
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.SemiBold,

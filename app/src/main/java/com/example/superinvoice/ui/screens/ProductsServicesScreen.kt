@@ -37,34 +37,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.superinvoice.data.ProductService
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.superinvoice.ui.components.EmptyState
 import com.example.superinvoice.ui.components.ProductServiceCard
+import com.example.superinvoice.ui.viewmodel.ProductsServicesViewModel
 
 @Composable
 fun ProductsServicesScreen(
     onClose: () -> Unit,
-    onNavigateToAddProductService: () -> Unit = {}
+    onNavigateToAddProductService: () -> Unit = {},
+    onProductSelected: ((com.example.superinvoice.data.ProductService) -> Unit)? = null,
+    viewModel: ProductsServicesViewModel = hiltViewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val productsServices by viewModel.productsServices.collectAsStateWithLifecycle()
 
-    val sampleProducts = remember {
-        listOf(
-            ProductService(
-                id = 1,
-                name = "Notebook",
-                pricePerUnit = 889.00
-            ),
-            ProductService(
-                id = 2,
-                name = "Website creation",
-                pricePerUnit = 500.00
-            )
-        )
-    }
-
-    val filteredProducts = sampleProducts.filter {
+    val filteredProducts = productsServices.filter {
         it.name.contains(searchQuery, ignoreCase = true)
     }
+
+    val isSelectionMode = onProductSelected != null
 
     Box(
         modifier = Modifier
@@ -150,14 +143,29 @@ fun ProductsServicesScreen(
                 singleLine = true
             )
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(filteredProducts) { product ->
-                    ProductServiceCard(
-                        productService = product,
-                        onMenuClick = { }
-                    )
+            if (filteredProducts.isEmpty()) {
+                EmptyState(
+                    title = if (searchQuery.isEmpty()) "No products or services yet" else "No products found",
+                    message = if (searchQuery.isEmpty())
+                        "Tap the + button to add your first product or service to include in invoices."
+                    else
+                        "No products or services match your search. Try a different keyword."
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(filteredProducts) { product ->
+                        ProductServiceCard(
+                            productService = product,
+                            onClick = if (isSelectionMode) {
+                                { onProductSelected?.invoke(product) }
+                            } else null,
+                            onDelete = if (!isSelectionMode) {
+                                { viewModel.deleteProductService(product) }
+                            } else null
+                        )
+                    }
                 }
             }
         }
