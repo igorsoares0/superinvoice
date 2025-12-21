@@ -145,6 +145,14 @@ class EditInvoiceViewModel @Inject constructor(
         _status.value = status
     }
 
+    fun togglePaidStatus() {
+        _status.value = if (_status.value == InvoiceStatus.PAID) {
+            InvoiceStatus.DRAFT
+        } else {
+            InvoiceStatus.PAID
+        }
+    }
+
     fun setSelectedClient(client: Client?) {
         _selectedClient.value = client
     }
