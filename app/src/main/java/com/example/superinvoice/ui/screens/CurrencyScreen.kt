@@ -28,16 +28,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.superinvoice.ui.viewmodel.CurrencyViewModel
 
 data class Currency(
     val code: String,
@@ -48,9 +48,10 @@ data class Currency(
 @Composable
 fun CurrencyScreen(
     onClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: CurrencyViewModel = hiltViewModel()
 ) {
-    var selectedCurrency by remember { mutableStateOf("USD") }
+    val selectedCurrency by viewModel.selectedCurrency.collectAsStateWithLifecycle()
 
     val currencies = listOf(
         Currency("USD", "United States Dollar", "$"),
@@ -113,7 +114,7 @@ fun CurrencyScreen(
                     CurrencyOption(
                         currency = currency,
                         isSelected = selectedCurrency == currency.code,
-                        onClick = { selectedCurrency = currency.code }
+                        onClick = { viewModel.setSelectedCurrency(currency.code) }
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -123,7 +124,11 @@ fun CurrencyScreen(
 
             // Save Button
             Button(
-                onClick = onSave,
+                onClick = {
+                    viewModel.saveCurrency {
+                        onSave()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 20.dp)

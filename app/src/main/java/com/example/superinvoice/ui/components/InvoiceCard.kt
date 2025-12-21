@@ -44,6 +44,7 @@ fun InvoiceCard(
     onMenuClick: () -> Unit = {},
     onEdit: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
+    onDownloadPdf: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -130,6 +131,15 @@ fun InvoiceCard(
                     onEdit?.let {
                         DropdownMenuItem(
                             text = { Text("Edit") },
+                            onClick = {
+                                showMenu = false
+                                it()
+                            }
+                        )
+                    }
+                    onDownloadPdf?.let {
+                        DropdownMenuItem(
+                            text = { Text("Download PDF") },
                             onClick = {
                                 showMenu = false
                                 it()

@@ -23,10 +23,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -35,21 +34,23 @@ import androidx.compose.ui.unit.sp
 import com.example.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
 import com.example.superinvoice.ui.components.InvoiceNotesField
+import com.example.superinvoice.ui.viewmodel.PaymentInstructionsViewModel
 
 @Composable
 fun PaymentInstructionsScreen(
     onClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: PaymentInstructionsViewModel = hiltViewModel()
 ) {
-    var bankName by remember { mutableStateOf("") }
-    var accountHolderName by remember { mutableStateOf("") }
-    var accountNumber by remember { mutableStateOf("") }
-    var routingNumber by remember { mutableStateOf("") }
-    var iban by remember { mutableStateOf("") }
-    var swiftCode by remember { mutableStateOf("") }
-    var bankAddress by remember { mutableStateOf("") }
-    var paymentTerms by remember { mutableStateOf("") }
-    var additionalInstructions by remember { mutableStateOf("") }
+    val bankName by viewModel.bankName.collectAsStateWithLifecycle()
+    val accountHolderName by viewModel.accountHolderName.collectAsStateWithLifecycle()
+    val accountNumber by viewModel.accountNumber.collectAsStateWithLifecycle()
+    val routingNumber by viewModel.routingNumber.collectAsStateWithLifecycle()
+    val iban by viewModel.iban.collectAsStateWithLifecycle()
+    val swiftCode by viewModel.swiftCode.collectAsStateWithLifecycle()
+    val bankAddress by viewModel.bankAddress.collectAsStateWithLifecycle()
+    val paymentTerms by viewModel.paymentTerms.collectAsStateWithLifecycle()
+    val additionalInstructions by viewModel.additionalInstructions.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = Color(0xFFFFFFFF)
@@ -96,7 +97,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = bankName,
-                    onValueChange = { bankName = it },
+                    onValueChange = { viewModel.setBankName(it) },
                     placeholder = "Bank Name*",
                     iconRes = R.drawable.ic_notes
                 )
@@ -105,7 +106,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = accountHolderName,
-                    onValueChange = { accountHolderName = it },
+                    onValueChange = { viewModel.setAccountHolderName(it) },
                     placeholder = "Account Holder Name*",
                     icon = Icons.Default.Person
                 )
@@ -114,7 +115,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = accountNumber,
-                    onValueChange = { accountNumber = it },
+                    onValueChange = { viewModel.setAccountNumber(it) },
                     placeholder = "Account Number*",
                     iconRes = R.drawable.ic_notes
                 )
@@ -123,7 +124,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = routingNumber,
-                    onValueChange = { routingNumber = it },
+                    onValueChange = { viewModel.setRoutingNumber(it) },
                     placeholder = "Routing Number",
                     iconRes = R.drawable.ic_notes
                 )
@@ -132,7 +133,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = iban,
-                    onValueChange = { iban = it },
+                    onValueChange = { viewModel.setIban(it) },
                     placeholder = "IBAN",
                     iconRes = R.drawable.ic_notes
                 )
@@ -141,7 +142,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = swiftCode,
-                    onValueChange = { swiftCode = it },
+                    onValueChange = { viewModel.setSwiftCode(it) },
                     placeholder = "SWIFT/BIC Code",
                     iconRes = R.drawable.ic_notes
                 )
@@ -150,7 +151,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = bankAddress,
-                    onValueChange = { bankAddress = it },
+                    onValueChange = { viewModel.setBankAddress(it) },
                     placeholder = "Bank Address",
                     iconRes = R.drawable.ic_address
                 )
@@ -159,7 +160,7 @@ fun PaymentInstructionsScreen(
 
                 ClientInputField(
                     value = paymentTerms,
-                    onValueChange = { paymentTerms = it },
+                    onValueChange = { viewModel.setPaymentTerms(it) },
                     placeholder = "Payment Terms (e.g., Net 30)*",
                     iconRes = R.drawable.ic_notes
                 )
@@ -168,7 +169,7 @@ fun PaymentInstructionsScreen(
 
                 InvoiceNotesField(
                     value = additionalInstructions,
-                    onValueChange = { additionalInstructions = it },
+                    onValueChange = { viewModel.setAdditionalInstructions(it) },
                     placeholder = "Additional Instructions"
                 )
 
@@ -177,7 +178,11 @@ fun PaymentInstructionsScreen(
 
             // Save Button
             Button(
-                onClick = onSave,
+                onClick = {
+                    viewModel.savePaymentInstructions {
+                        onSave()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 20.dp)

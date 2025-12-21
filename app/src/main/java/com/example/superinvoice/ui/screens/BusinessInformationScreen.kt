@@ -27,10 +27,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -38,22 +37,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
+import com.example.superinvoice.ui.viewmodel.BusinessInformationViewModel
 
 @Composable
 fun BusinessInformationScreen(
     onClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: BusinessInformationViewModel = hiltViewModel()
 ) {
-    var businessName by remember { mutableStateOf("") }
-    var ownerName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var website by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
-    var state by remember { mutableStateOf("") }
-    var zipCode by remember { mutableStateOf("") }
-    var taxId by remember { mutableStateOf("") }
+    val businessName by viewModel.businessName.collectAsStateWithLifecycle()
+    val ownerName by viewModel.ownerName.collectAsStateWithLifecycle()
+    val email by viewModel.email.collectAsStateWithLifecycle()
+    val phone by viewModel.phone.collectAsStateWithLifecycle()
+    val website by viewModel.website.collectAsStateWithLifecycle()
+    val address by viewModel.address.collectAsStateWithLifecycle()
+    val city by viewModel.city.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val zipCode by viewModel.zipCode.collectAsStateWithLifecycle()
+    val taxId by viewModel.taxId.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = Color(0xFFFFFFFF)
@@ -99,7 +100,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = businessName,
-                    onValueChange = { businessName = it },
+                    onValueChange = { viewModel.setBusinessName(it) },
                     placeholder = "Business Name*",
                     icon = Icons.Default.Home
                 )
@@ -108,7 +109,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = ownerName,
-                    onValueChange = { ownerName = it },
+                    onValueChange = { viewModel.setOwnerName(it) },
                     placeholder = "Owner Name*",
                     icon = Icons.Default.Person
                 )
@@ -117,7 +118,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { viewModel.setEmail(it) },
                     placeholder = "Email*",
                     icon = Icons.Default.Email
                 )
@@ -126,7 +127,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = phone,
-                    onValueChange = { phone = it },
+                    onValueChange = { viewModel.setPhone(it) },
                     placeholder = "Phone*",
                     icon = Icons.Default.Phone
                 )
@@ -135,7 +136,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = website,
-                    onValueChange = { website = it },
+                    onValueChange = { viewModel.setWebsite(it) },
                     placeholder = "Website",
                     iconRes = R.drawable.ic_notes
                 )
@@ -144,7 +145,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = address,
-                    onValueChange = { address = it },
+                    onValueChange = { viewModel.setAddress(it) },
                     placeholder = "Address*",
                     iconRes = R.drawable.ic_address
                 )
@@ -157,7 +158,7 @@ fun BusinessInformationScreen(
                 ) {
                     ClientInputField(
                         value = city,
-                        onValueChange = { city = it },
+                        onValueChange = { viewModel.setCity(it) },
                         placeholder = "City*",
                         iconRes = R.drawable.ic_address,
                         modifier = Modifier.weight(1f)
@@ -165,7 +166,7 @@ fun BusinessInformationScreen(
 
                     ClientInputField(
                         value = state,
-                        onValueChange = { state = it },
+                        onValueChange = { viewModel.setState(it) },
                         placeholder = "State*",
                         iconRes = R.drawable.ic_address,
                         modifier = Modifier.weight(1f)
@@ -176,7 +177,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = zipCode,
-                    onValueChange = { zipCode = it },
+                    onValueChange = { viewModel.setZipCode(it) },
                     placeholder = "ZIP Code*",
                     iconRes = R.drawable.ic_zipcode
                 )
@@ -185,7 +186,7 @@ fun BusinessInformationScreen(
 
                 ClientInputField(
                     value = taxId,
-                    onValueChange = { taxId = it },
+                    onValueChange = { viewModel.setTaxId(it) },
                     placeholder = "Tax ID / EIN",
                     iconRes = R.drawable.ic_notes
                 )
@@ -195,7 +196,11 @@ fun BusinessInformationScreen(
 
             // Save Button
             Button(
-                onClick = onSave,
+                onClick = {
+                    viewModel.saveBusinessInformation {
+                        onSave()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 20.dp)

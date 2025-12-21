@@ -1,24 +1,34 @@
 package com.example.superinvoice.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.database.entities.InvoiceStatus
+import com.example.superinvoice.data.pdf.InvoicePdfGenerator
+import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
+import com.example.superinvoice.data.repository.SettingsRepository
 import com.example.superinvoice.ui.components.InvoiceFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val invoiceRepository: InvoiceRepository
+    @ApplicationContext private val context: Context,
+    private val invoiceRepository: InvoiceRepository,
+    private val clientRepository: ClientRepository,
+    private val settingsRepository: SettingsRepository,
+    private val pdfGenerator: InvoicePdfGenerator
 ) : ViewModel() {
 
     private val _selectedFilter = MutableStateFlow(InvoiceFilter.PAID)
@@ -47,6 +57,65 @@ class HomeViewModel @Inject constructor(
     fun deleteInvoice(invoice: Invoice) {
         viewModelScope.launch {
             invoiceRepository.deleteInvoice(invoice)
+        }
+    }
+
+    fun downloadInvoicePdf(invoice: Invoice, onSuccess: (String) -> Unit, onError: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                // Get client
+                val client = clientRepository.getClientById(invoice.clientId)
+                if (client == null) {
+                    onError()
+                    return@launch
+                }
+
+                // Get invoice items
+                val items = invoiceRepository.getInvoiceItemsSync(invoice.id)
+
+                // Get business info
+                val businessInfo = InvoicePdfGenerator.BusinessInfo(
+                    businessName = settingsRepository.businessName.first(),
+                    ownerName = settingsRepository.ownerName.first(),
+                    email = settingsRepository.businessEmail.first(),
+                    phone = settingsRepository.businessPhone.first(),
+                    address = settingsRepository.businessAddress.first(),
+                    city = settingsRepository.businessCity.first(),
+                    state = settingsRepository.businessState.first(),
+                    zipCode = settingsRepository.businessZipCode.first(),
+                    taxId = settingsRepository.businessTaxId.first()
+                )
+
+                // Get payment info
+                val paymentInfo = InvoicePdfGenerator.PaymentInfo(
+                    bankName = settingsRepository.bankName.first(),
+                    accountHolderName = settingsRepository.accountHolderName.first(),
+                    accountNumber = settingsRepository.accountNumber.first(),
+                    paymentTerms = settingsRepository.paymentTerms.first()
+                )
+
+                // Get currency
+                val currency = settingsRepository.currency.first()
+
+                // Generate PDF
+                val file = pdfGenerator.generateInvoicePdf(
+                    invoice = invoice,
+                    client = client,
+                    items = items,
+                    businessInfo = businessInfo,
+                    paymentInfo = paymentInfo,
+                    currency = currency
+                )
+
+                if (file != null) {
+                    onSuccess(file.absolutePath)
+                } else {
+                    onError()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onError()
+            }
         }
     }
 }

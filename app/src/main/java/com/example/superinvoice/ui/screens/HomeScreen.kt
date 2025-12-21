@@ -15,10 +15,15 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -46,8 +51,12 @@ fun HomeScreen(
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     val filteredInvoices by viewModel.filteredInvoices.collectAsStateWithLifecycle()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
@@ -127,7 +136,22 @@ fun HomeScreen(
                             invoice = invoice,
                             onClick = { onNavigateToEditInvoice(invoice.id) },
                             onEdit = { onNavigateToEditInvoice(invoice.id) },
-                            onDelete = { viewModel.deleteInvoice(invoice) }
+                            onDelete = { viewModel.deleteInvoice(invoice) },
+                            onDownloadPdf = {
+                                viewModel.downloadInvoicePdf(
+                                    invoice = invoice,
+                                    onSuccess = { path ->
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("PDF saved to Downloads: Invoice_${invoice.number}.pdf")
+                                        }
+                                    },
+                                    onError = {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("Error generating PDF")
+                                        }
+                                    }
+                                )
+                            }
                         )
                     }
                 }
