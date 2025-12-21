@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,10 +92,12 @@ fun DatePickerField(
                 TextButton(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
-                            val calendar = Calendar.getInstance().apply {
+                            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
                                 timeInMillis = millis
                             }
-                            val dateFormat = SimpleDateFormat("MMM, dd", Locale.getDefault())
+                            val dateFormat = SimpleDateFormat("MMM, dd", Locale.getDefault()).apply {
+                                timeZone = TimeZone.getTimeZone("UTC")
+                            }
                             val formattedDate = dateFormat.format(calendar.time).lowercase()
                             onValueChange(formattedDate)
                         }
