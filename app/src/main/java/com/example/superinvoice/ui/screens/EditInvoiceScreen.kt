@@ -61,6 +61,7 @@ fun EditInvoiceScreen(
     onSave: () -> Unit,
     onNavigateToSelectClient: () -> Unit = {},
     onNavigateToSelectProduct: () -> Unit = {},
+    onNavigateToPreview: () -> Unit = {},
     pendingClientSelection: com.example.superinvoice.data.Client? = null,
     pendingProductSelection: com.example.superinvoice.data.ProductService? = null,
     clientSelectionVersion: Int = 0,
@@ -416,7 +417,7 @@ fun EditInvoiceScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(
-                    onClick = { /* TODO: Navigate to preview */ },
+                    onClick = onNavigateToPreview,
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),

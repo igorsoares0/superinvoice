@@ -26,23 +26,51 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.superinvoice.ui.viewmodel.InvoicePreviewViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun InvoicePreviewScreen(
+    invoiceId: Int,
     onClose: () -> Unit,
     onShare: () -> Unit,
-    onSaveAsPdf: () -> Unit
+    onSaveAsPdf: () -> Unit,
+    viewModel: InvoicePreviewViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(invoiceId) {
+        viewModel.loadInvoice(invoiceId)
+    }
+
+    val invoice by viewModel.invoice.collectAsStateWithLifecycle()
+    val client by viewModel.client.collectAsStateWithLifecycle()
+    val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
+
+    val dateFormat = SimpleDateFormat("MM.dd.yyyy", Locale.getDefault())
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
-        containerColor = Color(0xFFFFFFFF)
+        containerColor = Color(0xFFFFFFFF),
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -131,19 +159,19 @@ fun InvoicePreviewScreen(
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = "XYZ Client",
+                                    text = client?.name ?: "",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Black
                                 )
                                 Text(
-                                    text = "XYZ Enterprises Ltd.",
+                                    text = client?.email ?: "",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Black
                                 )
                                 Text(
-                                    text = "123 Business St., Any City",
+                                    text = client?.phone ?: "",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Black
@@ -164,7 +192,7 @@ fun InvoicePreviewScreen(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "820",
+                                        text = invoice?.number ?: "",
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.Black
@@ -181,7 +209,7 @@ fun InvoicePreviewScreen(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "12.19.2024",
+                                        text = invoice?.let { dateFormat.format(Date(it.createdDate)) } ?: "",
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.Black
@@ -198,7 +226,7 @@ fun InvoicePreviewScreen(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "12.19.2024",
+                                        text = invoice?.dueDate ?: "",
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.Black
@@ -282,12 +310,14 @@ fun InvoicePreviewScreen(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         // Table Items
-                        PreviewInvoiceLineItem("Brand consultation", "100", "1", "$100")
-                        PreviewInvoiceLineItem("Logo design", "100", "1", "$100")
-                        PreviewInvoiceLineItem("Website design", "100", "1", "$100")
-                        PreviewInvoiceLineItem("Social media templates", "100", "1", "$100")
-                        PreviewInvoiceLineItem("Brand photography", "100", "1", "$100")
-                        PreviewInvoiceLineItem("Brand guide", "100", "1", "$100")
+                        lineItems.forEach { item ->
+                            PreviewInvoiceLineItem(
+                                description = item.productService.name,
+                                unitPrice = String.format("%.2f", item.productService.pricePerUnit),
+                                quantity = item.quantity.toString(),
+                                total = "$${String.format("%.2f", item.lineTotal)}"
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
@@ -307,32 +337,56 @@ fun InvoicePreviewScreen(
                                     modifier = Modifier.width(80.dp)
                                 )
                                 Text(
-                                    text = "$600",
+                                    text = "$${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.Normal,
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.width(60.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(3.dp))
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "TAX",
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    letterSpacing = 0.8.sp,
-                                    modifier = Modifier.width(80.dp)
-                                )
-                                Text(
-                                    text = "10%",
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    textAlign = TextAlign.End,
-                                    modifier = Modifier.width(60.dp)
-                                )
+                            if ((invoice?.tax ?: 0.0) > 0) {
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "TAX",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        letterSpacing = 0.8.sp,
+                                        modifier = Modifier.width(80.dp)
+                                    )
+                                    Text(
+                                        text = "$${String.format("%.2f", invoice?.tax ?: 0.0)}",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        textAlign = TextAlign.End,
+                                        modifier = Modifier.width(60.dp)
+                                    )
+                                }
+                            }
+                            if ((invoice?.discount ?: 0.0) > 0) {
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "DISCOUNT",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        letterSpacing = 0.8.sp,
+                                        modifier = Modifier.width(80.dp)
+                                    )
+                                    Text(
+                                        text = "-$${String.format("%.2f", invoice?.discount ?: 0.0)}",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        textAlign = TextAlign.End,
+                                        modifier = Modifier.width(60.dp)
+                                    )
+                                }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
                             Row(
@@ -347,7 +401,7 @@ fun InvoicePreviewScreen(
                                     modifier = Modifier.width(80.dp)
                                 )
                                 Text(
-                                    text = "$660",
+                                    text = "$${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     textAlign = TextAlign.End,
@@ -400,7 +454,20 @@ fun InvoicePreviewScreen(
                 }
 
                 Button(
-                    onClick = onSaveAsPdf,
+                    onClick = {
+                        viewModel.downloadInvoicePdf(
+                            onSuccess = { path ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("PDF saved to: $path")
+                                }
+                            },
+                            onError = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Failed to save PDF")
+                                }
+                            }
+                        )
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),

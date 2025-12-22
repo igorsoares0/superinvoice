@@ -216,6 +216,9 @@ fun AppNavigation() {
                 isSelectingForInvoice = true
                 navigateTo(Screen.PRODUCTS_SERVICES)
             },
+            onNavigateToPreview = {
+                navigateTo(Screen.INVOICE_PREVIEW)
+            },
             pendingClientSelection = pendingClientSelection,
             pendingProductSelection = pendingProductSelection,
             clientSelectionVersion = clientSelectionVersion,
@@ -227,6 +230,7 @@ fun AppNavigation() {
             onClose = { navigateBack() }
         )
         Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
+            invoiceId = selectedInvoiceId,
             onClose = { navigateBack() },
             onShare = { },
             onSaveAsPdf = { }

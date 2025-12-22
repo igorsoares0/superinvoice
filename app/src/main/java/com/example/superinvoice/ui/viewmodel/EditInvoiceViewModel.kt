@@ -78,10 +78,10 @@ class EditInvoiceViewModel @Inject constructor(
     private val _totalAmount = MutableStateFlow(0.0)
     val totalAmount: StateFlow<Double> = _totalAmount.asStateFlow()
 
-    private var isInvoiceLoaded = false
+    private var loadedInvoiceId: Int? = null
 
     fun loadInvoice(invoiceId: Int) {
-        if (isInvoiceLoaded) return
+        if (loadedInvoiceId == invoiceId) return
 
         viewModelScope.launch {
             val loadedInvoice = invoiceRepository.getInvoiceById(invoiceId)
@@ -110,7 +110,7 @@ class EditInvoiceViewModel @Inject constructor(
                 }.filterNotNull()
 
                 calculateSubtotal()
-                isInvoiceLoaded = true
+                loadedInvoiceId = invoiceId
             }
         }
     }
