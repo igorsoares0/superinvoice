@@ -55,6 +55,7 @@ fun AppNavigation() {
     var productSelectionVersion by remember { mutableIntStateOf(0) }
     var clientSelectionVersion by remember { mutableIntStateOf(0) }
     var shouldResetCreateInvoice by remember { mutableStateOf(false) }
+    var previewVersion by remember { mutableIntStateOf(0) }
 
     // Navigate to a screen and add to history
     fun navigateTo(screen: Screen) {
@@ -217,6 +218,7 @@ fun AppNavigation() {
                 navigateTo(Screen.PRODUCTS_SERVICES)
             },
             onNavigateToPreview = {
+                previewVersion++
                 navigateTo(Screen.INVOICE_PREVIEW)
             },
             pendingClientSelection = pendingClientSelection,
@@ -231,6 +233,7 @@ fun AppNavigation() {
         )
         Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
             invoiceId = selectedInvoiceId,
+            previewVersion = previewVersion,
             onClose = { navigateBack() },
             onShare = { },
             onSaveAsPdf = { }

@@ -42,11 +42,7 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _lineItems = MutableStateFlow<List<InvoicePreviewLineItem>>(emptyList())
     val lineItems: StateFlow<List<InvoicePreviewLineItem>> = _lineItems.asStateFlow()
 
-    private var loadedInvoiceId: Int? = null
-
     fun loadInvoice(invoiceId: Int) {
-        if (loadedInvoiceId == invoiceId) return
-
         viewModelScope.launch {
             val loadedInvoice = invoiceRepository.getInvoiceById(invoiceId)
             if (loadedInvoice != null) {
@@ -65,8 +61,6 @@ class InvoicePreviewViewModel @Inject constructor(
                         )
                     }
                 }.filterNotNull()
-
-                loadedInvoiceId = invoiceId
             }
         }
     }

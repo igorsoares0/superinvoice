@@ -51,12 +51,13 @@ import java.util.Locale
 @Composable
 fun InvoicePreviewScreen(
     invoiceId: Int,
+    previewVersion: Int,
     onClose: () -> Unit,
     onShare: () -> Unit,
     onSaveAsPdf: () -> Unit,
     viewModel: InvoicePreviewViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(invoiceId) {
+    LaunchedEffect(invoiceId, previewVersion) {
         viewModel.loadInvoice(invoiceId)
     }
 
