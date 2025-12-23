@@ -53,6 +53,7 @@ import com.example.superinvoice.ui.components.DatePickerField
 import com.example.superinvoice.ui.components.InvoiceInputField
 import com.example.superinvoice.ui.components.InvoiceNotesField
 import com.example.superinvoice.ui.viewmodel.CreateInvoiceViewModel
+import com.example.superinvoice.util.getCurrencySymbol
 
 @Composable
 fun CreateInvoiceScreen(
@@ -74,10 +75,13 @@ fun CreateInvoiceScreen(
     val notes by viewModel.notes.collectAsStateWithLifecycle()
     val tax by viewModel.tax.collectAsStateWithLifecycle()
     val discount by viewModel.discount.collectAsStateWithLifecycle()
+    val currency by viewModel.currency.collectAsStateWithLifecycle()
     val selectedClient by viewModel.selectedClient.collectAsStateWithLifecycle()
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
     val subtotal by viewModel.subtotal.collectAsStateWithLifecycle()
     val totalAmount by viewModel.totalAmount.collectAsStateWithLifecycle()
+
+    val currencySymbol = getCurrencySymbol(currency)
 
     var showTaxDialog by remember { mutableStateOf(false) }
     var showDiscountDialog by remember { mutableStateOf(false) }
@@ -251,12 +255,12 @@ fun CreateInvoiceScreen(
                                     fontSize = 14.sp
                                 )
                                 Text(
-                                    text = "${item.quantity} x $${String.format("%.2f", item.productService.pricePerUnit)}",
+                                    text = "${item.quantity} x $currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}",
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
                                 Text(
-                                    text = "Total: $${String.format("%.2f", item.lineTotal)}",
+                                    text = "Total: $currencySymbol${String.format("%.2f", item.lineTotal)}",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
                                     modifier = Modifier.padding(top = 4.dp)
@@ -283,7 +287,7 @@ fun CreateInvoiceScreen(
                     icon = null,
                     iconText = "%",
                     text = if (tax.isNotEmpty() && tax.toDoubleOrNull() != null && tax.toDouble() > 0)
-                        "Tax: $$tax" else "Tax",
+                        "Tax: $currencySymbol$tax" else "Tax",
                     onClick = {
                         taxInput = tax
                         showTaxDialog = true
@@ -295,7 +299,7 @@ fun CreateInvoiceScreen(
                     icon = null,
                     iconText = "%",
                     text = if (discount.isNotEmpty() && discount.toDoubleOrNull() != null && discount.toDouble() > 0)
-                        "Discount: $$discount" else "Discount",
+                        "Discount: $currencySymbol$discount" else "Discount",
                     onClick = {
                         discountInput = discount
                         showDiscountDialog = true
@@ -348,7 +352,7 @@ fun CreateInvoiceScreen(
                         color = Color.Black
                     )
                     Text(
-                        text = "USD $${String.format("%.2f", totalAmount)}",
+                        text = "$currency $currencySymbol${String.format("%.2f", totalAmount)}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black

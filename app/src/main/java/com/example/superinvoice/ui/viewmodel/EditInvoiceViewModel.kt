@@ -10,11 +10,13 @@ import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
 import com.example.superinvoice.data.repository.ProductServiceRepository
+import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,7 +26,8 @@ import javax.inject.Inject
 class EditInvoiceViewModel @Inject constructor(
     private val invoiceRepository: InvoiceRepository,
     private val clientRepository: ClientRepository,
-    private val productServiceRepository: ProductServiceRepository
+    private val productServiceRepository: ProductServiceRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _invoice = MutableStateFlow<Invoice?>(null)
@@ -79,6 +82,17 @@ class EditInvoiceViewModel @Inject constructor(
     val totalAmount: StateFlow<Double> = _totalAmount.asStateFlow()
 
     private var loadedInvoiceId: Int? = null
+
+    init {
+        loadCurrencyFromSettings()
+    }
+
+    private fun loadCurrencyFromSettings() {
+        viewModelScope.launch {
+            val currency = settingsRepository.currency.first()
+            _currency.value = currency
+        }
+    }
 
     fun loadInvoice(invoiceId: Int) {
         if (loadedInvoiceId == invoiceId) return

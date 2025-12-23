@@ -10,11 +10,13 @@ import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
 import com.example.superinvoice.data.repository.ProductServiceRepository
+import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -33,7 +35,8 @@ data class LineItem(
 class CreateInvoiceViewModel @Inject constructor(
     private val invoiceRepository: InvoiceRepository,
     private val clientRepository: ClientRepository,
-    private val productServiceRepository: ProductServiceRepository
+    private val productServiceRepository: ProductServiceRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _invoiceNumber = MutableStateFlow("")
@@ -84,6 +87,14 @@ class CreateInvoiceViewModel @Inject constructor(
     init {
         generateInvoiceNumber()
         setCurrentDateAsDueDate()
+        loadCurrency()
+    }
+
+    private fun loadCurrency() {
+        viewModelScope.launch {
+            val currency = settingsRepository.currency.first()
+            _currency.value = currency
+        }
     }
 
     private fun generateInvoiceNumber() {
@@ -212,12 +223,12 @@ class CreateInvoiceViewModel @Inject constructor(
         _notes.value = ""
         _tax.value = ""
         _discount.value = ""
-        _currency.value = "USD"
         _selectedClient.value = null
         _lineItems.value = emptyList()
         _subtotal.value = 0.0
         _totalAmount.value = 0.0
         generateInvoiceNumber()
         setCurrentDateAsDueDate()
+        loadCurrency()
     }
 }

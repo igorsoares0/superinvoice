@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.ui.components.DatePickerField
 import com.example.superinvoice.ui.viewmodel.EditInvoiceViewModel
+import com.example.superinvoice.util.getCurrencySymbol
 
 @Composable
 fun EditInvoiceScreen(
@@ -79,11 +80,14 @@ fun EditInvoiceScreen(
     val notes by viewModel.notes.collectAsStateWithLifecycle()
     val tax by viewModel.tax.collectAsStateWithLifecycle()
     val discount by viewModel.discount.collectAsStateWithLifecycle()
+    val currency by viewModel.currency.collectAsStateWithLifecycle()
     val selectedClient by viewModel.selectedClient.collectAsStateWithLifecycle()
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
     val subtotal by viewModel.subtotal.collectAsStateWithLifecycle()
     val totalAmount by viewModel.totalAmount.collectAsStateWithLifecycle()
     val invoice by viewModel.invoice.collectAsStateWithLifecycle()
+
+    val currencySymbol = getCurrencySymbol(currency)
 
     var showTaxDialog by remember { mutableStateOf(false) }
     var showDiscountDialog by remember { mutableStateOf(false) }
@@ -252,12 +256,12 @@ fun EditInvoiceScreen(
                                     fontSize = 14.sp
                                 )
                                 Text(
-                                    text = "${item.quantity} x $${String.format("%.2f", item.productService.pricePerUnit)}",
+                                    text = "${item.quantity} x $currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}",
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
                                 Text(
-                                    text = "Total: $${String.format("%.2f", item.lineTotal)}",
+                                    text = "Total: $currencySymbol${String.format("%.2f", item.lineTotal)}",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
                                     modifier = Modifier.padding(top = 4.dp)
@@ -384,7 +388,7 @@ fun EditInvoiceScreen(
                         color = Color.Black
                     )
                     Text(
-                        text = "USD $${String.format("%.2f", totalAmount)}",
+                        text = "$currency $currencySymbol${String.format("%.2f", totalAmount)}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black

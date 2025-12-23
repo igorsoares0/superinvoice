@@ -12,6 +12,7 @@ import android.os.Environment
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.InvoiceItem
+import com.example.superinvoice.util.getCurrencySymbol
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
@@ -219,11 +220,12 @@ class InvoicePdfGenerator @Inject constructor(
         yPos += 15f
 
         // Table Items
+        val currencySymbol = getCurrencySymbol(currency)
         items.forEach { item ->
             canvas.drawText(item.productServiceName, margin, yPos, bodyPaint)
-            canvas.drawText("$${String.format("%.2f", item.pricePerUnit)}", pageWidth - margin - 280f, yPos, bodyPaint)
+            canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}", pageWidth - margin - 280f, yPos, bodyPaint)
             canvas.drawText("${item.quantity}", pageWidth - margin - 150f, yPos, bodyPaint)
-            canvas.drawText("$${String.format("%.2f", item.lineTotal)}", pageWidth - margin - 80f, yPos, bodyPaint)
+            canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}", pageWidth - margin - 80f, yPos, bodyPaint)
             yPos += 20f
         }
 
@@ -234,18 +236,18 @@ class InvoicePdfGenerator @Inject constructor(
         val totalValueX = pageWidth - margin - 80f
 
         canvas.drawText("SUBTOTAL", totalX, yPos, sectionTitlePaint)
-        canvas.drawText("$${String.format("%.2f", invoice.subtotal)}", totalValueX, yPos, bodyPaint)
+        canvas.drawText("$currencySymbol${String.format("%.2f", invoice.subtotal)}", totalValueX, yPos, bodyPaint)
         yPos += 15f
 
         if (invoice.tax > 0) {
             canvas.drawText("TAX", totalX, yPos, sectionTitlePaint)
-            canvas.drawText("$${String.format("%.2f", invoice.tax)}", totalValueX, yPos, bodyPaint)
+            canvas.drawText("$currencySymbol${String.format("%.2f", invoice.tax)}", totalValueX, yPos, bodyPaint)
             yPos += 15f
         }
 
         if (invoice.discount > 0) {
             canvas.drawText("DISCOUNT", totalX, yPos, sectionTitlePaint)
-            canvas.drawText("-$${String.format("%.2f", invoice.discount)}", totalValueX, yPos, bodyPaint)
+            canvas.drawText("-$currencySymbol${String.format("%.2f", invoice.discount)}", totalValueX, yPos, bodyPaint)
             yPos += 15f
         }
 
@@ -256,7 +258,7 @@ class InvoicePdfGenerator @Inject constructor(
         }
 
         canvas.drawText("TOTAL", totalX, yPos, totalPaint)
-        canvas.drawText("$${String.format("%.2f", invoice.totalAmount)}", totalValueX, yPos, totalPaint)
+        canvas.drawText("$currencySymbol${String.format("%.2f", invoice.totalAmount)}", totalValueX, yPos, totalPaint)
         yPos += 40f
 
         // Business signature
