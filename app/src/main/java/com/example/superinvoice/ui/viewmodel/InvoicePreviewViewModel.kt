@@ -42,6 +42,9 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _lineItems = MutableStateFlow<List<InvoicePreviewLineItem>>(emptyList())
     val lineItems: StateFlow<List<InvoicePreviewLineItem>> = _lineItems.asStateFlow()
 
+    private val _logoPath = MutableStateFlow<String?>(null)
+    val logoPath: StateFlow<String?> = _logoPath.asStateFlow()
+
     fun loadInvoice(invoiceId: Int) {
         viewModelScope.launch {
             val loadedInvoice = invoiceRepository.getInvoiceById(invoiceId)
@@ -61,6 +64,10 @@ class InvoicePreviewViewModel @Inject constructor(
                         )
                     }
                 }.filterNotNull()
+
+                // Load logo path
+                val path = settingsRepository.logoPath.first()
+                _logoPath.value = if (path.isNotEmpty()) path else null
             }
         }
     }
@@ -103,6 +110,9 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get currency
                 val currency = settingsRepository.currency.first()
 
+                // Get logo path
+                val logoPath = settingsRepository.logoPath.first()
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -110,7 +120,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     items = items,
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
-                    currency = currency
+                    currency = currency,
+                    logoPath = if (logoPath.isNotEmpty()) logoPath else null
                 )
 
                 if (file != null) {

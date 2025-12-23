@@ -1,5 +1,6 @@
 package com.example.superinvoice.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,7 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.rememberAsyncImagePainter
 import com.example.superinvoice.ui.viewmodel.InvoicePreviewViewModel
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -64,6 +68,7 @@ fun InvoicePreviewScreen(
     val invoice by viewModel.invoice.collectAsStateWithLifecycle()
     val client by viewModel.client.collectAsStateWithLifecycle()
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
+    val logoPath by viewModel.logoPath.collectAsStateWithLifecycle()
 
     val dateFormat = SimpleDateFormat("MM.dd.yyyy", Locale.getDefault())
     val snackbarHostState = remember { SnackbarHostState() }
@@ -120,6 +125,23 @@ fun InvoicePreviewScreen(
                         .padding(24.dp)
                 ) {
                     Column {
+                        // Logo (if exists)
+                        logoPath?.let { path ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(File(path)),
+                                    contentDescription = "Business Logo",
+                                    modifier = Modifier.height(40.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        }
+
                         // Title with line
                         Row(
                             modifier = Modifier.fillMaxWidth(),

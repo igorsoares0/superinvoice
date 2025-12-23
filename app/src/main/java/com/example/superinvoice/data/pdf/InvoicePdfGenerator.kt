@@ -1,6 +1,8 @@
 package com.example.superinvoice.data.pdf
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -49,7 +51,8 @@ class InvoicePdfGenerator @Inject constructor(
         items: List<InvoiceItem>,
         businessInfo: BusinessInfo,
         paymentInfo: PaymentInfo,
-        currency: String = "USD"
+        currency: String = "USD",
+        logoPath: String? = null
     ): File? {
         return try {
             val pdfDocument = PdfDocument()
@@ -58,7 +61,7 @@ class InvoicePdfGenerator @Inject constructor(
             val canvas = page.canvas
 
             // Draw the invoice content
-            drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency)
+            drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, logoPath)
 
             pdfDocument.finishPage(page)
 
@@ -85,9 +88,41 @@ class InvoicePdfGenerator @Inject constructor(
         items: List<InvoiceItem>,
         businessInfo: BusinessInfo,
         paymentInfo: PaymentInfo,
-        currency: String
+        currency: String,
+        logoPath: String?
     ) {
         var yPos = margin
+
+        // Draw logo if exists
+        logoPath?.let { path ->
+            try {
+                val logoFile = File(path)
+                if (logoFile.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(path)
+                    bitmap?.let {
+                        // Calculate logo dimensions (max height 50, maintain aspect ratio)
+                        val maxLogoHeight = 50f
+                        val aspectRatio = it.width.toFloat() / it.height.toFloat()
+                        val logoHeight = maxLogoHeight
+                        val logoWidth = logoHeight * aspectRatio
+
+                        // Draw logo on the left
+                        val scaledBitmap = Bitmap.createScaledBitmap(
+                            it,
+                            logoWidth.toInt(),
+                            logoHeight.toInt(),
+                            true
+                        )
+                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        yPos += logoHeight + 20f
+                        scaledBitmap.recycle()
+                        it.recycle()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
 
         // Title with line
         val titlePaint = Paint().apply {

@@ -248,8 +248,7 @@ fun AppNavigation() {
         )
         Screen.LOGO -> LogoScreen(
             onClose = { navigateBack() },
-            onSave = { navigateBack() },
-            onUploadLogo = { }
+            onSave = { navigateBack() }
         )
         Screen.SIGNATURE -> SignatureScreen(
             onClose = { navigateBack() },

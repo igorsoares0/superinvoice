@@ -1,5 +1,9 @@
 package com.example.superinvoice.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -25,30 +30,61 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.rememberAsyncImagePainter
+import com.example.superinvoice.ui.viewmodel.LogoViewModel
+import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun LogoScreen(
     onClose: () -> Unit,
     onSave: () -> Unit,
-    onUploadLogo: () -> Unit
+    viewModel: LogoViewModel = hiltViewModel()
 ) {
-    var hasLogo by remember { mutableStateOf(false) }
+    val logoPath by viewModel.logoPath.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.saveLogo(
+                uri = it,
+                onSuccess = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Logo saved successfully")
+                    }
+                },
+                onError = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Failed to save logo")
+                    }
+                }
+            )
+        }
+    }
 
     Scaffold(
-        containerColor = Color(0xFFFFFFFF)
+        containerColor = Color(0xFFFFFFFF),
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -128,7 +164,14 @@ fun LogoScreen(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (!hasLogo) {
+                    if (logoPath != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(File(logoPath!!)),
+                            contentDescription = "Business Logo",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
@@ -154,10 +197,7 @@ fun LogoScreen(
 
                 // Upload Button
                 OutlinedButton(
-                    onClick = {
-                        onUploadLogo()
-                        hasLogo = true
-                    },
+                    onClick = { imagePickerLauncher.launch("image/*") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -175,10 +215,45 @@ fun LogoScreen(
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = if (hasLogo) "Change Logo" else "Upload Logo",
+                        text = if (logoPath != null) "Change Logo" else "Upload Logo",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
+                }
+
+                // Remove Button (only show if logo exists)
+                if (logoPath != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.removeLogo {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Logo removed")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = Color.Red
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Remove",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = "Remove Logo",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
