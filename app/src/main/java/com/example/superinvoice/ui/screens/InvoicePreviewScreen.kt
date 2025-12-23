@@ -47,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.example.superinvoice.ui.viewmodel.InvoicePreviewViewModel
+import com.example.superinvoice.util.getCurrencySymbol
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -74,6 +75,8 @@ fun InvoicePreviewScreen(
     val dateFormat = SimpleDateFormat("MM.dd.yyyy", Locale.getDefault())
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    val currencySymbol = getCurrencySymbol(invoice?.currency ?: "USD")
 
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
@@ -339,7 +342,8 @@ fun InvoicePreviewScreen(
                                 description = item.productService.name,
                                 unitPrice = String.format("%.2f", item.productService.pricePerUnit),
                                 quantity = item.quantity.toString(),
-                                total = "$${String.format("%.2f", item.lineTotal)}"
+                                total = "$currencySymbol${String.format("%.2f", item.lineTotal)}",
+                                currencySymbol = currencySymbol
                             )
                         }
 
@@ -361,7 +365,7 @@ fun InvoicePreviewScreen(
                                     modifier = Modifier.width(80.dp)
                                 )
                                 Text(
-                                    text = "$${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
+                                    text = "$currencySymbol${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.Normal,
                                     textAlign = TextAlign.End,
@@ -382,7 +386,7 @@ fun InvoicePreviewScreen(
                                         modifier = Modifier.width(80.dp)
                                     )
                                     Text(
-                                        text = "$${String.format("%.2f", invoice?.tax ?: 0.0)}",
+                                        text = "$currencySymbol${String.format("%.2f", invoice?.tax ?: 0.0)}",
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.Normal,
                                         textAlign = TextAlign.End,
@@ -404,7 +408,7 @@ fun InvoicePreviewScreen(
                                         modifier = Modifier.width(80.dp)
                                     )
                                     Text(
-                                        text = "-$${String.format("%.2f", invoice?.discount ?: 0.0)}",
+                                        text = "-$currencySymbol${String.format("%.2f", invoice?.discount ?: 0.0)}",
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.Normal,
                                         textAlign = TextAlign.End,
@@ -425,7 +429,7 @@ fun InvoicePreviewScreen(
                                     modifier = Modifier.width(80.dp)
                                 )
                                 Text(
-                                    text = "$${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
+                                    text = "$currencySymbol${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     textAlign = TextAlign.End,
@@ -524,7 +528,8 @@ private fun PreviewInvoiceLineItem(
     description: String,
     unitPrice: String,
     quantity: String,
-    total: String
+    total: String,
+    currencySymbol: String
 ) {
     Row(
         modifier = Modifier
@@ -540,7 +545,7 @@ private fun PreviewInvoiceLineItem(
             modifier = Modifier.weight(2f)
         )
         Text(
-            text = unitPrice,
+            text = "$currencySymbol$unitPrice",
             fontSize = 10.sp,
             fontWeight = FontWeight.Normal,
             color = Color.Black,

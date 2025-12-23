@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.database.entities.InvoiceStatus
+import com.example.superinvoice.util.getCurrencySymbol
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -50,7 +51,7 @@ fun InvoiceCard(
     var showMenu by remember { mutableStateOf(false) }
     val dateFormat = SimpleDateFormat("MMM, dd", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(invoice.createdDate)).lowercase()
-
+    val currencySymbol = getCurrencySymbol(invoice.currency)
 
     Card(
         modifier = modifier
@@ -87,7 +88,7 @@ fun InvoiceCard(
                     fontSize = 16.sp
                 )
                 Text(
-                    text = "$${String.format("%.2f", invoice.totalAmount)}",
+                    text = "$currencySymbol${String.format("%.2f", invoice.totalAmount)}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     fontSize = 14.sp
