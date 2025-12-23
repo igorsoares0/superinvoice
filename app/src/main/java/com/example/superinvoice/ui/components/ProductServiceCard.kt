@@ -32,10 +32,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.superinvoice.data.ProductService
+import com.example.superinvoice.util.getCurrencySymbol
 
 @Composable
 fun ProductServiceCard(
     productService: ProductService,
+    currency: String = "USD",
     onMenuClick: () -> Unit = {},
     onEdit: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
@@ -43,6 +45,7 @@ fun ProductServiceCard(
     onClick: (() -> Unit)? = null
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val currencySymbol = getCurrencySymbol(currency)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -89,7 +92,7 @@ fun ProductServiceCard(
                 color = Color.Black
             )
             Text(
-                text = "$${String.format("%.2f", productService.pricePerUnit)} per un",
+                text = "$currencySymbol${String.format("%.2f", productService.pricePerUnit)} per un",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,

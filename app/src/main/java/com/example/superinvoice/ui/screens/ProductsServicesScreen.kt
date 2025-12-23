@@ -52,6 +52,7 @@ fun ProductsServicesScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val productsServices by viewModel.productsServices.collectAsStateWithLifecycle()
+    val currency by viewModel.currency.collectAsStateWithLifecycle()
 
     val filteredProducts = productsServices.filter {
         it.name.contains(searchQuery, ignoreCase = true)
@@ -158,6 +159,7 @@ fun ProductsServicesScreen(
                     items(filteredProducts) { product ->
                         ProductServiceCard(
                             productService = product,
+                            currency = currency,
                             onClick = if (isSelectionMode) {
                                 { onProductSelected?.invoke(product) }
                             } else null,

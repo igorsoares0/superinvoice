@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.ProductService
 import com.example.superinvoice.data.repository.ProductServiceRepository
+import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProductsServicesViewModel @Inject constructor(
-    private val productServiceRepository: ProductServiceRepository
+    private val productServiceRepository: ProductServiceRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     val productsServices: StateFlow<List<ProductService>> =
@@ -22,6 +24,14 @@ class ProductsServicesViewModel @Inject constructor(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
+            )
+
+    val currency: StateFlow<String> =
+        settingsRepository.currency
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = "USD"
             )
 
     fun addProductService(name: String, pricePerUnit: Double) {
