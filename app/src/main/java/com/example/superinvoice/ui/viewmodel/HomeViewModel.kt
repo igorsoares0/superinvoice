@@ -100,6 +100,9 @@ class HomeViewModel @Inject constructor(
                 // Get logo path
                 val logoPath = settingsRepository.logoPath.first()
 
+                // Get signature path
+                val signaturePath = settingsRepository.signaturePath.first()
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -108,7 +111,8 @@ class HomeViewModel @Inject constructor(
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
                     currency = currency,
-                    logoPath = if (logoPath.isNotEmpty()) logoPath else null
+                    logoPath = if (logoPath.isNotEmpty()) logoPath else null,
+                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
                 )
 
                 if (file != null) {

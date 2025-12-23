@@ -252,8 +252,7 @@ fun AppNavigation() {
         )
         Screen.SIGNATURE -> SignatureScreen(
             onClose = { navigateBack() },
-            onSave = { navigateBack() },
-            onUploadSignature = { }
+            onSave = { navigateBack() }
         )
         Screen.CURRENCY -> CurrencyScreen(
             onClose = { navigateBack() },

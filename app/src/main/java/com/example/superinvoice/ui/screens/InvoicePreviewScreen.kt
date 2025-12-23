@@ -69,6 +69,7 @@ fun InvoicePreviewScreen(
     val client by viewModel.client.collectAsStateWithLifecycle()
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
     val logoPath by viewModel.logoPath.collectAsStateWithLifecycle()
+    val signaturePath by viewModel.signaturePath.collectAsStateWithLifecycle()
 
     val dateFormat = SimpleDateFormat("MM.dd.yyyy", Locale.getDefault())
     val snackbarHostState = remember { SnackbarHostState() }
@@ -435,15 +436,22 @@ fun InvoicePreviewScreen(
 
                         Spacer(modifier = Modifier.height(32.dp))
 
-                        // Signature
-                        Text(
-                            text = "John Johnston",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Cursive
-                            )
-                        )
+                        // Signature (if exists)
+                        signaturePath?.let { path ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(File(path)),
+                                    contentDescription = "Signature",
+                                    modifier = Modifier.height(30.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        }
                     }
                 }
 

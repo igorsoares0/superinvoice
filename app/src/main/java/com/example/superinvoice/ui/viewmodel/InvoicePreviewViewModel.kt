@@ -45,6 +45,9 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _logoPath = MutableStateFlow<String?>(null)
     val logoPath: StateFlow<String?> = _logoPath.asStateFlow()
 
+    private val _signaturePath = MutableStateFlow<String?>(null)
+    val signaturePath: StateFlow<String?> = _signaturePath.asStateFlow()
+
     fun loadInvoice(invoiceId: Int) {
         viewModelScope.launch {
             val loadedInvoice = invoiceRepository.getInvoiceById(invoiceId)
@@ -66,8 +69,12 @@ class InvoicePreviewViewModel @Inject constructor(
                 }.filterNotNull()
 
                 // Load logo path
-                val path = settingsRepository.logoPath.first()
-                _logoPath.value = if (path.isNotEmpty()) path else null
+                val logoPath = settingsRepository.logoPath.first()
+                _logoPath.value = if (logoPath.isNotEmpty()) logoPath else null
+
+                // Load signature path
+                val signaturePath = settingsRepository.signaturePath.first()
+                _signaturePath.value = if (signaturePath.isNotEmpty()) signaturePath else null
             }
         }
     }
@@ -113,6 +120,9 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get logo path
                 val logoPath = settingsRepository.logoPath.first()
 
+                // Get signature path
+                val signaturePath = settingsRepository.signaturePath.first()
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -121,7 +131,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
                     currency = currency,
-                    logoPath = if (logoPath.isNotEmpty()) logoPath else null
+                    logoPath = if (logoPath.isNotEmpty()) logoPath else null,
+                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
                 )
 
                 if (file != null) {

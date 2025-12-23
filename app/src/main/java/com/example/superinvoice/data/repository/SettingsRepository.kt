@@ -46,6 +46,7 @@ class SettingsRepository @Inject constructor(
     private val DATE_FORMAT = stringPreferencesKey("date_format")
     private val SELECTED_TEMPLATE = stringPreferencesKey("selected_template")
     private val LOGO_PATH = stringPreferencesKey("logo_path")
+    private val SIGNATURE_PATH = stringPreferencesKey("signature_path")
 
     // Business Information Flows
     val businessName: Flow<String> = context.dataStore.data.map { it[BUSINESS_NAME] ?: "" }
@@ -75,6 +76,7 @@ class SettingsRepository @Inject constructor(
     val dateFormat: Flow<String> = context.dataStore.data.map { it[DATE_FORMAT] ?: "MM/dd/yyyy" }
     val selectedTemplate: Flow<String> = context.dataStore.data.map { it[SELECTED_TEMPLATE] ?: "classic" }
     val logoPath: Flow<String> = context.dataStore.data.map { it[LOGO_PATH] ?: "" }
+    val signaturePath: Flow<String> = context.dataStore.data.map { it[SIGNATURE_PATH] ?: "" }
 
     // Save Business Information
     suspend fun saveBusinessInformation(
@@ -153,6 +155,13 @@ class SettingsRepository @Inject constructor(
     suspend fun saveLogoPath(path: String) {
         context.dataStore.edit { preferences ->
             preferences[LOGO_PATH] = path
+        }
+    }
+
+    // Save Signature Path
+    suspend fun saveSignaturePath(path: String) {
+        context.dataStore.edit { preferences ->
+            preferences[SIGNATURE_PATH] = path
         }
     }
 }

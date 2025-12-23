@@ -52,7 +52,8 @@ class InvoicePdfGenerator @Inject constructor(
         businessInfo: BusinessInfo,
         paymentInfo: PaymentInfo,
         currency: String = "USD",
-        logoPath: String? = null
+        logoPath: String? = null,
+        signaturePath: String? = null
     ): File? {
         return try {
             val pdfDocument = PdfDocument()
@@ -61,7 +62,7 @@ class InvoicePdfGenerator @Inject constructor(
             val canvas = page.canvas
 
             // Draw the invoice content
-            drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, logoPath)
+            drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, logoPath, signaturePath)
 
             pdfDocument.finishPage(page)
 
@@ -89,7 +90,8 @@ class InvoicePdfGenerator @Inject constructor(
         businessInfo: BusinessInfo,
         paymentInfo: PaymentInfo,
         currency: String,
-        logoPath: String?
+        logoPath: String?,
+        signaturePath: String?
     ) {
         var yPos = margin
 
@@ -257,14 +259,54 @@ class InvoicePdfGenerator @Inject constructor(
         canvas.drawText("$${String.format("%.2f", invoice.totalAmount)}", totalValueX, yPos, totalPaint)
         yPos += 40f
 
-        // Business signature (if owner name exists)
-        if (businessInfo.ownerName.isNotEmpty()) {
-            val signaturePaint = Paint().apply {
-                color = Color.BLACK
-                textSize = 18f
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        // Business signature
+        signaturePath?.let { path ->
+            try {
+                val signatureFile = File(path)
+                if (signatureFile.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(path)
+                    bitmap?.let {
+                        // Calculate signature dimensions (max height 40, maintain aspect ratio)
+                        val maxSignatureHeight = 40f
+                        val aspectRatio = it.width.toFloat() / it.height.toFloat()
+                        val signatureHeight = maxSignatureHeight
+                        val signatureWidth = signatureHeight * aspectRatio
+
+                        // Draw signature on the left
+                        val scaledBitmap = Bitmap.createScaledBitmap(
+                            it,
+                            signatureWidth.toInt(),
+                            signatureHeight.toInt(),
+                            true
+                        )
+                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        yPos += signatureHeight + 20f
+                        scaledBitmap.recycle()
+                        it.recycle()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Fallback to text signature if image fails
+                if (businessInfo.ownerName.isNotEmpty()) {
+                    val signaturePaint = Paint().apply {
+                        color = Color.BLACK
+                        textSize = 18f
+                        typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                    }
+                    canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                }
             }
-            canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+        } ?: run {
+            // No signature image, use text signature if owner name exists
+            if (businessInfo.ownerName.isNotEmpty()) {
+                val signaturePaint = Paint().apply {
+                    color = Color.BLACK
+                    textSize = 18f
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                }
+                canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+            }
         }
 
         // Footer with business info
