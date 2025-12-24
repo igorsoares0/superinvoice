@@ -167,31 +167,34 @@ class InvoicePdfGenerator @Inject constructor(
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
         }
 
-        // FROM (Business Information)
+        // Left column - FROM (Business Information)
+        val leftYStart = yPos
+        var leftYPos = yPos
+
         if (businessInfo.businessName.isNotEmpty()) {
-            canvas.drawText("FROM:", margin, yPos, sectionTitlePaint)
-            yPos += 18f
-            canvas.drawText(businessInfo.businessName, margin, yPos, bodyPaint)
-            yPos += 15f
+            canvas.drawText("FROM:", margin, leftYPos, sectionTitlePaint)
+            leftYPos += 18f
+            canvas.drawText(businessInfo.businessName, margin, leftYPos, bodyPaint)
+            leftYPos += 15f
             if (businessInfo.ownerName.isNotEmpty()) {
-                canvas.drawText(businessInfo.ownerName, margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText(businessInfo.ownerName, margin, leftYPos, bodyPaint)
+                leftYPos += 15f
             }
             if (businessInfo.email.isNotEmpty()) {
-                canvas.drawText(businessInfo.email, margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText(businessInfo.email, margin, leftYPos, bodyPaint)
+                leftYPos += 15f
             }
             if (businessInfo.phone.isNotEmpty()) {
-                canvas.drawText(businessInfo.phone, margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText(businessInfo.phone, margin, leftYPos, bodyPaint)
+                leftYPos += 15f
             }
             if (businessInfo.website.isNotEmpty()) {
-                canvas.drawText(businessInfo.website, margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText(businessInfo.website, margin, leftYPos, bodyPaint)
+                leftYPos += 15f
             }
             if (businessInfo.address.isNotEmpty()) {
-                canvas.drawText(businessInfo.address, margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText(businessInfo.address, margin, leftYPos, bodyPaint)
+                leftYPos += 15f
             }
             val cityStateZip = buildString {
                 if (businessInfo.city.isNotEmpty()) append(businessInfo.city)
@@ -205,31 +208,17 @@ class InvoicePdfGenerator @Inject constructor(
                 }
             }
             if (cityStateZip.isNotEmpty()) {
-                canvas.drawText(cityStateZip, margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText(cityStateZip, margin, leftYPos, bodyPaint)
+                leftYPos += 15f
             }
             if (businessInfo.taxId.isNotEmpty()) {
-                canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, leftYPos, bodyPaint)
+                leftYPos += 15f
             }
-            yPos += 20f
         }
 
-        // ISSUED TO
-        canvas.drawText("ISSUED TO:", margin, yPos, sectionTitlePaint)
-        yPos += 18f
-        canvas.drawText(client.name, margin, yPos, bodyPaint)
-        yPos += 15f
-        if (client.email.isNotEmpty()) {
-            canvas.drawText(client.email, margin, yPos, bodyPaint)
-            yPos += 15f
-        }
-        if (client.phone.isNotEmpty()) {
-            canvas.drawText(client.phone, margin, yPos, bodyPaint)
-        }
-
-        // Invoice info (right side)
-        var rightYPos = margin + 40f
+        // Right column - INVOICE INFO
+        var rightYPos = yPos
         val rightX = pageWidth - margin - 150f
 
         canvas.drawText("INVOICE NO:", rightX, rightYPos, sectionTitlePaint)
@@ -242,50 +231,76 @@ class InvoicePdfGenerator @Inject constructor(
 
         canvas.drawText("DUE DATE:", rightX, rightYPos, sectionTitlePaint)
         canvas.drawText(invoice.dueDate, rightX + 100f, rightYPos, bodyPaint)
+        rightYPos += 15f
 
-        yPos += 40f
+        // Advance to the max height of both columns
+        yPos = maxOf(leftYPos, rightYPos) + 25f
 
-        // PAY TO Section
+        // Second row: ISSUED TO (left) and PAY TO (right)
+        leftYPos = yPos
+        rightYPos = yPos
+
+        // ISSUED TO (left)
+        canvas.drawText("ISSUED TO:", margin, leftYPos, sectionTitlePaint)
+        leftYPos += 18f
+        canvas.drawText(client.name, margin, leftYPos, bodyPaint)
+        leftYPos += 15f
+        if (client.email.isNotEmpty()) {
+            canvas.drawText(client.email, margin, leftYPos, bodyPaint)
+            leftYPos += 15f
+        }
+        if (client.phone.isNotEmpty()) {
+            canvas.drawText(client.phone, margin, leftYPos, bodyPaint)
+            leftYPos += 15f
+        }
+
+        // PAY TO (right)
+        val payRightX = pageWidth / 2f + 20f
         if (paymentInfo.bankName.isNotEmpty()) {
-            canvas.drawText("PAY TO:", margin, yPos, sectionTitlePaint)
-            yPos += 18f
-            canvas.drawText(paymentInfo.bankName, margin, yPos, bodyPaint)
-            yPos += 15f
+            canvas.drawText("PAY TO:", payRightX, rightYPos, sectionTitlePaint)
+            rightYPos += 18f
+            canvas.drawText(paymentInfo.bankName, payRightX, rightYPos, bodyPaint)
+            rightYPos += 15f
             if (paymentInfo.bankAddress.isNotEmpty()) {
-                canvas.drawText(paymentInfo.bankAddress, margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText(paymentInfo.bankAddress, payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
             if (paymentInfo.accountHolderName.isNotEmpty()) {
-                canvas.drawText("Account Name: ${paymentInfo.accountHolderName}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("Acc Name: ${paymentInfo.accountHolderName}", payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
             if (paymentInfo.accountNumber.isNotEmpty()) {
-                canvas.drawText("Account Number: ${paymentInfo.accountNumber}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("Acc Number: ${paymentInfo.accountNumber}", payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
             if (paymentInfo.routingNumber.isNotEmpty()) {
-                canvas.drawText("Routing Number: ${paymentInfo.routingNumber}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("Routing: ${paymentInfo.routingNumber}", payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
             if (paymentInfo.iban.isNotEmpty()) {
-                canvas.drawText("IBAN: ${paymentInfo.iban}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("IBAN: ${paymentInfo.iban}", payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
             if (paymentInfo.swiftCode.isNotEmpty()) {
-                canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
             if (paymentInfo.paymentTerms.isNotEmpty()) {
-                canvas.drawText("Payment Terms: ${paymentInfo.paymentTerms}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("Terms: ${paymentInfo.paymentTerms}", payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
             if (paymentInfo.additionalInstructions.isNotEmpty()) {
-                canvas.drawText("Additional Instructions: ${paymentInfo.additionalInstructions}", margin, yPos, bodyPaint)
-                yPos += 15f
+                canvas.drawText("Notes: ${paymentInfo.additionalInstructions}", payRightX, rightYPos, bodyPaint)
+                rightYPos += 15f
             }
         }
 
-        yPos += 30f
+        // Advance to max height
+        yPos = maxOf(leftYPos, rightYPos) + 30f
+
+        // Divider line before table
+        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        yPos += 20f
 
         // Table Header
         canvas.drawText("DESCRIPTION", margin, yPos, sectionTitlePaint)

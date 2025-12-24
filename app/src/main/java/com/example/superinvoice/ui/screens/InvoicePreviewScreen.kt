@@ -170,133 +170,103 @@ fun InvoicePreviewScreen(
 
                         Spacer(modifier = Modifier.height(28.dp))
 
-                        // FROM (Business Information)
-                        if (businessInfo?.businessName?.isNotEmpty() == true) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "FROM:",
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    letterSpacing = 0.8.sp,
-                                    color = Color.Black
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = businessInfo?.businessName ?: "",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                )
-                                if (businessInfo?.ownerName?.isNotEmpty() == true) {
-                                    Text(
-                                        text = businessInfo?.ownerName ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (businessInfo?.email?.isNotEmpty() == true) {
-                                    Text(
-                                        text = businessInfo?.email ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (businessInfo?.phone?.isNotEmpty() == true) {
-                                    Text(
-                                        text = businessInfo?.phone ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (businessInfo?.website?.isNotEmpty() == true) {
-                                    Text(
-                                        text = businessInfo?.website ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (businessInfo?.address?.isNotEmpty() == true) {
-                                    Text(
-                                        text = businessInfo?.address ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                val cityStateZip = buildString {
-                                    if (businessInfo?.city?.isNotEmpty() == true) append(businessInfo?.city)
-                                    if (businessInfo?.state?.isNotEmpty() == true) {
-                                        if (isNotEmpty()) append(", ")
-                                        append(businessInfo?.state)
-                                    }
-                                    if (businessInfo?.zipCode?.isNotEmpty() == true) {
-                                        if (isNotEmpty()) append(" ")
-                                        append(businessInfo?.zipCode)
-                                    }
-                                }
-                                if (cityStateZip.isNotEmpty()) {
-                                    Text(
-                                        text = cityStateZip,
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (businessInfo?.taxId?.isNotEmpty() == true) {
-                                    Text(
-                                        text = "Tax ID: ${businessInfo?.taxId}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(18.dp))
-                        }
-
-                        // Issued To and Invoice Info Row
+                        // First Row: FROM (left) and INVOICE INFO (right)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // Left Column - Issued To
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = "ISSUED TO:",
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    letterSpacing = 0.8.sp,
-                                    color = Color.Black
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = client?.name ?: "",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                )
-                                Text(
-                                    text = client?.email ?: "",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                )
-                                Text(
-                                    text = client?.phone ?: "",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                )
+                            // Left Column - FROM (Business Information)
+                            if (businessInfo?.businessName?.isNotEmpty() == true) {
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = "FROM:",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        letterSpacing = 0.8.sp,
+                                        color = Color.Black
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = businessInfo?.businessName ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                    if (businessInfo?.ownerName?.isNotEmpty() == true) {
+                                        Text(
+                                            text = businessInfo?.ownerName ?: "",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (businessInfo?.email?.isNotEmpty() == true) {
+                                        Text(
+                                            text = businessInfo?.email ?: "",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (businessInfo?.phone?.isNotEmpty() == true) {
+                                        Text(
+                                            text = businessInfo?.phone ?: "",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (businessInfo?.website?.isNotEmpty() == true) {
+                                        Text(
+                                            text = businessInfo?.website ?: "",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (businessInfo?.address?.isNotEmpty() == true) {
+                                        Text(
+                                            text = businessInfo?.address ?: "",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    val cityStateZip = buildString {
+                                        if (businessInfo?.city?.isNotEmpty() == true) append(businessInfo?.city)
+                                        if (businessInfo?.state?.isNotEmpty() == true) {
+                                            if (isNotEmpty()) append(", ")
+                                            append(businessInfo?.state)
+                                        }
+                                        if (businessInfo?.zipCode?.isNotEmpty() == true) {
+                                            if (isNotEmpty()) append(" ")
+                                            append(businessInfo?.zipCode)
+                                        }
+                                    }
+                                    if (cityStateZip.isNotEmpty()) {
+                                        Text(
+                                            text = cityStateZip,
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (businessInfo?.taxId?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "Tax ID: ${businessInfo?.taxId}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+                            } else {
+                                Spacer(modifier = Modifier.weight(1f))
                             }
+
+                            Spacer(modifier = Modifier.width(16.dp))
 
                             // Right Column - Invoice Info
                             Column(
@@ -355,13 +325,20 @@ fun InvoicePreviewScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                        // Pay To Section
-                        if (paymentInfo?.bankName?.isNotEmpty() == true) {
-                            Column {
+                        // Second Row: ISSUED TO (left) and PAY TO (right)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            // Left Column - Issued To
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Text(
-                                    text = "PAY TO:",
+                                    text = "ISSUED TO:",
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     letterSpacing = 0.8.sp,
@@ -369,79 +346,130 @@ fun InvoicePreviewScreen(
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = paymentInfo?.bankName ?: "",
+                                    text = client?.name ?: "",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Black
                                 )
-                                if (paymentInfo?.bankAddress?.isNotEmpty() == true) {
+                                if (client?.email?.isNotEmpty() == true) {
                                     Text(
-                                        text = paymentInfo?.bankAddress ?: "",
+                                        text = client?.email ?: "",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.Black
                                     )
                                 }
-                                if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
+                                if (client?.phone?.isNotEmpty() == true) {
                                     Text(
-                                        text = "Account Name: ${paymentInfo?.accountHolderName}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
-                                    Text(
-                                        text = "Account Number: ${paymentInfo?.accountNumber}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
-                                    Text(
-                                        text = "Routing Number: ${paymentInfo?.routingNumber}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (paymentInfo?.iban?.isNotEmpty() == true) {
-                                    Text(
-                                        text = "IBAN: ${paymentInfo?.iban}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
-                                    Text(
-                                        text = "SWIFT: ${paymentInfo?.swiftCode}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
-                                    Text(
-                                        text = "Payment Terms: ${paymentInfo?.paymentTerms}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
-                                    Text(
-                                        text = "Additional Instructions: ${paymentInfo?.additionalInstructions}",
+                                        text = client?.phone ?: "",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.Black
                                     )
                                 }
                             }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            // Right Column - Pay To
+                            if (paymentInfo?.bankName?.isNotEmpty() == true) {
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = "PAY TO:",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        letterSpacing = 0.8.sp,
+                                        color = Color.Black
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = paymentInfo?.bankName ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                    if (paymentInfo?.bankAddress?.isNotEmpty() == true) {
+                                        Text(
+                                            text = paymentInfo?.bankAddress ?: "",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "Acc Name: ${paymentInfo?.accountHolderName}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "Acc Number: ${paymentInfo?.accountNumber}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "Routing: ${paymentInfo?.routingNumber}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (paymentInfo?.iban?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "IBAN: ${paymentInfo?.iban}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "SWIFT: ${paymentInfo?.swiftCode}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "Terms: ${paymentInfo?.paymentTerms}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
+                                        Text(
+                                            text = "Notes: ${paymentInfo?.additionalInstructions}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+                            } else {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
+
+                        // Divider before table
+                        Divider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = 1.dp,
+                            color = Color(0xFFE0E0E0)
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         // Table Header
                         Row(
