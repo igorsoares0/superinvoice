@@ -101,7 +101,12 @@ class InvoicePreviewViewModel @Inject constructor(
                     bankName = settingsRepository.bankName.first(),
                     accountHolderName = settingsRepository.accountHolderName.first(),
                     accountNumber = settingsRepository.accountNumber.first(),
-                    paymentTerms = settingsRepository.paymentTerms.first()
+                    routingNumber = settingsRepository.routingNumber.first(),
+                    iban = settingsRepository.iban.first(),
+                    swiftCode = settingsRepository.swiftCode.first(),
+                    bankAddress = settingsRepository.bankAddress.first(),
+                    paymentTerms = settingsRepository.paymentTerms.first(),
+                    additionalInstructions = settingsRepository.additionalInstructions.first()
                 )
             }
         }
@@ -140,7 +145,12 @@ class InvoicePreviewViewModel @Inject constructor(
                     bankName = settingsRepository.bankName.first(),
                     accountHolderName = settingsRepository.accountHolderName.first(),
                     accountNumber = settingsRepository.accountNumber.first(),
-                    paymentTerms = settingsRepository.paymentTerms.first()
+                    routingNumber = settingsRepository.routingNumber.first(),
+                    iban = settingsRepository.iban.first(),
+                    swiftCode = settingsRepository.swiftCode.first(),
+                    bankAddress = settingsRepository.bankAddress.first(),
+                    paymentTerms = settingsRepository.paymentTerms.first(),
+                    additionalInstructions = settingsRepository.additionalInstructions.first()
                 )
 
                 // Get currency

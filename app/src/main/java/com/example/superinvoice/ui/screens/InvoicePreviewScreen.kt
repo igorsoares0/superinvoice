@@ -374,6 +374,14 @@ fun InvoicePreviewScreen(
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Black
                                 )
+                                if (paymentInfo?.bankAddress?.isNotEmpty() == true) {
+                                    Text(
+                                        text = paymentInfo?.bankAddress ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
                                 if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
                                     Text(
                                         text = "Account Name: ${paymentInfo?.accountHolderName}",
@@ -385,6 +393,46 @@ fun InvoicePreviewScreen(
                                 if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
                                     Text(
                                         text = "Account Number: ${paymentInfo?.accountNumber}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "Routing Number: ${paymentInfo?.routingNumber}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (paymentInfo?.iban?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "IBAN: ${paymentInfo?.iban}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "SWIFT: ${paymentInfo?.swiftCode}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "Payment Terms: ${paymentInfo?.paymentTerms}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "Additional Instructions: ${paymentInfo?.additionalInstructions}",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.Black

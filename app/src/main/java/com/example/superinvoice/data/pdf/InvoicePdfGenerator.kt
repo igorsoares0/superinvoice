@@ -44,7 +44,12 @@ class InvoicePdfGenerator @Inject constructor(
         val bankName: String = "",
         val accountHolderName: String = "",
         val accountNumber: String = "",
-        val paymentTerms: String = ""
+        val routingNumber: String = "",
+        val iban: String = "",
+        val swiftCode: String = "",
+        val bankAddress: String = "",
+        val paymentTerms: String = "",
+        val additionalInstructions: String = ""
     )
 
     fun generateInvoicePdf(
@@ -246,12 +251,36 @@ class InvoicePdfGenerator @Inject constructor(
             yPos += 18f
             canvas.drawText(paymentInfo.bankName, margin, yPos, bodyPaint)
             yPos += 15f
+            if (paymentInfo.bankAddress.isNotEmpty()) {
+                canvas.drawText(paymentInfo.bankAddress, margin, yPos, bodyPaint)
+                yPos += 15f
+            }
             if (paymentInfo.accountHolderName.isNotEmpty()) {
                 canvas.drawText("Account Name: ${paymentInfo.accountHolderName}", margin, yPos, bodyPaint)
                 yPos += 15f
             }
             if (paymentInfo.accountNumber.isNotEmpty()) {
                 canvas.drawText("Account Number: ${paymentInfo.accountNumber}", margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (paymentInfo.routingNumber.isNotEmpty()) {
+                canvas.drawText("Routing Number: ${paymentInfo.routingNumber}", margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (paymentInfo.iban.isNotEmpty()) {
+                canvas.drawText("IBAN: ${paymentInfo.iban}", margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (paymentInfo.swiftCode.isNotEmpty()) {
+                canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (paymentInfo.paymentTerms.isNotEmpty()) {
+                canvas.drawText("Payment Terms: ${paymentInfo.paymentTerms}", margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (paymentInfo.additionalInstructions.isNotEmpty()) {
+                canvas.drawText("Additional Instructions: ${paymentInfo.additionalInstructions}", margin, yPos, bodyPaint)
                 yPos += 15f
             }
         }
