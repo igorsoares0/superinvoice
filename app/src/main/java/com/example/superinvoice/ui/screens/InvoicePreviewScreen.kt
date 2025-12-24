@@ -71,6 +71,8 @@ fun InvoicePreviewScreen(
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
     val logoPath by viewModel.logoPath.collectAsStateWithLifecycle()
     val signaturePath by viewModel.signaturePath.collectAsStateWithLifecycle()
+    val businessInfo by viewModel.businessInfo.collectAsStateWithLifecycle()
+    val paymentInfo by viewModel.paymentInfo.collectAsStateWithLifecycle()
 
     val dateFormat = SimpleDateFormat("MM.dd.yyyy", Locale.getDefault())
     val snackbarHostState = remember { SnackbarHostState() }
@@ -167,6 +169,97 @@ fun InvoicePreviewScreen(
                         }
 
                         Spacer(modifier = Modifier.height(28.dp))
+
+                        // FROM (Business Information)
+                        if (businessInfo?.businessName?.isNotEmpty() == true) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "FROM:",
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    letterSpacing = 0.8.sp,
+                                    color = Color.Black
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = businessInfo?.businessName ?: "",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black
+                                )
+                                if (businessInfo?.ownerName?.isNotEmpty() == true) {
+                                    Text(
+                                        text = businessInfo?.ownerName ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (businessInfo?.email?.isNotEmpty() == true) {
+                                    Text(
+                                        text = businessInfo?.email ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (businessInfo?.phone?.isNotEmpty() == true) {
+                                    Text(
+                                        text = businessInfo?.phone ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (businessInfo?.website?.isNotEmpty() == true) {
+                                    Text(
+                                        text = businessInfo?.website ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (businessInfo?.address?.isNotEmpty() == true) {
+                                    Text(
+                                        text = businessInfo?.address ?: "",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                val cityStateZip = buildString {
+                                    if (businessInfo?.city?.isNotEmpty() == true) append(businessInfo?.city)
+                                    if (businessInfo?.state?.isNotEmpty() == true) {
+                                        if (isNotEmpty()) append(", ")
+                                        append(businessInfo?.state)
+                                    }
+                                    if (businessInfo?.zipCode?.isNotEmpty() == true) {
+                                        if (isNotEmpty()) append(" ")
+                                        append(businessInfo?.zipCode)
+                                    }
+                                }
+                                if (cityStateZip.isNotEmpty()) {
+                                    Text(
+                                        text = cityStateZip,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (businessInfo?.taxId?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "Tax ID: ${businessInfo?.taxId}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(18.dp))
+                        }
 
                         // Issued To and Invoice Info Row
                         Row(
@@ -265,33 +358,39 @@ fun InvoicePreviewScreen(
                         Spacer(modifier = Modifier.height(18.dp))
 
                         // Pay To Section
-                        Column {
-                            Text(
-                                text = "PAY TO:",
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                letterSpacing = 0.8.sp,
-                                color = Color.Black
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "Business Bank",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = "Account Name: SuperInvoice Business",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = "Account Number: 1234567890",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            )
+                        if (paymentInfo?.bankName?.isNotEmpty() == true) {
+                            Column {
+                                Text(
+                                    text = "PAY TO:",
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    letterSpacing = 0.8.sp,
+                                    color = Color.Black
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = paymentInfo?.bankName ?: "",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black
+                                )
+                                if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "Account Name: ${paymentInfo?.accountHolderName}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                                if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
+                                    Text(
+                                        text = "Account Number: ${paymentInfo?.accountNumber}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))

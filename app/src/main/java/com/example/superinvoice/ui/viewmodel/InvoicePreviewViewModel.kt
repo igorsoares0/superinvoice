@@ -48,6 +48,12 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _signaturePath = MutableStateFlow<String?>(null)
     val signaturePath: StateFlow<String?> = _signaturePath.asStateFlow()
 
+    private val _businessInfo = MutableStateFlow<InvoicePdfGenerator.BusinessInfo?>(null)
+    val businessInfo: StateFlow<InvoicePdfGenerator.BusinessInfo?> = _businessInfo.asStateFlow()
+
+    private val _paymentInfo = MutableStateFlow<InvoicePdfGenerator.PaymentInfo?>(null)
+    val paymentInfo: StateFlow<InvoicePdfGenerator.PaymentInfo?> = _paymentInfo.asStateFlow()
+
     fun loadInvoice(invoiceId: Int) {
         viewModelScope.launch {
             val loadedInvoice = invoiceRepository.getInvoiceById(invoiceId)
@@ -75,6 +81,28 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Load signature path
                 val signaturePath = settingsRepository.signaturePath.first()
                 _signaturePath.value = if (signaturePath.isNotEmpty()) signaturePath else null
+
+                // Load business info
+                _businessInfo.value = InvoicePdfGenerator.BusinessInfo(
+                    businessName = settingsRepository.businessName.first(),
+                    ownerName = settingsRepository.ownerName.first(),
+                    email = settingsRepository.businessEmail.first(),
+                    phone = settingsRepository.businessPhone.first(),
+                    website = settingsRepository.businessWebsite.first(),
+                    address = settingsRepository.businessAddress.first(),
+                    city = settingsRepository.businessCity.first(),
+                    state = settingsRepository.businessState.first(),
+                    zipCode = settingsRepository.businessZipCode.first(),
+                    taxId = settingsRepository.businessTaxId.first()
+                )
+
+                // Load payment info
+                _paymentInfo.value = InvoicePdfGenerator.PaymentInfo(
+                    bankName = settingsRepository.bankName.first(),
+                    accountHolderName = settingsRepository.accountHolderName.first(),
+                    accountNumber = settingsRepository.accountNumber.first(),
+                    paymentTerms = settingsRepository.paymentTerms.first()
+                )
             }
         }
     }
@@ -99,6 +127,7 @@ class InvoicePreviewViewModel @Inject constructor(
                     ownerName = settingsRepository.ownerName.first(),
                     email = settingsRepository.businessEmail.first(),
                     phone = settingsRepository.businessPhone.first(),
+                    website = settingsRepository.businessWebsite.first(),
                     address = settingsRepository.businessAddress.first(),
                     city = settingsRepository.businessCity.first(),
                     state = settingsRepository.businessState.first(),

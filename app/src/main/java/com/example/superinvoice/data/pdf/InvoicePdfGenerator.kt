@@ -32,6 +32,7 @@ class InvoicePdfGenerator @Inject constructor(
         val ownerName: String = "",
         val email: String = "",
         val phone: String = "",
+        val website: String = "",
         val address: String = "",
         val city: String = "",
         val state: String = "",
@@ -159,6 +160,54 @@ class InvoicePdfGenerator @Inject constructor(
             color = Color.BLACK
             textSize = 11f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
+        // FROM (Business Information)
+        if (businessInfo.businessName.isNotEmpty()) {
+            canvas.drawText("FROM:", margin, yPos, sectionTitlePaint)
+            yPos += 18f
+            canvas.drawText(businessInfo.businessName, margin, yPos, bodyPaint)
+            yPos += 15f
+            if (businessInfo.ownerName.isNotEmpty()) {
+                canvas.drawText(businessInfo.ownerName, margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (businessInfo.email.isNotEmpty()) {
+                canvas.drawText(businessInfo.email, margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (businessInfo.phone.isNotEmpty()) {
+                canvas.drawText(businessInfo.phone, margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (businessInfo.website.isNotEmpty()) {
+                canvas.drawText(businessInfo.website, margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (businessInfo.address.isNotEmpty()) {
+                canvas.drawText(businessInfo.address, margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            val cityStateZip = buildString {
+                if (businessInfo.city.isNotEmpty()) append(businessInfo.city)
+                if (businessInfo.state.isNotEmpty()) {
+                    if (isNotEmpty()) append(", ")
+                    append(businessInfo.state)
+                }
+                if (businessInfo.zipCode.isNotEmpty()) {
+                    if (isNotEmpty()) append(" ")
+                    append(businessInfo.zipCode)
+                }
+            }
+            if (cityStateZip.isNotEmpty()) {
+                canvas.drawText(cityStateZip, margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            if (businessInfo.taxId.isNotEmpty()) {
+                canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, yPos, bodyPaint)
+                yPos += 15f
+            }
+            yPos += 20f
         }
 
         // ISSUED TO
@@ -308,24 +357,6 @@ class InvoicePdfGenerator @Inject constructor(
                     typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
                 }
                 canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
-            }
-        }
-
-        // Footer with business info
-        if (businessInfo.businessName.isNotEmpty()) {
-            yPos = pageHeight - margin - 40f
-            val footerPaint = Paint().apply {
-                color = Color.GRAY
-                textSize = 9f
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            }
-            canvas.drawText(businessInfo.businessName, margin, yPos, footerPaint)
-            yPos += 12f
-            if (businessInfo.email.isNotEmpty()) {
-                canvas.drawText(businessInfo.email, margin, yPos, footerPaint)
-            }
-            if (businessInfo.phone.isNotEmpty()) {
-                canvas.drawText(" | ${businessInfo.phone}", margin + 150f, yPos, footerPaint)
             }
         }
     }
