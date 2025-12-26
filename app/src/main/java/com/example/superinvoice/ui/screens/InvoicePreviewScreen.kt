@@ -647,7 +647,15 @@ fun InvoicePreviewScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedButton(
-                    onClick = onShare,
+                    onClick = {
+                        viewModel.shareInvoicePdf(
+                            onError = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Error sharing PDF")
+                                }
+                            }
+                        )
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),
