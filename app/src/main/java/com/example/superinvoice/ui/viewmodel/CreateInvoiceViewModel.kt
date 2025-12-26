@@ -105,9 +105,12 @@ class CreateInvoiceViewModel @Inject constructor(
     }
 
     private fun setCurrentDateAsDueDate() {
-        val dateFormat = SimpleDateFormat("MMM, dd", Locale.getDefault())
-        val currentDate = dateFormat.format(Date()).lowercase()
-        _dueDate.value = currentDate
+        viewModelScope.launch {
+            val dateFormatPattern = settingsRepository.dateFormat.first()
+            val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault())
+            val currentDate = dateFormat.format(Date())
+            _dueDate.value = currentDate
+        }
     }
 
     fun setInvoiceNumber(value: String) {

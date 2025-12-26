@@ -34,6 +34,13 @@ class HomeViewModel @Inject constructor(
     private val _selectedFilter = MutableStateFlow(InvoiceFilter.PAID)
     val selectedFilter: StateFlow<InvoiceFilter> = _selectedFilter.asStateFlow()
 
+    val dateFormat: StateFlow<String> = settingsRepository.dateFormat
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "MM/dd/yyyy"
+        )
+
     private val allInvoices = invoiceRepository.getAllInvoices()
 
     val filteredInvoices: StateFlow<List<Invoice>> = combine(
@@ -79,6 +86,7 @@ class HomeViewModel @Inject constructor(
                     ownerName = settingsRepository.ownerName.first(),
                     email = settingsRepository.businessEmail.first(),
                     phone = settingsRepository.businessPhone.first(),
+                    website = settingsRepository.businessWebsite.first(),
                     address = settingsRepository.businessAddress.first(),
                     city = settingsRepository.businessCity.first(),
                     state = settingsRepository.businessState.first(),
@@ -91,7 +99,12 @@ class HomeViewModel @Inject constructor(
                     bankName = settingsRepository.bankName.first(),
                     accountHolderName = settingsRepository.accountHolderName.first(),
                     accountNumber = settingsRepository.accountNumber.first(),
-                    paymentTerms = settingsRepository.paymentTerms.first()
+                    routingNumber = settingsRepository.routingNumber.first(),
+                    iban = settingsRepository.iban.first(),
+                    swiftCode = settingsRepository.swiftCode.first(),
+                    bankAddress = settingsRepository.bankAddress.first(),
+                    paymentTerms = settingsRepository.paymentTerms.first(),
+                    additionalInstructions = settingsRepository.additionalInstructions.first()
                 )
 
                 // Get currency

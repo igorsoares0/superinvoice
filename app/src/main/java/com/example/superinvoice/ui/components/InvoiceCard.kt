@@ -41,6 +41,7 @@ import java.util.Locale
 @Composable
 fun InvoiceCard(
     invoice: Invoice,
+    dateFormatPattern: String = "MM/dd/yyyy",
     onClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     onEdit: (() -> Unit)? = null,
@@ -49,8 +50,8 @@ fun InvoiceCard(
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    val dateFormat = SimpleDateFormat("MMM, dd", Locale.getDefault())
-    val formattedDate = dateFormat.format(Date(invoice.createdDate)).lowercase()
+    val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault())
+    val formattedDate = dateFormat.format(Date(invoice.createdDate))
     val currencySymbol = getCurrencySymbol(invoice.currency)
 
     Card(

@@ -54,6 +54,9 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _paymentInfo = MutableStateFlow<InvoicePdfGenerator.PaymentInfo?>(null)
     val paymentInfo: StateFlow<InvoicePdfGenerator.PaymentInfo?> = _paymentInfo.asStateFlow()
 
+    private val _dateFormat = MutableStateFlow("MM/dd/yyyy")
+    val dateFormat: StateFlow<String> = _dateFormat.asStateFlow()
+
     fun loadInvoice(invoiceId: Int) {
         viewModelScope.launch {
             val loadedInvoice = invoiceRepository.getInvoiceById(invoiceId)
@@ -108,6 +111,9 @@ class InvoicePreviewViewModel @Inject constructor(
                     paymentTerms = settingsRepository.paymentTerms.first(),
                     additionalInstructions = settingsRepository.additionalInstructions.first()
                 )
+
+                // Load date format
+                _dateFormat.value = settingsRepository.dateFormat.first()
             }
         }
     }

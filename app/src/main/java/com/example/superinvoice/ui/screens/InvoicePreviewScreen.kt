@@ -73,8 +73,9 @@ fun InvoicePreviewScreen(
     val signaturePath by viewModel.signaturePath.collectAsStateWithLifecycle()
     val businessInfo by viewModel.businessInfo.collectAsStateWithLifecycle()
     val paymentInfo by viewModel.paymentInfo.collectAsStateWithLifecycle()
+    val dateFormatPattern by viewModel.dateFormat.collectAsStateWithLifecycle()
 
-    val dateFormat = SimpleDateFormat("MM.dd.yyyy", Locale.getDefault())
+    val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault())
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 

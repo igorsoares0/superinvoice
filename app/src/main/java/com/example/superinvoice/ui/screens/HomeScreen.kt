@@ -50,6 +50,7 @@ fun HomeScreen(
 ) {
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     val filteredInvoices by viewModel.filteredInvoices.collectAsStateWithLifecycle()
+    val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -134,6 +135,7 @@ fun HomeScreen(
                     items(filteredInvoices) { invoice ->
                         InvoiceCard(
                             invoice = invoice,
+                            dateFormatPattern = dateFormat,
                             onClick = { onNavigateToEditInvoice(invoice.id) },
                             onEdit = { onNavigateToEditInvoice(invoice.id) },
                             onDelete = { viewModel.deleteInvoice(invoice) },

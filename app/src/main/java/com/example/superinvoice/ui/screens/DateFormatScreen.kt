@@ -28,9 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.superinvoice.ui.viewmodel.DateFormatViewModel
 
 data class DateFormat(
     val format: String,
@@ -48,19 +48,20 @@ data class DateFormat(
 @Composable
 fun DateFormatScreen(
     onClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: DateFormatViewModel = hiltViewModel()
 ) {
-    var selectedFormat by remember { mutableStateOf("MM/DD/YYYY") }
+    val selectedFormat by viewModel.selectedFormat.collectAsStateWithLifecycle()
 
     val dateFormats = listOf(
-        DateFormat("MM/DD/YYYY", "12/31/2024", "US Format"),
-        DateFormat("DD/MM/YYYY", "31/12/2024", "European Format"),
-        DateFormat("YYYY-MM-DD", "2024-12-31", "ISO Format"),
-        DateFormat("DD.MM.YYYY", "31.12.2024", "German Format"),
-        DateFormat("DD-MM-YYYY", "31-12-2024", "Alternative Format"),
-        DateFormat("Month DD, YYYY", "December 31, 2024", "Long Format"),
-        DateFormat("DD Month YYYY", "31 December 2024", "British Format"),
-        DateFormat("Mon DD, YYYY", "Dec 31, 2024", "Short Month Format")
+        DateFormat("MM/dd/yyyy", "12/31/2024", "US Format"),
+        DateFormat("dd/MM/yyyy", "31/12/2024", "European Format"),
+        DateFormat("yyyy-MM-dd", "2024-12-31", "ISO Format"),
+        DateFormat("dd.MM.yyyy", "31.12.2024", "German Format"),
+        DateFormat("dd-MM-yyyy", "31-12-2024", "Alternative Format"),
+        DateFormat("MMMM dd, yyyy", "December 31, 2024", "Long Format"),
+        DateFormat("dd MMMM yyyy", "31 December 2024", "British Format"),
+        DateFormat("MMM dd, yyyy", "Dec 31, 2024", "Short Month Format")
     )
 
     Scaffold(
@@ -109,7 +110,7 @@ fun DateFormatScreen(
                     DateFormatOption(
                         dateFormat = dateFormat,
                         isSelected = selectedFormat == dateFormat.format,
-                        onClick = { selectedFormat = dateFormat.format }
+                        onClick = { viewModel.setSelectedFormat(dateFormat.format) }
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -119,7 +120,10 @@ fun DateFormatScreen(
 
             // Save Button
             Button(
-                onClick = onSave,
+                onClick = {
+                    viewModel.saveFormat()
+                    onSave()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 20.dp)
