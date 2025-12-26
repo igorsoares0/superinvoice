@@ -256,16 +256,71 @@ fun EditInvoiceScreen(
                                     fontSize = 14.sp
                                 )
                                 Text(
-                                    text = "${item.quantity} x $currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}",
+                                    text = "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)} per unit",
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
-                                Text(
-                                    text = "Total: $currencySymbol${String.format("%.2f", item.lineTotal)}",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
+
+                                // Quantity controls
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .border(
+                                                1.dp,
+                                                if (item.quantity > 1) Color.Black else Color.Gray,
+                                                RoundedCornerShape(4.dp)
+                                            )
+                                            .clickable(enabled = item.quantity > 1) {
+                                                if (item.quantity > 1) {
+                                                    viewModel.updateLineItemQuantity(index, item.quantity - 1)
+                                                }
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "-",
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (item.quantity > 1) Color.Black else Color.Gray
+                                        )
+                                    }
+
+                                    Text(
+                                        text = "${item.quantity}",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 12.dp)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
+                                            .clickable {
+                                                viewModel.updateLineItemQuantity(index, item.quantity + 1)
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "+",
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.Black
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    Text(
+                                        text = "Total: $currencySymbol${String.format("%.2f", item.lineTotal)}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                }
                             }
                             IconButton(onClick = { viewModel.removeLineItem(index) }) {
                                 Icon(
