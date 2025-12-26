@@ -42,6 +42,7 @@ import com.example.superinvoice.ui.viewmodel.HomeViewModel
 fun HomeScreen(
     onNavigateToCreateInvoice: () -> Unit = {},
     onNavigateToEditInvoice: (Int) -> Unit = {},
+    onNavigateToPreview: (Int) -> Unit = {},
     onNavigateToAddClient: () -> Unit = {},
     onNavigateToAddProduct: () -> Unit = {},
     selectedBottomNavItem: Int = 0,
@@ -137,8 +138,18 @@ fun HomeScreen(
                             invoice = invoice,
                             dateFormatPattern = dateFormat,
                             onClick = { onNavigateToEditInvoice(invoice.id) },
+                            onPreview = { onNavigateToPreview(invoice.id) },
                             onEdit = { onNavigateToEditInvoice(invoice.id) },
-                            onDelete = { viewModel.deleteInvoice(invoice) },
+                            onShare = {
+                                viewModel.shareInvoicePdf(
+                                    invoice = invoice,
+                                    onError = {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("Error sharing PDF")
+                                        }
+                                    }
+                                )
+                            },
                             onDownloadPdf = {
                                 viewModel.downloadInvoicePdf(
                                     invoice = invoice,
@@ -153,7 +164,8 @@ fun HomeScreen(
                                         }
                                     }
                                 )
-                            }
+                            },
+                            onDelete = { viewModel.deleteInvoice(invoice) }
                         )
                     }
                 }

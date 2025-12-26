@@ -44,9 +44,11 @@ fun InvoiceCard(
     dateFormatPattern: String = "MM/dd/yyyy",
     onClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
+    onPreview: (() -> Unit)? = null,
     onEdit: (() -> Unit)? = null,
-    onDelete: (() -> Unit)? = null,
+    onShare: (() -> Unit)? = null,
     onDownloadPdf: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -144,9 +146,27 @@ fun InvoiceCard(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false }
                 ) {
+                    onPreview?.let {
+                        DropdownMenuItem(
+                            text = { Text("Preview") },
+                            onClick = {
+                                showMenu = false
+                                it()
+                            }
+                        )
+                    }
                     onEdit?.let {
                         DropdownMenuItem(
                             text = { Text("Edit") },
+                            onClick = {
+                                showMenu = false
+                                it()
+                            }
+                        )
+                    }
+                    onShare?.let {
+                        DropdownMenuItem(
+                            text = { Text("Share") },
                             onClick = {
                                 showMenu = false
                                 it()

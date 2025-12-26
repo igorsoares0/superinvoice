@@ -97,6 +97,11 @@ fun AppNavigation() {
                 navigateTo(Screen.CREATE_INVOICE)
             },
             onNavigateToEditInvoice = { invoiceId -> navigateToEditInvoice(invoiceId) },
+            onNavigateToPreview = { invoiceId ->
+                selectedInvoiceId = invoiceId
+                previewVersion++
+                navigateTo(Screen.INVOICE_PREVIEW)
+            },
             onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
             onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
             selectedBottomNavItem = selectedBottomNavItem,
