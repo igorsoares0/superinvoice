@@ -57,6 +57,9 @@ class CreateInvoiceViewModel @Inject constructor(
     private val _currency = MutableStateFlow("USD")
     val currency: StateFlow<String> = _currency.asStateFlow()
 
+    private val _dateFormat = MutableStateFlow("MM/dd/yyyy")
+    val dateFormat: StateFlow<String> = _dateFormat.asStateFlow()
+
     private val _selectedClient = MutableStateFlow<Client?>(null)
     val selectedClient: StateFlow<Client?> = _selectedClient.asStateFlow()
 
@@ -86,14 +89,18 @@ class CreateInvoiceViewModel @Inject constructor(
 
     init {
         generateInvoiceNumber()
-        setCurrentDateAsDueDate()
-        loadCurrency()
+        loadSettings()
     }
 
-    private fun loadCurrency() {
+    private fun loadSettings() {
         viewModelScope.launch {
             val currency = settingsRepository.currency.first()
             _currency.value = currency
+
+            val dateFormatPattern = settingsRepository.dateFormat.first()
+            _dateFormat.value = dateFormatPattern
+
+            setCurrentDateAsDueDate()
         }
     }
 
@@ -105,12 +112,9 @@ class CreateInvoiceViewModel @Inject constructor(
     }
 
     private fun setCurrentDateAsDueDate() {
-        viewModelScope.launch {
-            val dateFormatPattern = settingsRepository.dateFormat.first()
-            val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault())
-            val currentDate = dateFormat.format(Date())
-            _dueDate.value = currentDate
-        }
+        val dateFormatObj = SimpleDateFormat(_dateFormat.value, Locale.getDefault())
+        val currentDate = dateFormatObj.format(Date())
+        _dueDate.value = currentDate
     }
 
     fun setInvoiceNumber(value: String) {
@@ -231,7 +235,6 @@ class CreateInvoiceViewModel @Inject constructor(
         _subtotal.value = 0.0
         _totalAmount.value = 0.0
         generateInvoiceNumber()
-        setCurrentDateAsDueDate()
-        loadCurrency()
+        loadSettings()
     }
 }

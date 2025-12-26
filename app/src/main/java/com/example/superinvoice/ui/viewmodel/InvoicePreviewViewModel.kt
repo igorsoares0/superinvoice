@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 data class InvoicePreviewLineItem(
@@ -56,6 +58,47 @@ class InvoicePreviewViewModel @Inject constructor(
 
     private val _dateFormat = MutableStateFlow("MM/dd/yyyy")
     val dateFormat: StateFlow<String> = _dateFormat.asStateFlow()
+
+    private val _formattedDueDate = MutableStateFlow("")
+    val formattedDueDate: StateFlow<String> = _formattedDueDate.asStateFlow()
+
+    private fun reformatDateIfNeeded(dateString: String): String {
+        if (dateString.isEmpty()) return dateString
+
+        // Lista de formatos conhecidos para tentar parsear
+        val knownFormats = listOf(
+            "MM/dd/yyyy",
+            "dd/MM/yyyy",
+            "yyyy-MM-dd",
+            "dd.MM.yyyy",
+            "dd-MM-yyyy",
+            "MMMM dd, yyyy",
+            "dd MMMM yyyy",
+            "MMM dd, yyyy",
+            "MMM, dd"  // Formato antigo
+        )
+
+        // Tentar parsear com cada formato conhecido
+        for (format in knownFormats) {
+            try {
+                val parser = SimpleDateFormat(format, Locale.getDefault())
+                parser.isLenient = false
+                val date = parser.parse(dateString)
+
+                // Se conseguiu parsear, reformatar com o formato atual
+                if (date != null) {
+                    val formatter = SimpleDateFormat(_dateFormat.value, Locale.getDefault())
+                    return formatter.format(date)
+                }
+            } catch (e: Exception) {
+                // Continuar tentando outros formatos
+                continue
+            }
+        }
+
+        // Se não conseguiu parsear com nenhum formato, retornar a string original
+        return dateString
+    }
 
     fun loadInvoice(invoiceId: Int) {
         viewModelScope.launch {
@@ -114,6 +157,9 @@ class InvoicePreviewViewModel @Inject constructor(
 
                 // Load date format
                 _dateFormat.value = settingsRepository.dateFormat.first()
+
+                // Reformatar due date para o formato atual
+                _formattedDueDate.value = reformatDateIfNeeded(loadedInvoice.dueDate)
             }
         }
     }
@@ -162,6 +208,9 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get currency
                 val currency = settingsRepository.currency.first()
 
+                // Get date format
+                val dateFormat = settingsRepository.dateFormat.first()
+
                 // Get logo path
                 val logoPath = settingsRepository.logoPath.first()
 
@@ -176,6 +225,7 @@ class InvoicePreviewViewModel @Inject constructor(
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
                     currency = currency,
+                    dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
                 )

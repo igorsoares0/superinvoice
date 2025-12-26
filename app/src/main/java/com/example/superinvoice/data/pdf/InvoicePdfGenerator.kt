@@ -16,6 +16,9 @@ import com.example.superinvoice.util.getCurrencySymbol
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,6 +55,44 @@ class InvoicePdfGenerator @Inject constructor(
         val additionalInstructions: String = ""
     )
 
+    private fun reformatDateIfNeeded(dateString: String, targetFormat: String): String {
+        if (dateString.isEmpty()) return dateString
+
+        // Lista de formatos conhecidos para tentar parsear
+        val knownFormats = listOf(
+            "MM/dd/yyyy",
+            "dd/MM/yyyy",
+            "yyyy-MM-dd",
+            "dd.MM.yyyy",
+            "dd-MM-yyyy",
+            "MMMM dd, yyyy",
+            "dd MMMM yyyy",
+            "MMM dd, yyyy",
+            "MMM, dd"  // Formato antigo
+        )
+
+        // Tentar parsear com cada formato conhecido
+        for (format in knownFormats) {
+            try {
+                val parser = SimpleDateFormat(format, Locale.getDefault())
+                parser.isLenient = false
+                val date = parser.parse(dateString)
+
+                // Se conseguiu parsear, reformatar com o formato alvo
+                if (date != null) {
+                    val formatter = SimpleDateFormat(targetFormat, Locale.getDefault())
+                    return formatter.format(date)
+                }
+            } catch (e: Exception) {
+                // Continuar tentando outros formatos
+                continue
+            }
+        }
+
+        // Se não conseguiu parsear com nenhum formato, retornar a string original
+        return dateString
+    }
+
     fun generateInvoicePdf(
         invoice: Invoice,
         client: Client,
@@ -59,6 +100,7 @@ class InvoicePdfGenerator @Inject constructor(
         businessInfo: BusinessInfo,
         paymentInfo: PaymentInfo,
         currency: String = "USD",
+        dateFormat: String = "MM/dd/yyyy",
         logoPath: String? = null,
         signaturePath: String? = null
     ): File? {
@@ -69,7 +111,7 @@ class InvoicePdfGenerator @Inject constructor(
             val canvas = page.canvas
 
             // Draw the invoice content
-            drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, logoPath, signaturePath)
+            drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath)
 
             pdfDocument.finishPage(page)
 
@@ -97,6 +139,7 @@ class InvoicePdfGenerator @Inject constructor(
         businessInfo: BusinessInfo,
         paymentInfo: PaymentInfo,
         currency: String,
+        dateFormat: String,
         logoPath: String?,
         signaturePath: String?
     ) {
@@ -225,12 +268,18 @@ class InvoicePdfGenerator @Inject constructor(
         canvas.drawText(invoice.number, rightX + 100f, rightYPos, bodyPaint)
         rightYPos += 15f
 
+        // Format createdDate (Long timestamp) for DATE
+        val formattedCreatedDate = SimpleDateFormat(dateFormat, Locale.getDefault()).format(Date(invoice.createdDate))
+
+        // Reformat dueDate (String) for DUE DATE
+        val formattedDueDate = reformatDateIfNeeded(invoice.dueDate, dateFormat)
+
         canvas.drawText("DATE:", rightX, rightYPos, sectionTitlePaint)
-        canvas.drawText(invoice.dueDate, rightX + 100f, rightYPos, bodyPaint)
+        canvas.drawText(formattedCreatedDate, rightX + 100f, rightYPos, bodyPaint)
         rightYPos += 15f
 
         canvas.drawText("DUE DATE:", rightX, rightYPos, sectionTitlePaint)
-        canvas.drawText(invoice.dueDate, rightX + 100f, rightYPos, bodyPaint)
+        canvas.drawText(formattedDueDate, rightX + 100f, rightYPos, bodyPaint)
         rightYPos += 15f
 
         // Advance to the max height of both columns

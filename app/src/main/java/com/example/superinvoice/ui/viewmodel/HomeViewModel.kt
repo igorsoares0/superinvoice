@@ -110,6 +110,9 @@ class HomeViewModel @Inject constructor(
                 // Get currency
                 val currency = settingsRepository.currency.first()
 
+                // Get date format
+                val dateFormat = settingsRepository.dateFormat.first()
+
                 // Get logo path
                 val logoPath = settingsRepository.logoPath.first()
 
@@ -124,6 +127,7 @@ class HomeViewModel @Inject constructor(
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
                     currency = currency,
+                    dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
                 )

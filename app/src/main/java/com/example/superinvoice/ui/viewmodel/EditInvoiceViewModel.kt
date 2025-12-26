@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,6 +52,9 @@ class EditInvoiceViewModel @Inject constructor(
 
     private val _currency = MutableStateFlow("USD")
     val currency: StateFlow<String> = _currency.asStateFlow()
+
+    private val _dateFormat = MutableStateFlow("MM/dd/yyyy")
+    val dateFormat: StateFlow<String> = _dateFormat.asStateFlow()
 
     private val _status = MutableStateFlow(InvoiceStatus.DRAFT)
     val status: StateFlow<InvoiceStatus> = _status.asStateFlow()
@@ -84,14 +89,55 @@ class EditInvoiceViewModel @Inject constructor(
     private var loadedInvoiceId: Int? = null
 
     init {
-        loadCurrencyFromSettings()
+        loadSettings()
     }
 
-    private fun loadCurrencyFromSettings() {
+    private fun loadSettings() {
         viewModelScope.launch {
             val currency = settingsRepository.currency.first()
             _currency.value = currency
+
+            val dateFormatPattern = settingsRepository.dateFormat.first()
+            _dateFormat.value = dateFormatPattern
         }
+    }
+
+    private fun reformatDateIfNeeded(dateString: String): String {
+        if (dateString.isEmpty()) return dateString
+
+        // Lista de formatos conhecidos para tentar parsear
+        val knownFormats = listOf(
+            "MM/dd/yyyy",
+            "dd/MM/yyyy",
+            "yyyy-MM-dd",
+            "dd.MM.yyyy",
+            "dd-MM-yyyy",
+            "MMMM dd, yyyy",
+            "dd MMMM yyyy",
+            "MMM dd, yyyy",
+            "MMM, dd"  // Formato antigo
+        )
+
+        // Tentar parsear com cada formato conhecido
+        for (format in knownFormats) {
+            try {
+                val parser = SimpleDateFormat(format, Locale.getDefault())
+                parser.isLenient = false
+                val date = parser.parse(dateString)
+
+                // Se conseguiu parsear, reformatar com o formato atual
+                if (date != null) {
+                    val formatter = SimpleDateFormat(_dateFormat.value, Locale.getDefault())
+                    return formatter.format(date)
+                }
+            } catch (e: Exception) {
+                // Continuar tentando outros formatos
+                continue
+            }
+        }
+
+        // Se não conseguiu parsear com nenhum formato, retornar a string original
+        return dateString
     }
 
     fun loadInvoice(invoiceId: Int) {
@@ -102,7 +148,10 @@ class EditInvoiceViewModel @Inject constructor(
             if (loadedInvoice != null) {
                 _invoice.value = loadedInvoice
                 _invoiceNumber.value = loadedInvoice.number
-                _dueDate.value = loadedInvoice.dueDate
+
+                // Reformatar due date para o formato atual
+                _dueDate.value = reformatDateIfNeeded(loadedInvoice.dueDate)
+
                 _notes.value = loadedInvoice.notes
                 _tax.value = loadedInvoice.tax.toString()
                 _discount.value = loadedInvoice.discount.toString()

@@ -74,6 +74,7 @@ fun InvoicePreviewScreen(
     val businessInfo by viewModel.businessInfo.collectAsStateWithLifecycle()
     val paymentInfo by viewModel.paymentInfo.collectAsStateWithLifecycle()
     val dateFormatPattern by viewModel.dateFormat.collectAsStateWithLifecycle()
+    val formattedDueDate by viewModel.formattedDueDate.collectAsStateWithLifecycle()
 
     val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault())
     val snackbarHostState = remember { SnackbarHostState() }
@@ -317,7 +318,7 @@ fun InvoicePreviewScreen(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = invoice?.dueDate ?: "",
+                                        text = formattedDueDate,
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.Black

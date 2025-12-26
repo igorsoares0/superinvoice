@@ -81,6 +81,7 @@ fun EditInvoiceScreen(
     val tax by viewModel.tax.collectAsStateWithLifecycle()
     val discount by viewModel.discount.collectAsStateWithLifecycle()
     val currency by viewModel.currency.collectAsStateWithLifecycle()
+    val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle()
     val selectedClient by viewModel.selectedClient.collectAsStateWithLifecycle()
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
     val subtotal by viewModel.subtotal.collectAsStateWithLifecycle()
@@ -211,6 +212,7 @@ fun EditInvoiceScreen(
                         label = "Due Date",
                         value = dueDate,
                         onValueChange = { viewModel.setDueDate(it) },
+                        dateFormatPattern = dateFormat,
                         modifier = Modifier.weight(1f)
                     )
                 }

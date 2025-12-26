@@ -38,6 +38,7 @@ fun DatePickerField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
+    dateFormatPattern: String = "MM/dd/yyyy",
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
@@ -95,10 +96,10 @@ fun DatePickerField(
                             val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
                                 timeInMillis = millis
                             }
-                            val dateFormat = SimpleDateFormat("MMM, dd", Locale.getDefault()).apply {
+                            val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault()).apply {
                                 timeZone = TimeZone.getTimeZone("UTC")
                             }
-                            val formattedDate = dateFormat.format(calendar.time).lowercase()
+                            val formattedDate = dateFormat.format(calendar.time)
                             onValueChange(formattedDate)
                         }
                         showDatePicker = false
