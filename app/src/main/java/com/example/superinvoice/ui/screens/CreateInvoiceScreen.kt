@@ -473,7 +473,13 @@ fun CreateInvoiceScreen(
         if (showTaxDialog) {
             AlertDialog(
                 onDismissRequest = { showTaxDialog = false },
-                title = { Text("Tax Amount") },
+                title = {
+                    Text(
+                        text = "Tax Amount",
+                        color = Color.Black,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 text = {
                     OutlinedTextField(
                         value = taxInput,
@@ -482,7 +488,9 @@ fun CreateInvoiceScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9DEA6E),
-                            focusedLabelColor = Color(0xFF9DEA6E)
+                            focusedLabelColor = Color(0xFF9DEA6E),
+                            unfocusedTextColor = Color.Black,
+                            focusedTextColor = Color.Black
                         )
                     )
                 },
@@ -493,14 +501,16 @@ fun CreateInvoiceScreen(
                             showTaxDialog = false
                         }
                     ) {
-                        Text("OK", color = Color(0xFF9DEA6E))
+                        Text("OK", color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showTaxDialog = false }) {
-                        Text("Cancel", color = Color.Gray)
+                        Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
-                }
+                },
+                shape = RoundedCornerShape(12.dp),
+                containerColor = Color.White
             )
         }
 
@@ -508,7 +518,13 @@ fun CreateInvoiceScreen(
         if (showDiscountDialog) {
             AlertDialog(
                 onDismissRequest = { showDiscountDialog = false },
-                title = { Text("Discount Amount") },
+                title = {
+                    Text(
+                        text = "Discount Amount",
+                        color = Color.Black,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 text = {
                     OutlinedTextField(
                         value = discountInput,
@@ -517,7 +533,9 @@ fun CreateInvoiceScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9DEA6E),
-                            focusedLabelColor = Color(0xFF9DEA6E)
+                            focusedLabelColor = Color(0xFF9DEA6E),
+                            unfocusedTextColor = Color.Black,
+                            focusedTextColor = Color.Black
                         )
                     )
                 },
@@ -528,14 +546,16 @@ fun CreateInvoiceScreen(
                             showDiscountDialog = false
                         }
                     ) {
-                        Text("OK", color = Color(0xFF9DEA6E))
+                        Text("OK", color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDiscountDialog = false }) {
-                        Text("Cancel", color = Color.Gray)
+                        Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
-                }
+                },
+                shape = RoundedCornerShape(12.dp),
+                containerColor = Color.White
             )
         }
     }
