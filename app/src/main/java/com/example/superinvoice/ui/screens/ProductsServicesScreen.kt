@@ -47,6 +47,7 @@ import com.example.superinvoice.ui.viewmodel.ProductsServicesViewModel
 fun ProductsServicesScreen(
     onClose: () -> Unit,
     onNavigateToAddProductService: () -> Unit = {},
+    onNavigateToEditProduct: ((Int) -> Unit)? = null,
     onProductSelected: ((com.example.superinvoice.data.ProductService) -> Unit)? = null,
     viewModel: ProductsServicesViewModel = hiltViewModel()
 ) {
@@ -162,6 +163,9 @@ fun ProductsServicesScreen(
                             currency = currency,
                             onClick = if (isSelectionMode) {
                                 { onProductSelected?.invoke(product) }
+                            } else null,
+                            onEdit = if (!isSelectionMode) {
+                                { onNavigateToEditProduct?.invoke(product.id) }
                             } else null,
                             onDelete = if (!isSelectionMode) {
                                 { viewModel.deleteProductService(product) }

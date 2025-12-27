@@ -39,6 +39,7 @@ fun SettingsScreen(
     onNavigateToCurrency: () -> Unit = {},
     onNavigateToDateFormat: () -> Unit = {},
     onNavigateToManageClients: () -> Unit = {},
+    onNavigateToManageProducts: () -> Unit = {},
     onNavigateToAddClient: () -> Unit = {},
     onNavigateToAddProduct: () -> Unit = {}
 ) {
@@ -117,6 +118,7 @@ fun SettingsScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 ) {
                     SettingsOption(text = "Manage Clients", onClick = onNavigateToManageClients)
+                    SettingsOption(text = "Manage Products & Services", onClick = onNavigateToManageProducts)
                     SettingsOption(text = "Currency", onClick = onNavigateToCurrency)
                     SettingsOption(text = "Date format", onClick = onNavigateToDateFormat)
                     SettingsOption(text = "Language", onClick = { })

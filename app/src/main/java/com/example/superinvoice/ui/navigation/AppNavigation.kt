@@ -11,6 +11,7 @@ import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
 import com.example.superinvoice.ui.screens.BusinessInformationScreen
 import com.example.superinvoice.ui.screens.EditClientScreen
+import com.example.superinvoice.ui.screens.EditProductScreen
 import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
 import com.example.superinvoice.ui.screens.CurrencyScreen
@@ -33,6 +34,7 @@ enum class Screen {
     EDIT_CLIENT,
     PRODUCTS_SERVICES,
     ADD_PRODUCT,
+    EDIT_PRODUCT,
     SETTINGS,
     EDIT_INVOICE,
     INVOICE_TEMPLATE,
@@ -52,6 +54,7 @@ fun AppNavigation() {
     var navigationStack by remember { mutableStateOf(listOf<Screen>()) }
     var selectedInvoiceId by remember { mutableIntStateOf(0) }
     var selectedClientId by remember { mutableIntStateOf(0) }
+    var selectedProductId by remember { mutableIntStateOf(0) }
     var isSelectingForInvoice by remember { mutableStateOf(false) }
     var pendingClientSelection by remember { mutableStateOf<com.example.superinvoice.data.Client?>(null) }
     var pendingProductSelection by remember { mutableStateOf<com.example.superinvoice.data.ProductService?>(null) }
@@ -78,6 +81,12 @@ fun AppNavigation() {
     fun navigateToEditClient(clientId: Int) {
         selectedClientId = clientId
         navigateTo(Screen.EDIT_CLIENT)
+    }
+
+    // Navigate to edit product with ID
+    fun navigateToEditProduct(productId: Int) {
+        selectedProductId = productId
+        navigateTo(Screen.EDIT_PRODUCT)
     }
 
     // Navigate back to previous screen
@@ -184,6 +193,7 @@ fun AppNavigation() {
                 navigateBack()
             },
             onNavigateToAddProductService = { navigateTo(Screen.ADD_PRODUCT) },
+            onNavigateToEditProduct = { productId -> navigateToEditProduct(productId) },
             onProductSelected = if (isSelectingForInvoice) {
                 { product: com.example.superinvoice.data.ProductService ->
                     pendingProductSelection = product
@@ -194,6 +204,11 @@ fun AppNavigation() {
             } else null
         )
         Screen.ADD_PRODUCT -> AddProductScreen(
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
+        )
+        Screen.EDIT_PRODUCT -> EditProductScreen(
+            productId = selectedProductId,
             onClose = { navigateBack() },
             onSave = { navigateBack() }
         )
@@ -222,6 +237,10 @@ fun AppNavigation() {
             onNavigateToManageClients = {
                 isSelectingForInvoice = false
                 navigateTo(Screen.CLIENTS)
+            },
+            onNavigateToManageProducts = {
+                isSelectingForInvoice = false
+                navigateTo(Screen.PRODUCTS_SERVICES)
             },
             onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
             onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) }
