@@ -104,36 +104,54 @@ fun ClientCard(
             )
         }
 
-        Box {
-            IconButton(onClick = { showMenu = true }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Menu",
-                    tint = Color.Gray
-                )
-            }
-
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false }
-            ) {
-                onEdit?.let {
-                    DropdownMenuItem(
-                        text = { Text("Edit") },
-                        onClick = {
-                            showMenu = false
-                            it()
-                        }
+        if (onEdit != null || onDelete != null) {
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Menu",
+                        tint = Color.Gray
                     )
                 }
-                onDelete?.let {
-                    DropdownMenuItem(
-                        text = { Text("Delete", color = Color.Red) },
-                        onClick = {
-                            showMenu = false
-                            it()
-                        }
-                    )
+
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = Color.White
+                ) {
+                    onEdit?.let {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "Edit",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Black
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                it()
+                            }
+                        )
+                    }
+                    onDelete?.let {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "Delete",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Red
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                it()
+                            }
+                        )
+                    }
                 }
             }
         }

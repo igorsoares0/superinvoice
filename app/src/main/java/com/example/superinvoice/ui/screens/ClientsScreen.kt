@@ -44,6 +44,7 @@ import com.example.superinvoice.ui.viewmodel.ClientsViewModel
 fun ClientsScreen(
     onClose: () -> Unit,
     onNavigateToAddClient: () -> Unit = {},
+    onNavigateToEditClient: ((Int) -> Unit)? = null,
     onClientSelected: ((Client) -> Unit)? = null,
     viewModel: ClientsViewModel = hiltViewModel()
 ) {
@@ -121,6 +122,9 @@ fun ClientsScreen(
                             client = client,
                             onClick = if (isSelectionMode) {
                                 { onClientSelected?.invoke(client) }
+                            } else null,
+                            onEdit = if (!isSelectionMode) {
+                                { onNavigateToEditClient?.invoke(client.id) }
                             } else null,
                             onDelete = if (!isSelectionMode) {
                                 { viewModel.deleteClient(client) }

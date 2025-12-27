@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
 import com.example.superinvoice.ui.screens.BusinessInformationScreen
+import com.example.superinvoice.ui.screens.EditClientScreen
 import com.example.superinvoice.ui.screens.ClientsScreen
 import com.example.superinvoice.ui.screens.CreateInvoiceScreen
 import com.example.superinvoice.ui.screens.CurrencyScreen
@@ -29,6 +30,7 @@ enum class Screen {
     CREATE_INVOICE,
     CLIENTS,
     ADD_CLIENT,
+    EDIT_CLIENT,
     PRODUCTS_SERVICES,
     ADD_PRODUCT,
     SETTINGS,
@@ -49,6 +51,7 @@ fun AppNavigation() {
     var selectedBottomNavItem by remember { mutableIntStateOf(0) }
     var navigationStack by remember { mutableStateOf(listOf<Screen>()) }
     var selectedInvoiceId by remember { mutableIntStateOf(0) }
+    var selectedClientId by remember { mutableIntStateOf(0) }
     var isSelectingForInvoice by remember { mutableStateOf(false) }
     var pendingClientSelection by remember { mutableStateOf<com.example.superinvoice.data.Client?>(null) }
     var pendingProductSelection by remember { mutableStateOf<com.example.superinvoice.data.ProductService?>(null) }
@@ -69,6 +72,12 @@ fun AppNavigation() {
     fun navigateToEditInvoice(invoiceId: Int) {
         selectedInvoiceId = invoiceId
         navigateTo(Screen.EDIT_INVOICE)
+    }
+
+    // Navigate to edit client with ID
+    fun navigateToEditClient(clientId: Int) {
+        selectedClientId = clientId
+        navigateTo(Screen.EDIT_CLIENT)
     }
 
     // Navigate back to previous screen
@@ -150,6 +159,7 @@ fun AppNavigation() {
                 navigateBack()
             },
             onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
+            onNavigateToEditClient = { clientId -> navigateToEditClient(clientId) },
             onClientSelected = if (isSelectingForInvoice) {
                 { client: com.example.superinvoice.data.Client ->
                     pendingClientSelection = client
@@ -160,6 +170,11 @@ fun AppNavigation() {
             } else null
         )
         Screen.ADD_CLIENT -> AddClientScreen(
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
+        )
+        Screen.EDIT_CLIENT -> EditClientScreen(
+            clientId = selectedClientId,
             onClose = { navigateBack() },
             onSave = { navigateBack() }
         )
@@ -204,6 +219,10 @@ fun AppNavigation() {
             onNavigateToSignature = { navigateTo(Screen.SIGNATURE) },
             onNavigateToCurrency = { navigateTo(Screen.CURRENCY) },
             onNavigateToDateFormat = { navigateTo(Screen.DATE_FORMAT) },
+            onNavigateToManageClients = {
+                isSelectingForInvoice = false
+                navigateTo(Screen.CLIENTS)
+            },
             onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
             onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) }
         )
