@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -222,14 +223,16 @@ fun CreateInvoiceScreen(
                 NavigationButton(
                     icon = Icons.Default.Person,
                     text = selectedClient?.name ?: "Add Client",
-                    onClick = onNavigateToSelectClient
+                    onClick = onNavigateToSelectClient,
+                    useGreenCircle = true
                 )
 
                 // Add Product or Service Button
                 NavigationButton(
                     icon = Icons.Default.Add,
                     text = "Add Product or Service",
-                    onClick = onNavigateToSelectProduct
+                    onClick = onNavigateToSelectProduct,
+                    useGreenCircle = true
                 )
 
                 // Items Section (below the button)
@@ -566,12 +569,13 @@ private fun NavigationButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     iconText: String? = null,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    useGreenCircle: Boolean = false
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(if (useGreenCircle) 12.dp else 8.dp))
             .clickable(onClick = onClick)
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -582,27 +586,58 @@ private fun NavigationButton(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.weight(1f)
         ) {
-            if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.Black
-                )
-            } else if (iconText != null) {
+            if (useGreenCircle) {
+                // Green circle with icon (for Add Client and Add Product)
                 Box(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            color = Color(0xFF9DEA6E),
+                            shape = CircleShape
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = iconText,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
+                    if (icon != null) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = Color.Black
+                        )
+                    } else if (iconText != null) {
+                        Text(
+                            text = iconText,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.width(16.dp))
+            } else {
+                // Original style (for Tax and Discount)
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Black
+                    )
+                } else if (iconText != null) {
+                    Box(
+                        modifier = Modifier.size(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = iconText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
             }
-            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = text,
                 fontSize = 16.sp,
@@ -613,8 +648,8 @@ private fun NavigationButton(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = Color.Gray
+            modifier = Modifier.size(if (useGreenCircle) 24.dp else 20.dp),
+            tint = if (useGreenCircle) Color.Black else Color.Gray
         )
     }
 }
