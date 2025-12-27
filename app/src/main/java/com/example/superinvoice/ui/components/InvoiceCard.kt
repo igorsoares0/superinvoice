@@ -144,11 +144,21 @@ fun InvoiceCard(
 
                 DropdownMenu(
                     expanded = showMenu,
-                    onDismissRequest = { showMenu = false }
+                    onDismissRequest = { showMenu = false },
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = Color.White,
+                    modifier = Modifier
                 ) {
                     onPreview?.let {
                         DropdownMenuItem(
-                            text = { Text("Preview") },
+                            text = {
+                                Text(
+                                    text = "Preview",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Black
+                                )
+                            },
                             onClick = {
                                 showMenu = false
                                 it()
@@ -157,7 +167,14 @@ fun InvoiceCard(
                     }
                     onEdit?.let {
                         DropdownMenuItem(
-                            text = { Text("Edit") },
+                            text = {
+                                Text(
+                                    text = "Edit",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Black
+                                )
+                            },
                             onClick = {
                                 showMenu = false
                                 it()
@@ -166,7 +183,14 @@ fun InvoiceCard(
                     }
                     onShare?.let {
                         DropdownMenuItem(
-                            text = { Text("Share") },
+                            text = {
+                                Text(
+                                    text = "Share",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Black
+                                )
+                            },
                             onClick = {
                                 showMenu = false
                                 it()
@@ -175,7 +199,14 @@ fun InvoiceCard(
                     }
                     onDownloadPdf?.let {
                         DropdownMenuItem(
-                            text = { Text("Download PDF") },
+                            text = {
+                                Text(
+                                    text = "Download PDF",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Black
+                                )
+                            },
                             onClick = {
                                 showMenu = false
                                 it()
@@ -184,7 +215,14 @@ fun InvoiceCard(
                     }
                     onDelete?.let {
                         DropdownMenuItem(
-                            text = { Text("Delete", color = Color.Red) },
+                            text = {
+                                Text(
+                                    text = "Delete",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Red
+                                )
+                            },
                             onClick = {
                                 showMenu = false
                                 it()
