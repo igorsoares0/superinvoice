@@ -146,6 +146,18 @@ fun InvoicePreviewScreen(
                             formattedDueDate = formattedDueDate,
                             currencySymbol = currencySymbol
                         )
+                        "professional" -> ProfessionalTemplatePreview(
+                            invoice = invoice,
+                            client = client,
+                            lineItems = lineItems,
+                            logoPath = logoPath,
+                            signaturePath = signaturePath,
+                            businessInfo = businessInfo,
+                            paymentInfo = paymentInfo,
+                            dateFormat = dateFormat,
+                            formattedDueDate = formattedDueDate,
+                            currencySymbol = currencySymbol
+                        )
                         else -> ClassicTemplatePreview(
                             invoice = invoice,
                             client = client,
@@ -1042,6 +1054,380 @@ private fun ModernTemplatePreview(
         }
         if (businessInfo?.website?.isNotEmpty() == true) {
             Text(text = "WEB: ${businessInfo?.website}", fontSize = 7.sp, color = Color.Black)
+        }
+    }
+}
+
+@Composable
+private fun ProfessionalTemplatePreview(
+    invoice: com.example.superinvoice.data.Invoice?,
+    client: com.example.superinvoice.data.Client?,
+    lineItems: List<com.example.superinvoice.ui.viewmodel.InvoicePreviewLineItem>,
+    logoPath: String?,
+    signaturePath: String?,
+    businessInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.BusinessInfo?,
+    paymentInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.PaymentInfo?,
+    dateFormat: SimpleDateFormat,
+    formattedDueDate: String,
+    currencySymbol: String
+) {
+    Column {
+        // Logo (if exists)
+        logoPath?.let { path ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(File(path)),
+                    contentDescription = "Business Logo",
+                    modifier = Modifier.height(32.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+
+        // Business info at top
+        if (businessInfo?.businessName?.isNotEmpty() == true) {
+            Text(text = businessInfo?.businessName ?: "", fontSize = 9.sp, fontWeight = FontWeight.Normal, color = Color.Black)
+        }
+        if (businessInfo?.ownerName?.isNotEmpty() == true) {
+            Text(text = businessInfo?.ownerName ?: "", fontSize = 8.sp, color = Color.DarkGray)
+        }
+        if (businessInfo?.email?.isNotEmpty() == true) {
+            Text(text = businessInfo?.email ?: "", fontSize = 8.sp, color = Color.DarkGray)
+        }
+        if (businessInfo?.phone?.isNotEmpty() == true) {
+            Text(text = businessInfo?.phone ?: "", fontSize = 8.sp, color = Color.DarkGray)
+        }
+        if (businessInfo?.address?.isNotEmpty() == true) {
+            Text(text = businessInfo?.address ?: "", fontSize = 8.sp, color = Color.DarkGray)
+        }
+        val cityStateZip = buildString {
+            if (businessInfo?.city?.isNotEmpty() == true) append(businessInfo?.city)
+            if (businessInfo?.state?.isNotEmpty() == true) {
+                if (isNotEmpty()) append(", ")
+                append(businessInfo?.state)
+            }
+            if (businessInfo?.zipCode?.isNotEmpty() == true) {
+                if (isNotEmpty()) append(" ")
+                append(businessInfo?.zipCode)
+            }
+        }
+        if (cityStateZip.isNotEmpty()) {
+            Text(text = cityStateZip, fontSize = 8.sp, color = Color.DarkGray)
+        }
+        if (businessInfo?.taxId?.isNotEmpty() == true) {
+            Text(text = "Tax ID: ${businessInfo?.taxId}", fontSize = 8.sp, color = Color.DarkGray)
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Large "INVOICE" title at center
+        Text(
+            text = "INVOICE",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 4.sp,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Two columns: Issued to (left) and Invoice info (right)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Left - Issued to
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Issued to:",
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = client?.name ?: "", fontSize = 9.sp, color = Color.Black)
+                if (client?.email?.isNotEmpty() == true) {
+                    Text(text = client?.email ?: "", fontSize = 8.sp, color = Color.DarkGray)
+                }
+                if (client?.phone?.isNotEmpty() == true) {
+                    Text(text = client?.phone ?: "", fontSize = 8.sp, color = Color.DarkGray)
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Right - Invoice No and Dates
+            Column(horizontalAlignment = Alignment.End) {
+                Row {
+                    Text(text = "Invoice No:", fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "#${invoice?.number ?: ""}", fontSize = 8.sp, color = Color.Black)
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Row {
+                    Text(text = "Date Issued:", fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = invoice?.let { dateFormat.format(Date(it.createdDate)) } ?: "",
+                        fontSize = 8.sp,
+                        color = Color.Black
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Row {
+                    Text(text = "Due Date:", fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = formattedDueDate, fontSize = 8.sp, color = Color.Black)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Table with black header
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Header row with black background
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black)
+                    .padding(vertical = 10.dp, horizontal = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Description",
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.weight(2.5f),
+                    maxLines = 1
+                )
+                Text(
+                    text = "Quantity",
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
+                Text(
+                    text = "Unit Price",
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.weight(1.2f),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
+                Text(
+                    text = "Total",
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.End,
+                    maxLines = 1
+                )
+            }
+
+            // Table rows
+            lineItems.forEach { item ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = item.productService.name,
+                        fontSize = 9.sp,
+                        color = Color.Black,
+                        modifier = Modifier.weight(2.5f)
+                    )
+                    Text(
+                        text = "${item.quantity}",
+                        fontSize = 9.sp,
+                        color = Color.Black,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}",
+                        fontSize = 9.sp,
+                        color = Color.Black,
+                        modifier = Modifier.weight(1.2f),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "$currencySymbol${String.format("%.2f", item.lineTotal)}",
+                        fontSize = 9.sp,
+                        color = Color.Black,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+        Divider(thickness = 1.dp, color = Color.LightGray)
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Bottom section: Payment info (left) and Totals (right)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            // Left - Payment Info
+            Column(modifier = Modifier.weight(1f)) {
+                if (paymentInfo?.bankName?.isNotEmpty() == true) {
+                    Text(
+                        text = "PAYMENT INFO",
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    if (paymentInfo?.bankName?.isNotEmpty() == true) {
+                        Text(text = paymentInfo?.bankName ?: "", fontSize = 8.sp, color = Color.DarkGray)
+                    }
+                    if (paymentInfo?.bankAddress?.isNotEmpty() == true) {
+                        Text(text = paymentInfo?.bankAddress ?: "", fontSize = 8.sp, color = Color.DarkGray)
+                    }
+                    if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
+                        Text(
+                            text = "Account Name: ${paymentInfo?.accountHolderName}",
+                            fontSize = 8.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                    if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
+                        Text(
+                            text = "Account No: ${paymentInfo?.accountNumber}",
+                            fontSize = 8.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                    if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
+                        Text(
+                            text = "Routing: ${paymentInfo?.routingNumber}",
+                            fontSize = 8.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                    if (paymentInfo?.iban?.isNotEmpty() == true) {
+                        Text(
+                            text = "IBAN: ${paymentInfo?.iban}",
+                            fontSize = 8.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                    if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
+                        Text(
+                            text = "SWIFT: ${paymentInfo?.swiftCode}",
+                            fontSize = 8.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                    if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
+                        Text(
+                            text = "Terms: ${paymentInfo?.paymentTerms}",
+                            fontSize = 8.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                    if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
+                        Text(
+                            text = "Notes: ${paymentInfo?.additionalInstructions}",
+                            fontSize = 8.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Right - Totals
+            Column(horizontalAlignment = Alignment.End, modifier = Modifier.weight(1f)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(text = "Subtotal:", fontSize = 9.sp)
+                    Text(
+                        text = "$currencySymbol${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
+                        fontSize = 9.sp,
+                        textAlign = TextAlign.End
+                    )
+                }
+                if ((invoice?.tax ?: 0.0) > 0) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(text = "Tax:", fontSize = 9.sp)
+                        Text(
+                            text = "$currencySymbol${String.format("%.2f", invoice?.tax ?: 0.0)}",
+                            fontSize = 9.sp,
+                            textAlign = TextAlign.End
+                        )
+                    }
+                }
+                if ((invoice?.discount ?: 0.0) > 0) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(text = "Discount:", fontSize = 9.sp)
+                        Text(
+                            text = "-$currencySymbol${String.format("%.2f", invoice?.discount ?: 0.0)}",
+                            fontSize = 9.sp,
+                            textAlign = TextAlign.End
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(text = "TOTAL:", fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "$currencySymbol${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+        }
+
+        // Signature (if exists)
+        Spacer(modifier = Modifier.height(24.dp))
+        signaturePath?.let { path ->
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(File(path)),
+                    contentDescription = "Signature",
+                    modifier = Modifier.height(28.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+
+        // Website at bottom center
+        Spacer(modifier = Modifier.height(32.dp))
+        if (businessInfo?.website?.isNotEmpty() == true) {
+            Text(
+                text = businessInfo?.website ?: "",
+                fontSize = 8.sp,
+                color = Color.Black,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

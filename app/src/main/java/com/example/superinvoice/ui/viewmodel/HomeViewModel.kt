@@ -126,6 +126,7 @@ class HomeViewModel @Inject constructor(
                 android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
                 val template = when (selectedTemplate) {
                     "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
+                    "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
                     else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
                 }
                 android.util.Log.d("HomeViewModel", "Template enum: $template")
@@ -213,6 +214,7 @@ class HomeViewModel @Inject constructor(
                 android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
                 val template = when (selectedTemplate) {
                     "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
+                    "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
                     else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
                 }
                 android.util.Log.d("HomeViewModel", "Template enum: $template")

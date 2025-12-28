@@ -128,6 +128,18 @@ fun InvoiceTemplateScreen(
                     }
                 }
             )
+
+            // Professional Template
+            TemplateCard(
+                title = "Professional",
+                description = "Bold design with black table headers and centered title",
+                isSelected = selectedTemplate == "professional",
+                onClick = {
+                    scope.launch {
+                        viewModel.saveSelectedTemplate("professional")
+                    }
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
