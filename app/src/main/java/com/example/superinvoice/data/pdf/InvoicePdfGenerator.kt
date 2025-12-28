@@ -22,6 +22,11 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+enum class InvoiceTemplate {
+    CLASSIC,
+    MODERN
+}
+
 @Singleton
 class InvoicePdfGenerator @Inject constructor(
     @ApplicationContext private val context: Context
@@ -102,16 +107,27 @@ class InvoicePdfGenerator @Inject constructor(
         currency: String = "USD",
         dateFormat: String = "MM/dd/yyyy",
         logoPath: String? = null,
-        signaturePath: String? = null
+        signaturePath: String? = null,
+        template: InvoiceTemplate = InvoiceTemplate.CLASSIC
     ): File? {
         return try {
+            android.util.Log.d("InvoicePDF", "Generating PDF with template: $template")
             val pdfDocument = PdfDocument()
             val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
             val page = pdfDocument.startPage(pageInfo)
             val canvas = page.canvas
 
-            // Draw the invoice content
-            drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath)
+            // Draw the invoice content based on template
+            when (template) {
+                InvoiceTemplate.CLASSIC -> {
+                    android.util.Log.d("InvoicePDF", "Drawing CLASSIC template")
+                    drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath)
+                }
+                InvoiceTemplate.MODERN -> {
+                    android.util.Log.d("InvoicePDF", "Drawing MODERN template")
+                    drawModernTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath)
+                }
+            }
 
             pdfDocument.finishPage(page)
 
@@ -451,6 +467,415 @@ class InvoicePdfGenerator @Inject constructor(
                 }
                 canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
             }
+        }
+    }
+
+    private fun drawModernTemplate(
+        canvas: Canvas,
+        invoice: Invoice,
+        client: Client,
+        items: List<InvoiceItem>,
+        businessInfo: BusinessInfo,
+        paymentInfo: PaymentInfo,
+        currency: String,
+        dateFormat: String,
+        logoPath: String?,
+        signaturePath: String?
+    ) {
+        val currencySymbol = getCurrencySymbol(currency)
+        var yPos = margin
+
+        val sectionTitlePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 8f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            letterSpacing = 0.05f
+        }
+
+        val bodyPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 9f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
+        val bodySmallPaint = Paint().apply {
+            color = Color.GRAY
+            textSize = 8f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
+        // Draw logo if exists
+        logoPath?.let { path ->
+            try {
+                val logoFile = File(path)
+                if (logoFile.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(path)
+                    bitmap?.let {
+                        val maxLogoHeight = 40f
+                        val aspectRatio = it.width.toFloat() / it.height.toFloat()
+                        val logoHeight = maxLogoHeight
+                        val logoWidth = logoHeight * aspectRatio
+
+                        val scaledBitmap = Bitmap.createScaledBitmap(
+                            it,
+                            logoWidth.toInt(),
+                            logoHeight.toInt(),
+                            true
+                        )
+                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        yPos += logoHeight + 20f
+                        scaledBitmap.recycle()
+                        it.recycle()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        // Business Information (left) and Invoice # + Dates (right)
+        val topSectionStart = yPos
+        var leftYPos = yPos
+
+        if (businessInfo.businessName.isNotEmpty()) {
+            val businessNamePaint = Paint().apply {
+                color = Color.BLACK
+                textSize = 10f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            }
+            canvas.drawText(businessInfo.businessName, margin, leftYPos, businessNamePaint)
+            leftYPos += 13f
+
+            if (businessInfo.ownerName.isNotEmpty()) {
+                canvas.drawText(businessInfo.ownerName, margin, leftYPos, bodySmallPaint)
+                leftYPos += 11f
+            }
+            if (businessInfo.address.isNotEmpty()) {
+                canvas.drawText(businessInfo.address, margin, leftYPos, bodySmallPaint)
+                leftYPos += 11f
+            }
+            val cityStateZip = buildString {
+                if (businessInfo.city.isNotEmpty()) append(businessInfo.city)
+                if (businessInfo.state.isNotEmpty()) {
+                    if (isNotEmpty()) append(", ")
+                    append(businessInfo.state)
+                }
+                if (businessInfo.zipCode.isNotEmpty()) {
+                    if (isNotEmpty()) append(" ")
+                    append(businessInfo.zipCode)
+                }
+            }
+            if (cityStateZip.isNotEmpty()) {
+                canvas.drawText(cityStateZip, margin, leftYPos, bodySmallPaint)
+                leftYPos += 11f
+            }
+            if (businessInfo.taxId.isNotEmpty()) {
+                canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, leftYPos, bodySmallPaint)
+                leftYPos += 11f
+            }
+        }
+
+        // Right side - Invoice number and dates
+        var rightYPos = topSectionStart
+        val rightX = pageWidth - margin - 120f
+
+        val invoiceTitlePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 12f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        canvas.drawText("INVOICE #${invoice.number}", rightX, rightYPos, invoiceTitlePaint)
+        rightYPos += 15f
+
+        val formattedCreatedDate = SimpleDateFormat(dateFormat, Locale.getDefault()).format(Date(invoice.createdDate))
+        val formattedDueDate = reformatDateIfNeeded(invoice.dueDate, dateFormat)
+
+        canvas.drawText("DATE:", rightX, rightYPos, sectionTitlePaint)
+        rightYPos += 12f
+        canvas.drawText(formattedCreatedDate, rightX, rightYPos, bodyPaint)
+        rightYPos += 15f
+
+        canvas.drawText("DUE DATE:", rightX, rightYPos, sectionTitlePaint)
+        rightYPos += 12f
+        canvas.drawText(formattedDueDate, rightX, rightYPos, bodyPaint)
+
+        yPos = maxOf(leftYPos, rightYPos) + 25f
+
+        // Draw horizontal line separator
+        val linePaint = Paint().apply {
+            color = Color.LTGRAY
+            strokeWidth = 0.5f
+        }
+        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        yPos += 20f
+
+        // BILLED TO section
+        leftYPos = yPos
+        canvas.drawText("{ BILLED TO }", margin, leftYPos, bodySmallPaint)
+        leftYPos += 15f
+        canvas.drawText(client.name, margin, leftYPos, bodyPaint)
+        leftYPos += 12f
+        if (client.phone.isNotEmpty()) {
+            canvas.drawText(client.phone, margin, leftYPos, bodySmallPaint)
+            leftYPos += 12f
+        }
+        if (client.email.isNotEmpty()) {
+            canvas.drawText(client.email, margin, leftYPos, bodySmallPaint)
+            leftYPos += 12f
+        }
+
+        yPos = leftYPos + 20f
+
+        // Draw horizontal line separator
+        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        yPos += 25f
+
+        // Table Header
+        val tableTitlePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 8f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            letterSpacing = 0.1f
+        }
+
+        canvas.drawText("DESCRIPTION", margin, yPos, tableTitlePaint)
+        canvas.drawText("RATE", pageWidth - margin - 280f, yPos, tableTitlePaint)
+        canvas.drawText("HOURS", pageWidth - margin - 200f, yPos, tableTitlePaint)
+
+        val pricePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 8f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            textAlign = Paint.Align.RIGHT
+            letterSpacing = 0.1f
+        }
+        canvas.drawText("PRICE", pageWidth - margin, yPos, pricePaint)
+        yPos += 20f
+
+        // Table rows
+        val tableBodyPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 9f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
+        val priceBodyPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 9f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            textAlign = Paint.Align.RIGHT
+        }
+
+        items.forEach { item ->
+            canvas.drawText(item.productServiceName, margin, yPos, tableBodyPaint)
+            canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}",
+                pageWidth - margin - 280f, yPos, tableBodyPaint)
+            canvas.drawText("${item.quantity}", pageWidth - margin - 200f, yPos, tableBodyPaint)
+            canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}",
+                pageWidth - margin, yPos, priceBodyPaint)
+            yPos += 18f
+        }
+
+        yPos += 30f
+
+        // Draw horizontal line before totals
+        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        yPos += 25f
+
+        // Totals section (right aligned)
+        val totalLabelPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 9f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
+        val totalValuePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 9f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            textAlign = Paint.Align.RIGHT
+        }
+
+        val subtotal = invoice.subtotal
+        val taxAmount = invoice.tax
+        val discountAmount = invoice.discount
+        val total = invoice.totalAmount
+
+        val totalsX = pageWidth - margin - 180f
+
+        canvas.drawText("TOTAL AMOUNT", totalsX, yPos, totalLabelPaint)
+        canvas.drawText("$currencySymbol${String.format("%.2f", subtotal)}",
+            pageWidth - margin, yPos, totalValuePaint)
+        yPos += 15f
+
+        if (taxAmount > 0) {
+            val taxPercentage = if (subtotal > 0) (taxAmount / subtotal) * 100.0 else 0.0
+            canvas.drawText("VAT (${String.format("%.0f", taxPercentage)}%)",
+                totalsX, yPos, totalLabelPaint)
+            canvas.drawText("$currencySymbol${String.format("%.2f", taxAmount)}",
+                pageWidth - margin, yPos, totalValuePaint)
+            yPos += 15f
+        }
+
+        if (discountAmount > 0) {
+            canvas.drawText("DISCOUNT", totalsX, yPos, totalLabelPaint)
+            canvas.drawText("-$currencySymbol${String.format("%.2f", discountAmount)}",
+                pageWidth - margin, yPos, totalValuePaint)
+            yPos += 15f
+        }
+
+        val amountDuePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 10f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+
+        val amountDueValuePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 10f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            textAlign = Paint.Align.RIGHT
+        }
+
+        canvas.drawText("AMOUNT DUE", totalsX, yPos, amountDuePaint)
+        canvas.drawText("$currencySymbol${String.format("%.2f", total)}",
+            pageWidth - margin, yPos, amountDueValuePaint)
+        yPos += 30f
+
+        // Payment Information section
+        if (paymentInfo.bankName.isNotEmpty()) {
+            canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+            yPos += 20f
+
+            canvas.drawText("{ PAYMENT INFORMATION }", margin, yPos, bodySmallPaint)
+            yPos += 15f
+
+            if (paymentInfo.bankName.isNotEmpty()) {
+                canvas.drawText("Bank: ${paymentInfo.bankName}", margin, yPos, bodyPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.accountHolderName.isNotEmpty()) {
+                canvas.drawText("Account Holder: ${paymentInfo.accountHolderName}", margin, yPos, bodyPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.accountNumber.isNotEmpty()) {
+                canvas.drawText("Account Number: ${paymentInfo.accountNumber}", margin, yPos, bodyPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.routingNumber.isNotEmpty()) {
+                canvas.drawText("Routing Number: ${paymentInfo.routingNumber}", margin, yPos, bodyPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.iban.isNotEmpty()) {
+                canvas.drawText("IBAN: ${paymentInfo.iban}", margin, yPos, bodyPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.swiftCode.isNotEmpty()) {
+                canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", margin, yPos, bodyPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.bankAddress.isNotEmpty()) {
+                canvas.drawText("Bank Address: ${paymentInfo.bankAddress}", margin, yPos, bodySmallPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.paymentTerms.isNotEmpty()) {
+                canvas.drawText("Payment Terms: ${paymentInfo.paymentTerms}", margin, yPos, bodySmallPaint)
+                yPos += 12f
+            }
+            if (paymentInfo.additionalInstructions.isNotEmpty()) {
+                canvas.drawText("Additional Instructions: ${paymentInfo.additionalInstructions}", margin, yPos, bodySmallPaint)
+                yPos += 12f
+            }
+            yPos += 15f
+        }
+
+        // Business signature
+        signaturePath?.let { path ->
+            try {
+                val signatureFile = File(path)
+                if (signatureFile.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(path)
+                    bitmap?.let {
+                        val maxSignatureHeight = 35f
+                        val aspectRatio = it.width.toFloat() / it.height.toFloat()
+                        val signatureHeight = maxSignatureHeight
+                        val signatureWidth = signatureHeight * aspectRatio
+
+                        val scaledBitmap = Bitmap.createScaledBitmap(
+                            it,
+                            signatureWidth.toInt(),
+                            signatureHeight.toInt(),
+                            true
+                        )
+                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        yPos += signatureHeight + 15f
+                        scaledBitmap.recycle()
+                        it.recycle()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                if (businessInfo.ownerName.isNotEmpty()) {
+                    val signaturePaint = Paint().apply {
+                        color = Color.BLACK
+                        textSize = 14f
+                        typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                    }
+                    canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                    yPos += 20f
+                }
+            }
+        } ?: run {
+            if (businessInfo.ownerName.isNotEmpty()) {
+                val signaturePaint = Paint().apply {
+                    color = Color.BLACK
+                    textSize = 14f
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                }
+                canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                yPos += 20f
+            }
+        }
+
+        // Move to bottom section
+        yPos = pageHeight - margin - 100f
+
+        // Large "INVOICE" text at bottom left
+        val invoiceBottomPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 48f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        canvas.drawText("INVOICE", margin, yPos, invoiceBottomPaint)
+        yPos += 30f
+
+        // Thank you message
+        val thankYouPaint = Paint().apply {
+            color = Color.GRAY
+            textSize = 8f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            letterSpacing = 0.1f
+        }
+        canvas.drawText("THANK YOU FOR YOUR BUSINESS!", margin, yPos, thankYouPaint)
+        yPos += 15f
+
+        // Contact information at bottom
+        val contactPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 7f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
+        if (businessInfo.phone.isNotEmpty()) {
+            canvas.drawText("HELPDESK: ${businessInfo.phone}", margin, yPos, contactPaint)
+            yPos += 10f
+        }
+        if (businessInfo.email.isNotEmpty()) {
+            canvas.drawText("E-MAIL: ${businessInfo.email}", margin, yPos, contactPaint)
+            yPos += 10f
+        }
+        if (businessInfo.website.isNotEmpty()) {
+            canvas.drawText("WEB: ${businessInfo.website}", margin, yPos, contactPaint)
         }
     }
 }

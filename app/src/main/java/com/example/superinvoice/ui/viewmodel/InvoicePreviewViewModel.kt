@@ -68,6 +68,9 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _formattedDueDate = MutableStateFlow("")
     val formattedDueDate: StateFlow<String> = _formattedDueDate.asStateFlow()
 
+    private val _selectedTemplate = MutableStateFlow("classic")
+    val selectedTemplate: StateFlow<String> = _selectedTemplate.asStateFlow()
+
     private fun reformatDateIfNeeded(dateString: String): String {
         if (dateString.isEmpty()) return dateString
 
@@ -164,6 +167,9 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Load date format
                 _dateFormat.value = settingsRepository.dateFormat.first()
 
+                // Load selected template
+                _selectedTemplate.value = settingsRepository.selectedTemplate.first()
+
                 // Reformatar due date para o formato atual
                 _formattedDueDate.value = reformatDateIfNeeded(loadedInvoice.dueDate)
             }
@@ -223,6 +229,15 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get selected template
+                val selectedTemplate = settingsRepository.selectedTemplate.first()
+                android.util.Log.d("InvoicePreviewVM", "Selected template from settings: $selectedTemplate")
+                val template = when (selectedTemplate) {
+                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
+                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
+                }
+                android.util.Log.d("InvoicePreviewVM", "Template enum: $template")
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -233,7 +248,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     currency = currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
-                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
+                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    template = template
                 )
 
                 if (file != null) {
@@ -301,6 +317,15 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get selected template
+                val selectedTemplate = settingsRepository.selectedTemplate.first()
+                android.util.Log.d("InvoicePreviewVM", "Selected template from settings: $selectedTemplate")
+                val template = when (selectedTemplate) {
+                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
+                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
+                }
+                android.util.Log.d("InvoicePreviewVM", "Template enum: $template")
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -311,7 +336,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     currency = currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
-                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
+                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    template = template
                 )
 
                 if (file != null) {

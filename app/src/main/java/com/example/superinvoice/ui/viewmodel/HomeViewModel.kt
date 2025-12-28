@@ -121,6 +121,15 @@ class HomeViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get selected template
+                val selectedTemplate = settingsRepository.selectedTemplate.first()
+                android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
+                val template = when (selectedTemplate) {
+                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
+                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
+                }
+                android.util.Log.d("HomeViewModel", "Template enum: $template")
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -131,7 +140,8 @@ class HomeViewModel @Inject constructor(
                     currency = currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
-                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
+                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    template = template
                 )
 
                 if (file != null) {
@@ -198,6 +208,15 @@ class HomeViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get selected template
+                val selectedTemplate = settingsRepository.selectedTemplate.first()
+                android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
+                val template = when (selectedTemplate) {
+                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
+                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
+                }
+                android.util.Log.d("HomeViewModel", "Template enum: $template")
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -208,7 +227,8 @@ class HomeViewModel @Inject constructor(
                     currency = currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
-                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null
+                    signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    template = template
                 )
 
                 if (file != null) {
