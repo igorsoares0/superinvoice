@@ -47,6 +47,7 @@ class SettingsRepository @Inject constructor(
     private val SELECTED_TEMPLATE = stringPreferencesKey("selected_template")
     private val LOGO_PATH = stringPreferencesKey("logo_path")
     private val SIGNATURE_PATH = stringPreferencesKey("signature_path")
+    private val PAYMENT_QR_CODE_PATH = stringPreferencesKey("payment_qr_code_path")
 
     // Business Information Flows
     val businessName: Flow<String> = context.dataStore.data.map { it[BUSINESS_NAME] ?: "" }
@@ -77,6 +78,7 @@ class SettingsRepository @Inject constructor(
     val selectedTemplate: Flow<String> = context.dataStore.data.map { it[SELECTED_TEMPLATE] ?: "classic" }
     val logoPath: Flow<String> = context.dataStore.data.map { it[LOGO_PATH] ?: "" }
     val signaturePath: Flow<String> = context.dataStore.data.map { it[SIGNATURE_PATH] ?: "" }
+    val paymentQrCodePath: Flow<String> = context.dataStore.data.map { it[PAYMENT_QR_CODE_PATH] ?: "" }
 
     // Save Business Information
     suspend fun saveBusinessInformation(
@@ -162,6 +164,13 @@ class SettingsRepository @Inject constructor(
     suspend fun saveSignaturePath(path: String) {
         context.dataStore.edit { preferences ->
             preferences[SIGNATURE_PATH] = path
+        }
+    }
+
+    // Save Payment QR Code Path
+    suspend fun savePaymentQrCodePath(path: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PAYMENT_QR_CODE_PATH] = path
         }
     }
 }

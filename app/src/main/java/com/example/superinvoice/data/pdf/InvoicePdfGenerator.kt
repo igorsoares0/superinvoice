@@ -109,6 +109,7 @@ class InvoicePdfGenerator @Inject constructor(
         dateFormat: String = "MM/dd/yyyy",
         logoPath: String? = null,
         signaturePath: String? = null,
+        paymentQrCodePath: String? = null,
         template: InvoiceTemplate = InvoiceTemplate.CLASSIC
     ): File? {
         return try {
@@ -122,15 +123,15 @@ class InvoicePdfGenerator @Inject constructor(
             when (template) {
                 InvoiceTemplate.CLASSIC -> {
                     android.util.Log.d("InvoicePDF", "Drawing CLASSIC template")
-                    drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath)
+                    drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.MODERN -> {
                     android.util.Log.d("InvoicePDF", "Drawing MODERN template")
-                    drawModernTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath)
+                    drawModernTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.PROFESSIONAL -> {
                     android.util.Log.d("InvoicePDF", "Drawing PROFESSIONAL template")
-                    drawProfessionalTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath)
+                    drawProfessionalTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
             }
 
@@ -162,7 +163,8 @@ class InvoicePdfGenerator @Inject constructor(
         currency: String,
         dateFormat: String,
         logoPath: String?,
-        signaturePath: String?
+        signaturePath: String?,
+        paymentQrCodePath: String?
     ) {
         var yPos = margin
 
@@ -363,6 +365,33 @@ class InvoicePdfGenerator @Inject constructor(
                 canvas.drawText("Notes: ${paymentInfo.additionalInstructions}", payRightX, rightYPos, bodyPaint)
                 rightYPos += 15f
             }
+
+            // QR Code for payment
+            paymentQrCodePath?.let { qrPath ->
+                try {
+                    val qrFile = File(qrPath)
+                    if (qrFile.exists()) {
+                        val qrBitmap = BitmapFactory.decodeFile(qrPath)
+                        qrBitmap?.let {
+                            val qrSize = 80f
+                            val scaledQr = Bitmap.createScaledBitmap(
+                                it,
+                                qrSize.toInt(),
+                                qrSize.toInt(),
+                                true
+                            )
+                            canvas.drawText("Scan to Pay:", payRightX, rightYPos, sectionTitlePaint)
+                            rightYPos += 12f
+                            canvas.drawBitmap(scaledQr, payRightX, rightYPos, null)
+                            rightYPos += qrSize + 10f
+                            scaledQr.recycle()
+                            it.recycle()
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
 
         // Advance to max height
@@ -485,7 +514,8 @@ class InvoicePdfGenerator @Inject constructor(
         currency: String,
         dateFormat: String,
         logoPath: String?,
-        signaturePath: String?
+        signaturePath: String?,
+        paymentQrCodePath: String?
     ) {
         val currencySymbol = getCurrencySymbol(currency)
         var yPos = margin
@@ -791,6 +821,33 @@ class InvoicePdfGenerator @Inject constructor(
                 canvas.drawText("Additional Instructions: ${paymentInfo.additionalInstructions}", margin, yPos, bodySmallPaint)
                 yPos += 12f
             }
+
+            // QR Code for payment
+            paymentQrCodePath?.let { qrPath ->
+                try {
+                    val qrFile = File(qrPath)
+                    if (qrFile.exists()) {
+                        val qrBitmap = BitmapFactory.decodeFile(qrPath)
+                        qrBitmap?.let {
+                            val qrSize = 80f
+                            val scaledQr = Bitmap.createScaledBitmap(
+                                it,
+                                qrSize.toInt(),
+                                qrSize.toInt(),
+                                true
+                            )
+                            canvas.drawText("Scan to Pay:", margin, yPos, bodySmallPaint)
+                            yPos += 12f
+                            canvas.drawBitmap(scaledQr, margin, yPos, null)
+                            yPos += qrSize + 10f
+                            scaledQr.recycle()
+                            it.recycle()
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
             yPos += 15f
         }
 
@@ -894,7 +951,8 @@ class InvoicePdfGenerator @Inject constructor(
         currency: String,
         dateFormat: String,
         logoPath: String?,
-        signaturePath: String?
+        signaturePath: String?,
+        paymentQrCodePath: String?
     ) {
         val currencySymbol = getCurrencySymbol(currency)
         var yPos = margin
@@ -1145,6 +1203,34 @@ class InvoicePdfGenerator @Inject constructor(
             if (paymentInfo.additionalInstructions.isNotEmpty()) {
                 canvas.drawText("Notes: ${paymentInfo.additionalInstructions}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += 10f
+            }
+
+            // QR Code for payment
+            paymentQrCodePath?.let { qrPath ->
+                try {
+                    val qrFile = File(qrPath)
+                    if (qrFile.exists()) {
+                        val qrBitmap = BitmapFactory.decodeFile(qrPath)
+                        qrBitmap?.let {
+                            val qrSize = 80f
+                            val scaledQr = Bitmap.createScaledBitmap(
+                                it,
+                                qrSize.toInt(),
+                                qrSize.toInt(),
+                                true
+                            )
+                            leftYPos += 5f
+                            canvas.drawText("Scan to Pay:", leftX, leftYPos, labelPaint)
+                            leftYPos += 12f
+                            canvas.drawBitmap(scaledQr, leftX, leftYPos, null)
+                            leftYPos += qrSize + 10f
+                            scaledQr.recycle()
+                            it.recycle()
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
 

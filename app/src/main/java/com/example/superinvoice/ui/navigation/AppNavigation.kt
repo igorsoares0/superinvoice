@@ -22,6 +22,7 @@ import com.example.superinvoice.ui.screens.InvoicePreviewScreen
 import com.example.superinvoice.ui.screens.InvoiceTemplateScreen
 import com.example.superinvoice.ui.screens.LogoScreen
 import com.example.superinvoice.ui.screens.PaymentInstructionsScreen
+import com.example.superinvoice.ui.screens.PaymentQrCodeScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
 import com.example.superinvoice.ui.screens.SettingsScreen
 import com.example.superinvoice.ui.screens.SignatureScreen
@@ -43,6 +44,7 @@ enum class Screen {
     PAYMENT_INSTRUCTIONS,
     LOGO,
     SIGNATURE,
+    PAYMENT_QR_CODE,
     CURRENCY,
     DATE_FORMAT
 }
@@ -232,6 +234,7 @@ fun AppNavigation() {
             onNavigateToPaymentInstructions = { navigateTo(Screen.PAYMENT_INSTRUCTIONS) },
             onNavigateToLogo = { navigateTo(Screen.LOGO) },
             onNavigateToSignature = { navigateTo(Screen.SIGNATURE) },
+            onNavigateToPaymentQrCode = { navigateTo(Screen.PAYMENT_QR_CODE) },
             onNavigateToCurrency = { navigateTo(Screen.CURRENCY) },
             onNavigateToDateFormat = { navigateTo(Screen.DATE_FORMAT) },
             onNavigateToManageClients = {
@@ -294,6 +297,10 @@ fun AppNavigation() {
             onSave = { navigateBack() }
         )
         Screen.SIGNATURE -> SignatureScreen(
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
+        )
+        Screen.PAYMENT_QR_CODE -> PaymentQrCodeScreen(
             onClose = { navigateBack() },
             onSave = { navigateBack() }
         )

@@ -56,6 +56,9 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _signaturePath = MutableStateFlow<String?>(null)
     val signaturePath: StateFlow<String?> = _signaturePath.asStateFlow()
 
+    private val _paymentQrCodePath = MutableStateFlow<String?>(null)
+    val paymentQrCodePath: StateFlow<String?> = _paymentQrCodePath.asStateFlow()
+
     private val _businessInfo = MutableStateFlow<InvoicePdfGenerator.BusinessInfo?>(null)
     val businessInfo: StateFlow<InvoicePdfGenerator.BusinessInfo?> = _businessInfo.asStateFlow()
 
@@ -136,6 +139,10 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Load signature path
                 val signaturePath = settingsRepository.signaturePath.first()
                 _signaturePath.value = if (signaturePath.isNotEmpty()) signaturePath else null
+
+                // Load payment QR code path
+                val paymentQrCodePath = settingsRepository.paymentQrCodePath.first()
+                _paymentQrCodePath.value = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null
 
                 // Load business info
                 _businessInfo.value = InvoicePdfGenerator.BusinessInfo(
@@ -229,6 +236,9 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get payment QR code path
+                val paymentQrCodePath = settingsRepository.paymentQrCodePath.first()
+
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
                 android.util.Log.d("InvoicePreviewVM", "Selected template from settings: $selectedTemplate")
@@ -250,6 +260,7 @@ class InvoicePreviewViewModel @Inject constructor(
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template
                 )
 
@@ -318,6 +329,9 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get payment QR code path
+                val paymentQrCodePath = settingsRepository.paymentQrCodePath.first()
+
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
                 android.util.Log.d("InvoicePreviewVM", "Selected template from settings: $selectedTemplate")
@@ -339,6 +353,7 @@ class InvoicePreviewViewModel @Inject constructor(
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template
                 )
 

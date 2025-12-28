@@ -71,6 +71,7 @@ fun InvoicePreviewScreen(
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
     val logoPath by viewModel.logoPath.collectAsStateWithLifecycle()
     val signaturePath by viewModel.signaturePath.collectAsStateWithLifecycle()
+    val paymentQrCodePath by viewModel.paymentQrCodePath.collectAsStateWithLifecycle()
     val businessInfo by viewModel.businessInfo.collectAsStateWithLifecycle()
     val paymentInfo by viewModel.paymentInfo.collectAsStateWithLifecycle()
     val dateFormatPattern by viewModel.dateFormat.collectAsStateWithLifecycle()
@@ -140,6 +141,7 @@ fun InvoicePreviewScreen(
                             lineItems = lineItems,
                             logoPath = logoPath,
                             signaturePath = signaturePath,
+                            paymentQrCodePath = paymentQrCodePath,
                             businessInfo = businessInfo,
                             paymentInfo = paymentInfo,
                             dateFormat = dateFormat,
@@ -152,6 +154,7 @@ fun InvoicePreviewScreen(
                             lineItems = lineItems,
                             logoPath = logoPath,
                             signaturePath = signaturePath,
+                            paymentQrCodePath = paymentQrCodePath,
                             businessInfo = businessInfo,
                             paymentInfo = paymentInfo,
                             dateFormat = dateFormat,
@@ -164,6 +167,7 @@ fun InvoicePreviewScreen(
                             lineItems = lineItems,
                             logoPath = logoPath,
                             signaturePath = signaturePath,
+                            paymentQrCodePath = paymentQrCodePath,
                             businessInfo = businessInfo,
                             paymentInfo = paymentInfo,
                             dateFormat = dateFormat,
@@ -252,6 +256,7 @@ private fun ClassicTemplatePreview(
     lineItems: List<com.example.superinvoice.ui.viewmodel.InvoicePreviewLineItem>,
     logoPath: String?,
     signaturePath: String?,
+    paymentQrCodePath: String?,
     businessInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.BusinessInfo?,
     paymentInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.PaymentInfo?,
     dateFormat: SimpleDateFormat,
@@ -582,6 +587,27 @@ private fun ClassicTemplatePreview(
                                             color = Color.Black
                                         )
                                     }
+
+                                    // QR Code for payment
+                                    paymentQrCodePath?.let { qrPath ->
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Scan to Pay:",
+                                            fontSize = 8.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            letterSpacing = 0.8.sp,
+                                            color = Color.Black
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Image(
+                                            painter = rememberAsyncImagePainter(File(qrPath)),
+                                            contentDescription = "Payment QR Code",
+                                            modifier = Modifier
+                                                .width(80.dp)
+                                                .height(80.dp),
+                                            contentScale = ContentScale.Fit
+                                        )
+                                    }
                                 }
                             } else {
                                 Spacer(modifier = Modifier.weight(1f))
@@ -769,6 +795,7 @@ private fun ModernTemplatePreview(
     lineItems: List<com.example.superinvoice.ui.viewmodel.InvoicePreviewLineItem>,
     logoPath: String?,
     signaturePath: String?,
+    paymentQrCodePath: String?,
     businessInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.BusinessInfo?,
     paymentInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.PaymentInfo?,
     dateFormat: SimpleDateFormat,
@@ -1012,6 +1039,25 @@ private fun ModernTemplatePreview(
             if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
                 Text(text = "SWIFT: ${paymentInfo?.swiftCode}", fontSize = 9.sp)
             }
+
+            // QR Code for payment
+            paymentQrCodePath?.let { qrPath ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Scan to Pay:",
+                    fontSize = 8.sp,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Image(
+                    painter = rememberAsyncImagePainter(File(qrPath)),
+                    contentDescription = "Payment QR Code",
+                    modifier = Modifier
+                        .width(80.dp)
+                        .height(80.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
 
         // Signature (if exists)
@@ -1065,6 +1111,7 @@ private fun ProfessionalTemplatePreview(
     lineItems: List<com.example.superinvoice.ui.viewmodel.InvoicePreviewLineItem>,
     logoPath: String?,
     signaturePath: String?,
+    paymentQrCodePath: String?,
     businessInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.BusinessInfo?,
     paymentInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.PaymentInfo?,
     dateFormat: SimpleDateFormat,
@@ -1350,6 +1397,26 @@ private fun ProfessionalTemplatePreview(
                             text = "Notes: ${paymentInfo?.additionalInstructions}",
                             fontSize = 8.sp,
                             color = Color.DarkGray
+                        )
+                    }
+
+                    // QR Code for payment
+                    paymentQrCodePath?.let { qrPath ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Scan to Pay:",
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Image(
+                            painter = rememberAsyncImagePainter(File(qrPath)),
+                            contentDescription = "Payment QR Code",
+                            modifier = Modifier
+                                .width(80.dp)
+                                .height(80.dp),
+                            contentScale = ContentScale.Fit
                         )
                     }
                 }

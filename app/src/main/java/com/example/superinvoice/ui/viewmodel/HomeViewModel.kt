@@ -121,6 +121,9 @@ class HomeViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get payment QR code path
+                val paymentQrCodePath = settingsRepository.paymentQrCodePath.first()
+
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
                 android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
@@ -142,6 +145,7 @@ class HomeViewModel @Inject constructor(
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template
                 )
 
@@ -209,6 +213,9 @@ class HomeViewModel @Inject constructor(
                 // Get signature path
                 val signaturePath = settingsRepository.signaturePath.first()
 
+                // Get payment QR code path
+                val paymentQrCodePath = settingsRepository.paymentQrCodePath.first()
+
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
                 android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
@@ -230,6 +237,7 @@ class HomeViewModel @Inject constructor(
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
+                    paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template
                 )
 

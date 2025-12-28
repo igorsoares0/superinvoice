@@ -36,6 +36,7 @@ fun SettingsScreen(
     onNavigateToPaymentInstructions: () -> Unit = {},
     onNavigateToLogo: () -> Unit = {},
     onNavigateToSignature: () -> Unit = {},
+    onNavigateToPaymentQrCode: () -> Unit = {},
     onNavigateToCurrency: () -> Unit = {},
     onNavigateToDateFormat: () -> Unit = {},
     onNavigateToManageClients: () -> Unit = {},
@@ -102,6 +103,7 @@ fun SettingsScreen(
                     SettingsOption(text = "Business Information", onClick = onNavigateToBusinessInfo)
                     SettingsOption(text = "Signature", onClick = onNavigateToSignature)
                     SettingsOption(text = "Payment Instructions", onClick = onNavigateToPaymentInstructions)
+                    SettingsOption(text = "Payment QR Code", onClick = onNavigateToPaymentQrCode)
                 }
 
                 Text(
