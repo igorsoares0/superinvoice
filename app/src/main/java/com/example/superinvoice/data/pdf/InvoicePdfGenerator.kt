@@ -197,13 +197,13 @@ class InvoicePdfGenerator @Inject constructor(
             }
             pdfDocument.close()
 
-            // Render PDF to Bitmap with high resolution (3x for crisp display)
+            // Render PDF to Bitmap with high resolution (5x for crisp display)
             val fileDescriptor = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
             val pdfRenderer = PdfRenderer(fileDescriptor)
             val page0 = pdfRenderer.openPage(0)
 
-            // Create high-resolution bitmap (3x scale for crisp rendering)
-            val scale = 3
+            // Create high-resolution bitmap (5x scale for crisp rendering)
+            val scale = 5
             val bitmap = Bitmap.createBitmap(
                 pageWidth * scale,
                 pageHeight * scale,

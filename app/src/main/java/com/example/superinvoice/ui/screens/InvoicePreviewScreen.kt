@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -77,19 +78,20 @@ fun InvoicePreviewScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        containerColor = Color(0xFFFFFFFF),
+        containerColor = Color(0xFFF5F5F5),
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFFFFF))
+                .background(Color(0xFFF5F5F5))
                 .padding(paddingValues)
         ) {
             // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(Color.White)
                     .padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -116,12 +118,18 @@ fun InvoicePreviewScreen(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
             ) {
                 // Invoice Template Preview
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.White),
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(4.dp),
+                            clip = false
+                        )
+                        .background(Color.White, RoundedCornerShape(4.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     if (previewBitmap != null) {
@@ -140,13 +148,14 @@ fun InvoicePreviewScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // Bottom Buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(Color.White)
                     .padding(horizontal = 20.dp, vertical = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
