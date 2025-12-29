@@ -27,6 +27,13 @@ class InvoiceTemplateViewModel @Inject constructor(
     private val pdfGenerator: InvoicePdfGenerator
 ) : ViewModel() {
 
+    companion object {
+        // Cache para armazenar os previews gerados
+        private var cachedClassicPreview: Bitmap? = null
+        private var cachedModernPreview: Bitmap? = null
+        private var cachedProfessionalPreview: Bitmap? = null
+    }
+
     val selectedTemplate: StateFlow<String> = settingsRepository.selectedTemplate
         .stateIn(
             scope = viewModelScope,
@@ -34,17 +41,20 @@ class InvoiceTemplateViewModel @Inject constructor(
             initialValue = "classic"
         )
 
-    private val _classicPreview = MutableStateFlow<Bitmap?>(null)
+    private val _classicPreview = MutableStateFlow<Bitmap?>(cachedClassicPreview)
     val classicPreview: StateFlow<Bitmap?> = _classicPreview.asStateFlow()
 
-    private val _modernPreview = MutableStateFlow<Bitmap?>(null)
+    private val _modernPreview = MutableStateFlow<Bitmap?>(cachedModernPreview)
     val modernPreview: StateFlow<Bitmap?> = _modernPreview.asStateFlow()
 
-    private val _professionalPreview = MutableStateFlow<Bitmap?>(null)
+    private val _professionalPreview = MutableStateFlow<Bitmap?>(cachedProfessionalPreview)
     val professionalPreview: StateFlow<Bitmap?> = _professionalPreview.asStateFlow()
 
     init {
-        generateTemplatePreviews()
+        // Só gera previews se ainda não existem no cache
+        if (cachedClassicPreview == null || cachedModernPreview == null || cachedProfessionalPreview == null) {
+            generateTemplatePreviews()
+        }
     }
 
     private fun generateTemplatePreviews() {
@@ -56,53 +66,68 @@ class InvoiceTemplateViewModel @Inject constructor(
                 val mockBusinessInfo = createMockBusinessInfo()
                 val mockPaymentInfo = createMockPaymentInfo()
 
-                // Generate Classic preview
-                val classicBitmap = pdfGenerator.generateInvoicePreviewBitmap(
-                    invoice = mockInvoice,
-                    client = mockClient,
-                    items = mockItems,
-                    businessInfo = mockBusinessInfo,
-                    paymentInfo = mockPaymentInfo,
-                    currency = "USD",
-                    dateFormat = "MM/dd/yyyy",
-                    logoPath = null,
-                    signaturePath = null,
-                    paymentQrCodePath = null,
-                    template = InvoiceTemplate.CLASSIC
-                )
-                _classicPreview.value = classicBitmap
+                // Generate previews with lower resolution (2x) for faster loading
+                val previewScale = 2
 
-                // Generate Modern preview
-                val modernBitmap = pdfGenerator.generateInvoicePreviewBitmap(
-                    invoice = mockInvoice,
-                    client = mockClient,
-                    items = mockItems,
-                    businessInfo = mockBusinessInfo,
-                    paymentInfo = mockPaymentInfo,
-                    currency = "USD",
-                    dateFormat = "MM/dd/yyyy",
-                    logoPath = null,
-                    signaturePath = null,
-                    paymentQrCodePath = null,
-                    template = InvoiceTemplate.MODERN
-                )
-                _modernPreview.value = modernBitmap
+                // Generate Classic preview (se ainda não existe)
+                if (cachedClassicPreview == null) {
+                    val classicBitmap = pdfGenerator.generateInvoicePreviewBitmap(
+                        invoice = mockInvoice,
+                        client = mockClient,
+                        items = mockItems,
+                        businessInfo = mockBusinessInfo,
+                        paymentInfo = mockPaymentInfo,
+                        currency = "USD",
+                        dateFormat = "MM/dd/yyyy",
+                        logoPath = null,
+                        signaturePath = null,
+                        paymentQrCodePath = null,
+                        template = InvoiceTemplate.CLASSIC,
+                        scale = previewScale
+                    )
+                    cachedClassicPreview = classicBitmap
+                    _classicPreview.value = classicBitmap
+                }
 
-                // Generate Professional preview
-                val professionalBitmap = pdfGenerator.generateInvoicePreviewBitmap(
-                    invoice = mockInvoice,
-                    client = mockClient,
-                    items = mockItems,
-                    businessInfo = mockBusinessInfo,
-                    paymentInfo = mockPaymentInfo,
-                    currency = "USD",
-                    dateFormat = "MM/dd/yyyy",
-                    logoPath = null,
-                    signaturePath = null,
-                    paymentQrCodePath = null,
-                    template = InvoiceTemplate.PROFESSIONAL
-                )
-                _professionalPreview.value = professionalBitmap
+                // Generate Modern preview (se ainda não existe)
+                if (cachedModernPreview == null) {
+                    val modernBitmap = pdfGenerator.generateInvoicePreviewBitmap(
+                        invoice = mockInvoice,
+                        client = mockClient,
+                        items = mockItems,
+                        businessInfo = mockBusinessInfo,
+                        paymentInfo = mockPaymentInfo,
+                        currency = "USD",
+                        dateFormat = "MM/dd/yyyy",
+                        logoPath = null,
+                        signaturePath = null,
+                        paymentQrCodePath = null,
+                        template = InvoiceTemplate.MODERN,
+                        scale = previewScale
+                    )
+                    cachedModernPreview = modernBitmap
+                    _modernPreview.value = modernBitmap
+                }
+
+                // Generate Professional preview (se ainda não existe)
+                if (cachedProfessionalPreview == null) {
+                    val professionalBitmap = pdfGenerator.generateInvoicePreviewBitmap(
+                        invoice = mockInvoice,
+                        client = mockClient,
+                        items = mockItems,
+                        businessInfo = mockBusinessInfo,
+                        paymentInfo = mockPaymentInfo,
+                        currency = "USD",
+                        dateFormat = "MM/dd/yyyy",
+                        logoPath = null,
+                        signaturePath = null,
+                        paymentQrCodePath = null,
+                        template = InvoiceTemplate.PROFESSIONAL,
+                        scale = previewScale
+                    )
+                    cachedProfessionalPreview = professionalBitmap
+                    _professionalPreview.value = professionalBitmap
+                }
             }
         }
     }

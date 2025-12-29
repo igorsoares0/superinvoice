@@ -166,7 +166,8 @@ class InvoicePdfGenerator @Inject constructor(
         logoPath: String? = null,
         signaturePath: String? = null,
         paymentQrCodePath: String? = null,
-        template: InvoiceTemplate = InvoiceTemplate.CLASSIC
+        template: InvoiceTemplate = InvoiceTemplate.CLASSIC,
+        scale: Int = 5
     ): Bitmap? {
         return try {
             // Create PDF document in memory
@@ -197,13 +198,12 @@ class InvoicePdfGenerator @Inject constructor(
             }
             pdfDocument.close()
 
-            // Render PDF to Bitmap with high resolution (5x for crisp display)
+            // Render PDF to Bitmap with configurable resolution
             val fileDescriptor = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
             val pdfRenderer = PdfRenderer(fileDescriptor)
             val page0 = pdfRenderer.openPage(0)
 
-            // Create high-resolution bitmap (5x scale for crisp rendering)
-            val scale = 5
+            // Create bitmap with the specified scale
             val bitmap = Bitmap.createBitmap(
                 pageWidth * scale,
                 pageHeight * scale,
