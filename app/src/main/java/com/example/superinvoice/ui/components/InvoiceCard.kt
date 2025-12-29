@@ -85,7 +85,7 @@ fun InvoiceCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Invoice #${invoice.number}",
+                    text = "#${invoice.number}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
