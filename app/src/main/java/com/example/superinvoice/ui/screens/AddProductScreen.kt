@@ -148,63 +148,37 @@ fun AddProductScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            Row(
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Button(
+                onClick = {
+                    val priceValue = price.toDoubleOrNull()
+                    if (productName.isNotBlank() && priceValue != null && priceValue > 0) {
+                        viewModel.addProductService(
+                            name = productName,
+                            pricePerUnit = priceValue
+                        )
+                        onSave()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 80.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF9DEA6E),
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(12.dp),
+                enabled = productName.isNotBlank() && price.toDoubleOrNull() != null
             ) {
-                Button(
-                    onClick = onClose,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(52.dp)
-                        .border(
-                            width = 1.dp,
-                            color = Color(0xFFE0E0E0),
-                            shape = RoundedCornerShape(26.dp)
-                        ),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF9FAFB),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(26.dp)
-                ) {
-                    Text(
-                        text = "Cancel",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        val priceValue = price.toDoubleOrNull()
-                        if (productName.isNotBlank() && priceValue != null && priceValue > 0) {
-                            viewModel.addProductService(
-                                name = productName,
-                                pricePerUnit = priceValue
-                            )
-                            onSave()
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(52.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF9DEA6E),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(26.dp),
-                    enabled = productName.isNotBlank() && price.toDoubleOrNull() != null
-                ) {
-                    Text(
-                        text = "Save",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                }
+                Text(
+                    text = "Save",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp
+                )
             }
+
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
