@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
@@ -115,13 +116,11 @@ fun InvoicePreviewScreen(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp)
             ) {
                 // Invoice Template Preview
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, Color(0xFFE0E0E0))
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
@@ -129,10 +128,9 @@ fun InvoicePreviewScreen(
                         Image(
                             bitmap = previewBitmap!!.asImageBitmap(),
                             contentDescription = "Invoice Preview",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(595f / 842f), // A4 aspect ratio
-                            contentScale = ContentScale.Fit
+                            modifier = Modifier.fillMaxWidth(),
+                            contentScale = ContentScale.FillWidth,
+                            filterQuality = FilterQuality.High
                         )
                     } else {
                         CircularProgressIndicator(
