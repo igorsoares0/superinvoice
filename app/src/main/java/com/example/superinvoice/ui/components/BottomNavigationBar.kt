@@ -98,7 +98,7 @@ fun BottomNavigationBar(
                 color = Color(0xFFE0E0E0)
             )
             NavigationBar(
-                containerColor = Color(0xFFFFFFFF)
+                containerColor = Color(0xFFF9FAFB)
             ) {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
@@ -135,7 +135,7 @@ fun BottomNavigationBar(
                         .padding(bottom = 8.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.White
+                        containerColor = Color(0xFFF9FAFB)
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {

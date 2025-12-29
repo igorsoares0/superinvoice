@@ -55,7 +55,7 @@ fun PremiumCard(
             modifier = Modifier.height(40.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF2D5016),
-                contentColor = Color.White
+                contentColor = Color(0xFFF9FAFB)
             ),
             shape = RoundedCornerShape(8.dp)
         ) {

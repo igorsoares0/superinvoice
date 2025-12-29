@@ -118,7 +118,7 @@ fun EditInvoiceScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFFF9FAFB))
     ) {
         Column(
             modifier = Modifier
@@ -176,7 +176,7 @@ fun EditInvoiceScreen(
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .background(
-                                color = Color.White,
+                                color = Color(0xFFF9FAFB),
                                 shape = RoundedCornerShape(8.dp)
                             )
                     ) {
@@ -407,9 +407,9 @@ fun EditInvoiceScreen(
                         checked = isPaid,
                         onCheckedChange = { viewModel.togglePaidStatus() },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
+                            checkedThumbColor = Color(0xFFF9FAFB),
                             checkedTrackColor = Color(0xFF9DEA6E),
-                            uncheckedThumbColor = Color.White,
+                            uncheckedThumbColor = Color(0xFFF9FAFB),
                             uncheckedTrackColor = Color.Gray
                         )
                     )
@@ -486,7 +486,7 @@ fun EditInvoiceScreen(
                         .weight(1f)
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = Color(0xFFF9FAFB),
                         contentColor = Color.Black
                     ),
                     shape = RoundedCornerShape(28.dp),
@@ -565,7 +565,7 @@ fun EditInvoiceScreen(
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
-                containerColor = Color.White
+                containerColor = Color(0xFFF9FAFB)
             )
         }
 
@@ -610,7 +610,7 @@ fun EditInvoiceScreen(
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
-                containerColor = Color.White
+                containerColor = Color(0xFFF9FAFB)
             )
         }
 

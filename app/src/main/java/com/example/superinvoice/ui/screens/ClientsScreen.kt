@@ -62,7 +62,7 @@ fun ClientsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFFF9FAFB))
     ) {
         Column(
             modifier = Modifier

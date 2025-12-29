@@ -45,7 +45,7 @@ fun SettingsScreen(
     onNavigateToAddProduct: () -> Unit = {}
 ) {
     Scaffold(
-        containerColor = Color(0xFFFFFFFF),
+        containerColor = Color(0xFFF9FAFB),
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
@@ -58,7 +58,7 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(Color(0xFFF9FAFB))
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {

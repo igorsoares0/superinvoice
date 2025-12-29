@@ -45,12 +45,12 @@ fun InvoiceInputField(
                     shape = RoundedCornerShape(8.dp)
                 )
                 .background(
-                    color = if (enabled) Color.White else Color(0xFFF5F5F5),
+                    color = if (enabled) Color(0xFFF9FAFB) else Color(0xFFF5F5F5),
                     shape = RoundedCornerShape(8.dp)
                 ),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color(0xFFF9FAFB),
+                unfocusedContainerColor = Color(0xFFF9FAFB),
                 disabledContainerColor = Color(0xFFF5F5F5),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,

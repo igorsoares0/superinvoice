@@ -116,7 +116,7 @@ fun CreateInvoiceScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFFF9FAFB))
     ) {
         Column(
             modifier = Modifier
@@ -173,7 +173,7 @@ fun CreateInvoiceScreen(
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .background(
-                                color = Color.White,
+                                color = Color(0xFFF9FAFB),
                                 shape = RoundedCornerShape(8.dp)
                             )
                     ) {
@@ -434,7 +434,7 @@ fun CreateInvoiceScreen(
                         .weight(1f)
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = Color(0xFFF9FAFB),
                         contentColor = Color.Black
                     ),
                     shape = RoundedCornerShape(28.dp),
@@ -513,7 +513,7 @@ fun CreateInvoiceScreen(
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
-                containerColor = Color.White
+                containerColor = Color(0xFFF9FAFB)
             )
         }
 
@@ -558,7 +558,7 @@ fun CreateInvoiceScreen(
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
-                containerColor = Color.White
+                containerColor = Color(0xFFF9FAFB)
             )
         }
     }

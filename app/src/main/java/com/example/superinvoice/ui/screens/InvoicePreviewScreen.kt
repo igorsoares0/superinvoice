@@ -116,7 +116,7 @@ fun InvoicePreviewScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(Color(0xFFF9FAFB))
                     .padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -155,7 +155,7 @@ fun InvoicePreviewScreen(
                             clip = false
                         )
                         .clip(RoundedCornerShape(4.dp))
-                        .background(Color.White)
+                        .background(Color(0xFFF9FAFB))
                         .transformable(state = transformableState)
                         .pointerInput(Unit) {
                             detectTapGestures(
@@ -197,7 +197,7 @@ fun InvoicePreviewScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(Color(0xFFF9FAFB))
                     .padding(horizontal = 20.dp, vertical = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -215,7 +215,7 @@ fun InvoicePreviewScreen(
                         .weight(1f)
                         .height(48.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.White,
+                        containerColor = Color(0xFFF9FAFB),
                         contentColor = Color.Black
                     ),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black),
@@ -1266,7 +1266,7 @@ private fun ProfessionalTemplatePreview(
                     text = "Description",
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = Color(0xFFF9FAFB),
                     modifier = Modifier.weight(2.5f),
                     maxLines = 1
                 )
@@ -1274,7 +1274,7 @@ private fun ProfessionalTemplatePreview(
                     text = "Quantity",
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = Color(0xFFF9FAFB),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     maxLines = 1
@@ -1283,7 +1283,7 @@ private fun ProfessionalTemplatePreview(
                     text = "Unit Price",
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = Color(0xFFF9FAFB),
                     modifier = Modifier.weight(1.2f),
                     textAlign = TextAlign.Center,
                     maxLines = 1
@@ -1292,7 +1292,7 @@ private fun ProfessionalTemplatePreview(
                     text = "Total",
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = Color(0xFFF9FAFB),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.End,
                     maxLines = 1

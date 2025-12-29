@@ -40,7 +40,7 @@ fun SignatureCanvas(
     Canvas(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFFF9FAFB))
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->
@@ -108,7 +108,7 @@ fun List<PathState>.toBitmap(width: Int, height: Int): Bitmap {
     canvas.drawRect(
         0f, 0f, width.toFloat(), height.toFloat(),
         androidx.compose.ui.graphics.Paint().apply {
-            color = Color.White
+            color = Color(0xFFF9FAFB)
         }
     )
 

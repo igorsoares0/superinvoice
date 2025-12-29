@@ -66,7 +66,7 @@ fun InvoiceTemplateScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFFF9FAFB))
             .verticalScroll(rememberScrollState())
     ) {
         // Header
@@ -197,7 +197,7 @@ private fun TemplateCard(
             )
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .background(Color.White)
+            .background(Color(0xFFF9FAFB))
     ) {
         // Preview Image
         Box(

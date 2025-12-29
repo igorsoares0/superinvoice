@@ -57,7 +57,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        containerColor = Color(0xFFFFFFFF),
+        containerColor = Color(0xFFF9FAFB),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             BottomNavigationBar(
@@ -83,7 +83,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFFFFF))
+                .background(Color(0xFFF9FAFB))
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp)
         ) {

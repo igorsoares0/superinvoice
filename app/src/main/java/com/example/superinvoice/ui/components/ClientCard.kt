@@ -118,7 +118,7 @@ fun ClientCard(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
                     shape = RoundedCornerShape(12.dp),
-                    containerColor = Color.White
+                    containerColor = Color(0xFFF9FAFB)
                 ) {
                     onEdit?.let {
                         DropdownMenuItem(

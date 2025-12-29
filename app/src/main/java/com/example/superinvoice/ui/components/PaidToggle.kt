@@ -54,7 +54,7 @@ fun PaidToggle(
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Normal,
                 fontSize = 12.sp,
-                color = Color.White,
+                color = Color(0xFFF9FAFB),
                 modifier = Modifier
                     .background(
                         color = Color(0xFF9DEA6E),
@@ -68,9 +68,9 @@ fun PaidToggle(
             checked = isPaid,
             onCheckedChange = onToggle,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
+                checkedThumbColor = Color(0xFFF9FAFB),
                 checkedTrackColor = Color(0xFF9DEA6E),
-                uncheckedThumbColor = Color.White,
+                uncheckedThumbColor = Color(0xFFF9FAFB),
                 uncheckedTrackColor = Color.Gray
             )
         )

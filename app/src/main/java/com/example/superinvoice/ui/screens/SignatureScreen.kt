@@ -152,13 +152,13 @@ fun SignatureScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFFFFFFFF),
+        containerColor = Color(0xFFF9FAFB),
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFFFFF))
+                .background(Color(0xFFF9FAFB))
                 .padding(paddingValues)
         ) {
             // Header

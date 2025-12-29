@@ -53,12 +53,12 @@ fun PaymentInstructionsScreen(
     val additionalInstructions by viewModel.additionalInstructions.collectAsStateWithLifecycle()
 
     Scaffold(
-        containerColor = Color(0xFFFFFFFF)
+        containerColor = Color(0xFFF9FAFB)
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFFFFF))
+                .background(Color(0xFFF9FAFB))
                 .padding(paddingValues)
         ) {
             // Header

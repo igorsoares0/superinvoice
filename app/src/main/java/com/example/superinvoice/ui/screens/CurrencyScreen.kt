@@ -69,12 +69,12 @@ fun CurrencyScreen(
     )
 
     Scaffold(
-        containerColor = Color(0xFFFFFFFF)
+        containerColor = Color(0xFFF9FAFB)
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFFFFF))
+                .background(Color(0xFFF9FAFB))
                 .padding(paddingValues)
         ) {
             // Header
@@ -164,7 +164,7 @@ private fun CurrencyOption(
                 shape = RoundedCornerShape(8.dp)
             )
             .background(
-                color = if (isSelected) Color(0xFF9DEA6E).copy(alpha = 0.1f) else Color.White,
+                color = if (isSelected) Color(0xFF9DEA6E).copy(alpha = 0.1f) else Color(0xFFF9FAFB),
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable(onClick = onClick)

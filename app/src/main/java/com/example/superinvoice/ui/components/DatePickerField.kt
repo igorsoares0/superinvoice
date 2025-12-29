@@ -53,7 +53,7 @@ fun DatePickerField(
                 shape = RoundedCornerShape(8.dp)
             )
             .background(
-                color = Color.White,
+                color = Color(0xFFF9FAFB),
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable { showDatePicker = true }
@@ -124,13 +124,13 @@ fun DatePickerField(
                 }
             },
             colors = DatePickerDefaults.colors(
-                containerColor = Color.White
+                containerColor = Color(0xFFF9FAFB)
             )
         ) {
             DatePicker(
                 state = datePickerState,
                 colors = DatePickerDefaults.colors(
-                    containerColor = Color.White,
+                    containerColor = Color(0xFFF9FAFB),
                     titleContentColor = Color.Black,
                     headlineContentColor = Color.Black,
                     weekdayContentColor = Color.Black,

@@ -67,7 +67,7 @@ fun InvoiceCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = Color(0xFFF9FAFB)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp
@@ -146,7 +146,7 @@ fun InvoiceCard(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
                     shape = RoundedCornerShape(12.dp),
-                    containerColor = Color.White,
+                    containerColor = Color(0xFFF9FAFB),
                     modifier = Modifier
                 ) {
                     onPreview?.let {

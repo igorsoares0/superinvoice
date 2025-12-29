@@ -54,7 +54,7 @@ fun AddProductScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFFF9FAFB))
     ) {
         Column(
             modifier = Modifier
@@ -165,7 +165,7 @@ fun AddProductScreen(
                             shape = RoundedCornerShape(26.dp)
                         ),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = Color(0xFFF9FAFB),
                         contentColor = Color.Black
                     ),
                     shape = RoundedCornerShape(26.dp)

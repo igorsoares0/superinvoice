@@ -53,8 +53,8 @@ fun ClientSearchBar(
             )
         },
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color(0xFFF9FAFB),
+            unfocusedContainerColor = Color(0xFFF9FAFB),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             focusedTextColor = Color.Black,
