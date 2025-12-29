@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
@@ -67,22 +70,10 @@ fun InvoicePreviewScreen(
     }
 
     val invoice by viewModel.invoice.collectAsStateWithLifecycle()
-    val client by viewModel.client.collectAsStateWithLifecycle()
-    val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
-    val logoPath by viewModel.logoPath.collectAsStateWithLifecycle()
-    val signaturePath by viewModel.signaturePath.collectAsStateWithLifecycle()
-    val paymentQrCodePath by viewModel.paymentQrCodePath.collectAsStateWithLifecycle()
-    val businessInfo by viewModel.businessInfo.collectAsStateWithLifecycle()
-    val paymentInfo by viewModel.paymentInfo.collectAsStateWithLifecycle()
-    val dateFormatPattern by viewModel.dateFormat.collectAsStateWithLifecycle()
-    val formattedDueDate by viewModel.formattedDueDate.collectAsStateWithLifecycle()
-    val selectedTemplate by viewModel.selectedTemplate.collectAsStateWithLifecycle()
+    val previewBitmap by viewModel.previewBitmap.collectAsStateWithLifecycle()
 
-    val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault())
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
-    val currencySymbol = getCurrencySymbol(invoice?.currency ?: "USD")
 
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
@@ -131,48 +122,22 @@ fun InvoicePreviewScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(1.dp, Color(0xFFE0E0E0))
-                        .background(Color.White)
-                        .padding(24.dp)
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center
                 ) {
-                    when (selectedTemplate) {
-                        "modern" -> ModernTemplatePreview(
-                            invoice = invoice,
-                            client = client,
-                            lineItems = lineItems,
-                            logoPath = logoPath,
-                            signaturePath = signaturePath,
-                            paymentQrCodePath = paymentQrCodePath,
-                            businessInfo = businessInfo,
-                            paymentInfo = paymentInfo,
-                            dateFormat = dateFormat,
-                            formattedDueDate = formattedDueDate,
-                            currencySymbol = currencySymbol
+                    if (previewBitmap != null) {
+                        Image(
+                            bitmap = previewBitmap!!.asImageBitmap(),
+                            contentDescription = "Invoice Preview",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(595f / 842f), // A4 aspect ratio
+                            contentScale = ContentScale.Fit
                         )
-                        "professional" -> ProfessionalTemplatePreview(
-                            invoice = invoice,
-                            client = client,
-                            lineItems = lineItems,
-                            logoPath = logoPath,
-                            signaturePath = signaturePath,
-                            paymentQrCodePath = paymentQrCodePath,
-                            businessInfo = businessInfo,
-                            paymentInfo = paymentInfo,
-                            dateFormat = dateFormat,
-                            formattedDueDate = formattedDueDate,
-                            currencySymbol = currencySymbol
-                        )
-                        else -> ClassicTemplatePreview(
-                            invoice = invoice,
-                            client = client,
-                            lineItems = lineItems,
-                            logoPath = logoPath,
-                            signaturePath = signaturePath,
-                            paymentQrCodePath = paymentQrCodePath,
-                            businessInfo = businessInfo,
-                            paymentInfo = paymentInfo,
-                            dateFormat = dateFormat,
-                            formattedDueDate = formattedDueDate,
-                            currencySymbol = currencySymbol
+                    } else {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(48.dp),
+                            color = Color.Black
                         )
                     }
                 }

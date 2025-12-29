@@ -2,6 +2,7 @@ package com.example.superinvoice.ui.viewmodel
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,11 +16,13 @@ import com.example.superinvoice.data.repository.ProductServiceRepository
 import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -73,6 +76,9 @@ class InvoicePreviewViewModel @Inject constructor(
 
     private val _selectedTemplate = MutableStateFlow("classic")
     val selectedTemplate: StateFlow<String> = _selectedTemplate.asStateFlow()
+
+    private val _previewBitmap = MutableStateFlow<Bitmap?>(null)
+    val previewBitmap: StateFlow<Bitmap?> = _previewBitmap.asStateFlow()
 
     private fun reformatDateIfNeeded(dateString: String): String {
         if (dateString.isEmpty()) return dateString
@@ -179,6 +185,35 @@ class InvoicePreviewViewModel @Inject constructor(
 
                 // Reformatar due date para o formato atual
                 _formattedDueDate.value = reformatDateIfNeeded(loadedInvoice.dueDate)
+
+                // Generate preview bitmap in background
+                if (client != null && _businessInfo.value != null && _paymentInfo.value != null) {
+                    withContext(Dispatchers.IO) {
+                        val template = when (_selectedTemplate.value) {
+                            "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
+                            "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
+                            else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
+                        }
+
+                        val bitmap = pdfGenerator.generateInvoicePreviewBitmap(
+                            invoice = loadedInvoice,
+                            client = client,
+                            items = items,
+                            businessInfo = _businessInfo.value!!,
+                            paymentInfo = _paymentInfo.value!!,
+                            currency = loadedInvoice.currency,
+                            dateFormat = _dateFormat.value,
+                            logoPath = _logoPath.value,
+                            signaturePath = _signaturePath.value,
+                            paymentQrCodePath = _paymentQrCodePath.value,
+                            template = template
+                        )
+
+                        withContext(Dispatchers.Main) {
+                            _previewBitmap.value = bitmap
+                        }
+                    }
+                }
             }
         }
     }

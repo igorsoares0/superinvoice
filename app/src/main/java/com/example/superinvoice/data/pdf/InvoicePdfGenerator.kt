@@ -8,7 +8,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.graphics.pdf.PdfRenderer
 import android.os.Environment
+import android.os.ParcelFileDescriptor
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.InvoiceItem
@@ -147,6 +149,77 @@ class InvoicePdfGenerator @Inject constructor(
 
             pdfDocument.close()
             file
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun generateInvoicePreviewBitmap(
+        invoice: Invoice,
+        client: Client,
+        items: List<InvoiceItem>,
+        businessInfo: BusinessInfo,
+        paymentInfo: PaymentInfo,
+        currency: String = "USD",
+        dateFormat: String = "MM/dd/yyyy",
+        logoPath: String? = null,
+        signaturePath: String? = null,
+        paymentQrCodePath: String? = null,
+        template: InvoiceTemplate = InvoiceTemplate.CLASSIC
+    ): Bitmap? {
+        return try {
+            // Create PDF document in memory
+            val pdfDocument = PdfDocument()
+            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+            val page = pdfDocument.startPage(pageInfo)
+            val canvas = page.canvas
+
+            // Draw the invoice content based on template
+            when (template) {
+                InvoiceTemplate.CLASSIC -> {
+                    drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                }
+                InvoiceTemplate.MODERN -> {
+                    drawModernTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                }
+                InvoiceTemplate.PROFESSIONAL -> {
+                    drawProfessionalTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                }
+            }
+
+            pdfDocument.finishPage(page)
+
+            // Save to temporary file
+            val tempFile = File.createTempFile("invoice_preview_", ".pdf", context.cacheDir)
+            FileOutputStream(tempFile).use { outputStream ->
+                pdfDocument.writeTo(outputStream)
+            }
+            pdfDocument.close()
+
+            // Render PDF to Bitmap
+            val fileDescriptor = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
+            val pdfRenderer = PdfRenderer(fileDescriptor)
+            val page0 = pdfRenderer.openPage(0)
+
+            // Create bitmap with the same dimensions as the PDF page
+            val bitmap = Bitmap.createBitmap(pageWidth, pageHeight, Bitmap.Config.ARGB_8888)
+
+            // Fill with white background
+            val bitmapCanvas = Canvas(bitmap)
+            bitmapCanvas.drawColor(Color.WHITE)
+
+            // Render PDF page to bitmap
+            page0.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+
+            page0.close()
+            pdfRenderer.close()
+            fileDescriptor.close()
+
+            // Clean up temp file
+            tempFile.delete()
+
+            bitmap
         } catch (e: Exception) {
             e.printStackTrace()
             null
