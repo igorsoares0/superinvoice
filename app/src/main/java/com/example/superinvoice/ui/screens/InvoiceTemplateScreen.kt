@@ -1,5 +1,7 @@
 package com.example.superinvoice.ui.screens
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,17 +26,23 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,6 +58,9 @@ fun InvoiceTemplateScreen(
     viewModel: InvoiceTemplateViewModel = hiltViewModel()
 ) {
     val selectedTemplate by viewModel.selectedTemplate.collectAsStateWithLifecycle()
+    val classicPreview by viewModel.classicPreview.collectAsStateWithLifecycle()
+    val modernPreview by viewModel.modernPreview.collectAsStateWithLifecycle()
+    val professionalPreview by viewModel.professionalPreview.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
     Column(
@@ -108,7 +120,7 @@ fun InvoiceTemplateScreen(
             // Classic Template
             TemplateCard(
                 title = "Classic",
-                description = "Traditional invoice layout with business info and payment details",
+                previewBitmap = classicPreview,
                 isSelected = selectedTemplate == "classic",
                 onClick = {
                     scope.launch {
@@ -120,7 +132,7 @@ fun InvoiceTemplateScreen(
             // Modern Template
             TemplateCard(
                 title = "Modern",
-                description = "Clean and minimal design with focus on clarity",
+                previewBitmap = modernPreview,
                 isSelected = selectedTemplate == "modern",
                 onClick = {
                     scope.launch {
@@ -132,7 +144,7 @@ fun InvoiceTemplateScreen(
             // Professional Template
             TemplateCard(
                 title = "Professional",
-                description = "Bold design with black table headers and centered title",
+                previewBitmap = professionalPreview,
                 isSelected = selectedTemplate == "professional",
                 onClick = {
                     scope.launch {
@@ -171,68 +183,91 @@ fun InvoiceTemplateScreen(
 @Composable
 private fun TemplateCard(
     title: String,
-    description: String,
+    previewBitmap: Bitmap?,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .border(
-                width = if (isSelected) 2.dp else 1.dp,
+                width = if (isSelected) 3.dp else 1.dp,
                 color = if (isSelected) Color(0xFF9DEA6E) else Color(0xFFE0E0E0),
                 shape = RoundedCornerShape(12.dp)
             )
+            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .background(Color.White)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        // Preview Image
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(400.dp)
+                .background(Color(0xFFF5F5F5)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (previewBitmap != null) {
+                Image(
+                    bitmap = previewBitmap.asImageBitmap(),
+                    contentDescription = "$title Template Preview",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit,
+                    filterQuality = FilterQuality.High
+                )
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(32.dp),
+                    color = Color.Gray
+                )
+            }
+        }
+
+        // Title and Selection
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = description,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Gray
-            )
-        }
 
-        Spacer(modifier = Modifier.width(12.dp))
-
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .background(
-                        color = Color(0xFF9DEA6E),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Selected",
-                    tint = Color.Black,
-                    modifier = Modifier.size(16.dp)
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .background(
+                            color = Color(0xFF9DEA6E),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Selected",
+                        tint = Color.Black,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .border(
+                            width = 1.dp,
+                            color = Color(0xFFE0E0E0),
+                            shape = CircleShape
+                        )
                 )
             }
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFE0E0E0),
-                        shape = CircleShape
-                    )
-            )
         }
     }
 }
