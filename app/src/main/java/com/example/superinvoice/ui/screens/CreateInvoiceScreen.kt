@@ -422,54 +422,32 @@ fun CreateInvoiceScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            Row(
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Button(
+                onClick = {
+                    viewModel.saveInvoice {
+                        onSave()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF9DEA6E),
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(12.dp),
+                enabled = selectedClient != null && lineItems.isNotEmpty()
             ) {
-                Button(
-                    onClick = onClose,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF9FAFB),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(28.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
-                ) {
-                    Text(
-                        text = "Cancel",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        viewModel.saveInvoice {
-                            onSave()
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF9DEA6E),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(28.dp),
-                    enabled = selectedClient != null && lineItems.isNotEmpty()
-                ) {
-                    Text(
-                        text = "Save",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                }
+                Text(
+                    text = "Save",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp
+                )
             }
+
+            Spacer(modifier = Modifier.height(80.dp))
         }
 
         // Tax Dialog
