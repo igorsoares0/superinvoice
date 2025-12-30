@@ -73,7 +73,7 @@ fun InvoiceTemplateScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(top = 48.dp, start = 20.dp, end = 20.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
