@@ -1,5 +1,6 @@
 package com.example.superinvoice.data.pdf
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,8 +10,11 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
+import android.provider.MediaStore
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.InvoiceItem
@@ -18,6 +22,7 @@ import com.example.superinvoice.util.getCurrencySymbol
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -139,12 +144,51 @@ class InvoicePdfGenerator @Inject constructor(
 
             pdfDocument.finishPage(page)
 
-            // Save to file
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(downloadsDir, "Invoice_${invoice.number}.pdf")
+            // Save to file using modern MediaStore API (Android 10+) or legacy method
+            val fileName = "Invoice_${invoice.number}.pdf"
+            val file: File?
 
-            FileOutputStream(file).use { outputStream ->
-                pdfDocument.writeTo(outputStream)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10+ (API 29+): Use MediaStore API
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+
+                val uri: Uri? = context.contentResolver.insert(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    contentValues
+                )
+
+                if (uri != null) {
+                    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        pdfDocument.writeTo(outputStream)
+                    }
+
+                    // Get the file path for return value
+                    val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.MediaColumns.DATA), null, null, null)
+                    val filePath = cursor?.use {
+                        if (it.moveToFirst()) {
+                            val columnIndex = it.getColumnIndex(MediaStore.MediaColumns.DATA)
+                            if (columnIndex >= 0) it.getString(columnIndex) else null
+                        } else null
+                    }
+
+                    file = if (filePath != null) File(filePath) else {
+                        // Fallback: create a temp file reference
+                        File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+                    }
+                } else {
+                    file = null
+                }
+            } else {
+                // Android 9 and below: Use legacy method
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                file = File(downloadsDir, fileName)
+                FileOutputStream(file).use { outputStream ->
+                    pdfDocument.writeTo(outputStream)
+                }
             }
 
             pdfDocument.close()
