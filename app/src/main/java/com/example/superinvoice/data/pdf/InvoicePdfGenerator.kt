@@ -797,7 +797,7 @@ class InvoicePdfGenerator @Inject constructor(
 
         canvas.drawText("DESCRIPTION", margin, yPos, tableTitlePaint)
         canvas.drawText("RATE", pageWidth - margin - 280f, yPos, tableTitlePaint)
-        canvas.drawText("HOURS", pageWidth - margin - 200f, yPos, tableTitlePaint)
+        canvas.drawText("QTY", pageWidth - margin - 200f, yPos, tableTitlePaint)
 
         val pricePaint = Paint().apply {
             color = Color.BLACK
