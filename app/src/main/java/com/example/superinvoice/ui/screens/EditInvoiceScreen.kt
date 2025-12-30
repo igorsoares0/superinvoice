@@ -473,11 +473,12 @@ fun EditInvoiceScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
+            Spacer(modifier = Modifier.height(40.dp))
+
             // Bottom Buttons
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(
@@ -489,8 +490,8 @@ fun EditInvoiceScreen(
                         containerColor = Color(0xFFF9FAFB),
                         contentColor = Color.Black
                     ),
-                    shape = RoundedCornerShape(28.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF9CA3AF))
                 ) {
                     Text(
                         text = "Preview",
@@ -512,7 +513,7 @@ fun EditInvoiceScreen(
                         containerColor = Color(0xFF9DEA6E),
                         contentColor = Color.Black
                     ),
-                    shape = RoundedCornerShape(28.dp),
+                    shape = RoundedCornerShape(12.dp),
                     enabled = selectedClient != null && lineItems.isNotEmpty()
                 ) {
                     Text(
@@ -522,6 +523,8 @@ fun EditInvoiceScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(80.dp))
         }
 
         // Tax Dialog
