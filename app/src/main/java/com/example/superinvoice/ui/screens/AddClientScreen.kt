@@ -175,7 +175,12 @@ fun AddClientScreen(
                         viewModel.addClient(
                             name = clientName,
                             email = email,
-                            phone = phone
+                            phone = phone,
+                            address = address,
+                            city = city,
+                            state = state,
+                            zipCode = zipCode,
+                            notes = notes
                         )
                         onSave()
                     }

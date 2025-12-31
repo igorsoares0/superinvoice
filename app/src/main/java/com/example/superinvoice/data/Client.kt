@@ -10,5 +10,10 @@ data class Client(
     val name: String,
     val email: String,
     val phone: String,
+    val address: String = "",
+    val city: String = "",
+    val state: String = "",
+    val zipCode: String = "",
+    val notes: String = "",
     val createdAt: Long = System.currentTimeMillis()
 )

@@ -23,12 +23,26 @@ class ClientsViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    fun addClient(name: String, email: String, phone: String) {
+    fun addClient(
+        name: String,
+        email: String,
+        phone: String,
+        address: String = "",
+        city: String = "",
+        state: String = "",
+        zipCode: String = "",
+        notes: String = ""
+    ) {
         viewModelScope.launch {
             val client = Client(
                 name = name,
                 email = email,
-                phone = phone
+                phone = phone,
+                address = address,
+                city = city,
+                state = state,
+                zipCode = zipCode,
+                notes = notes
             )
             clientRepository.insertClient(client)
         }

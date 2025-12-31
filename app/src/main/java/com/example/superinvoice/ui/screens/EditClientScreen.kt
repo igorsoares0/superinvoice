@@ -69,11 +69,11 @@ fun EditClientScreen(
             clientName = it.name
             email = it.email
             phone = it.phone
-            address = ""
-            city = ""
-            state = ""
-            zipCode = ""
-            notes = ""
+            address = it.address
+            city = it.city
+            state = it.state
+            zipCode = it.zipCode
+            notes = it.notes
         }
     }
 
@@ -196,7 +196,12 @@ fun EditClientScreen(
                                 it.copy(
                                     name = clientName,
                                     email = email,
-                                    phone = phone
+                                    phone = phone,
+                                    address = address,
+                                    city = city,
+                                    state = state,
+                                    zipCode = zipCode,
+                                    notes = notes
                                 )
                             )
                             onSave()

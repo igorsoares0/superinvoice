@@ -447,6 +447,29 @@ class InvoicePdfGenerator @Inject constructor(
             canvas.drawText(client.phone, margin, leftYPos, bodyPaint)
             leftYPos += 15f
         }
+        if (client.address.isNotEmpty()) {
+            canvas.drawText(client.address, margin, leftYPos, bodyPaint)
+            leftYPos += 15f
+        }
+        val clientCityStateZip = buildString {
+            if (client.city.isNotEmpty()) append(client.city)
+            if (client.state.isNotEmpty()) {
+                if (isNotEmpty()) append(", ")
+                append(client.state)
+            }
+            if (client.zipCode.isNotEmpty()) {
+                if (isNotEmpty()) append(" ")
+                append(client.zipCode)
+            }
+        }
+        if (clientCityStateZip.isNotEmpty()) {
+            canvas.drawText(clientCityStateZip, margin, leftYPos, bodyPaint)
+            leftYPos += 15f
+        }
+        if (client.notes.isNotEmpty()) {
+            canvas.drawText("Notes: ${client.notes}", margin, leftYPos, bodyPaint)
+            leftYPos += 15f
+        }
 
         // PAY TO (right)
         val payRightX = pageWidth / 2f + 20f
@@ -778,6 +801,29 @@ class InvoicePdfGenerator @Inject constructor(
         }
         if (client.email.isNotEmpty()) {
             canvas.drawText(client.email, margin, leftYPos, bodySmallPaint)
+            leftYPos += 12f
+        }
+        if (client.address.isNotEmpty()) {
+            canvas.drawText(client.address, margin, leftYPos, bodySmallPaint)
+            leftYPos += 12f
+        }
+        val clientCityStateZip = buildString {
+            if (client.city.isNotEmpty()) append(client.city)
+            if (client.state.isNotEmpty()) {
+                if (isNotEmpty()) append(", ")
+                append(client.state)
+            }
+            if (client.zipCode.isNotEmpty()) {
+                if (isNotEmpty()) append(" ")
+                append(client.zipCode)
+            }
+        }
+        if (clientCityStateZip.isNotEmpty()) {
+            canvas.drawText(clientCityStateZip, margin, leftYPos, bodySmallPaint)
+            leftYPos += 12f
+        }
+        if (client.notes.isNotEmpty()) {
+            canvas.drawText("Notes: ${client.notes}", margin, leftYPos, bodySmallPaint)
             leftYPos += 12f
         }
 
@@ -1197,6 +1243,29 @@ class InvoicePdfGenerator @Inject constructor(
         }
         if (client.phone.isNotEmpty()) {
             canvas.drawText(client.phone, leftX, leftYPos, bodySmallPaint)
+            leftYPos += 11f
+        }
+        if (client.address.isNotEmpty()) {
+            canvas.drawText(client.address, leftX, leftYPos, bodySmallPaint)
+            leftYPos += 11f
+        }
+        val clientCityStateZip = buildString {
+            if (client.city.isNotEmpty()) append(client.city)
+            if (client.state.isNotEmpty()) {
+                if (isNotEmpty()) append(", ")
+                append(client.state)
+            }
+            if (client.zipCode.isNotEmpty()) {
+                if (isNotEmpty()) append(" ")
+                append(client.zipCode)
+            }
+        }
+        if (clientCityStateZip.isNotEmpty()) {
+            canvas.drawText(clientCityStateZip, leftX, leftYPos, bodySmallPaint)
+            leftYPos += 11f
+        }
+        if (client.notes.isNotEmpty()) {
+            canvas.drawText("Notes: ${client.notes}", leftX, leftYPos, bodySmallPaint)
             leftYPos += 11f
         }
 
