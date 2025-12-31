@@ -214,6 +214,7 @@ class CreateInvoiceViewModel @Inject constructor(
                     invoiceId = 0,
                     productServiceId = lineItem.productService.id,
                     productServiceName = lineItem.productService.name,
+                    productServiceDescription = lineItem.productService.description,
                     pricePerUnit = lineItem.productService.pricePerUnit,
                     quantity = lineItem.quantity,
                     lineTotal = lineItem.lineTotal

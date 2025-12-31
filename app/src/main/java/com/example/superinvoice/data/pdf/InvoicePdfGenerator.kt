@@ -558,12 +558,23 @@ class InvoicePdfGenerator @Inject constructor(
 
         // Table Items
         val currencySymbol = getCurrencySymbol(currency)
+        val descriptionPaint = Paint().apply {
+            color = Color.GRAY
+            textSize = 9f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
         items.forEach { item ->
             canvas.drawText(item.productServiceName, margin, yPos, bodyPaint)
             canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}", pageWidth - margin - 280f, yPos, bodyPaint)
             canvas.drawText("${item.quantity}", pageWidth - margin - 150f, yPos, bodyPaint)
             canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}", pageWidth - margin - 80f, yPos, bodyPaint)
-            yPos += 20f
+            yPos += 14f
+            if (item.productServiceDescription.isNotEmpty()) {
+                canvas.drawText(item.productServiceDescription, margin, yPos, descriptionPaint)
+                yPos += 14f
+            } else {
+                yPos += 6f
+            }
         }
 
         yPos += 20f
@@ -869,6 +880,12 @@ class InvoicePdfGenerator @Inject constructor(
             textAlign = Paint.Align.RIGHT
         }
 
+        val descriptionPaint = Paint().apply {
+            color = Color.GRAY
+            textSize = 8f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
         items.forEach { item ->
             canvas.drawText(item.productServiceName, margin, yPos, tableBodyPaint)
             canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}",
@@ -876,7 +893,13 @@ class InvoicePdfGenerator @Inject constructor(
             canvas.drawText("${item.quantity}", pageWidth - margin - 200f, yPos, tableBodyPaint)
             canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}",
                 pageWidth - margin, yPos, priceBodyPaint)
-            yPos += 18f
+            yPos += 12f
+            if (item.productServiceDescription.isNotEmpty()) {
+                canvas.drawText(item.productServiceDescription, margin, yPos, descriptionPaint)
+                yPos += 12f
+            } else {
+                yPos += 6f
+            }
         }
 
         yPos += 30f
@@ -1324,6 +1347,12 @@ class InvoicePdfGenerator @Inject constructor(
         yPos += headerHeight + 15f
 
         // Table rows
+        val descriptionPaint = Paint().apply {
+            color = Color.GRAY
+            textSize = 8f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+
         items.forEach { item ->
             canvas.drawText(item.productServiceName, margin + 10f, yPos, tableBodyPaint)
             canvas.drawText("${item.quantity}", pageWidth - margin - 280f, yPos, tableBodyPaint)
@@ -1338,7 +1367,13 @@ class InvoicePdfGenerator @Inject constructor(
             }
             canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}",
                 pageWidth - margin - 10f, yPos, totalPaint)
-            yPos += 20f
+            yPos += 12f
+            if (item.productServiceDescription.isNotEmpty()) {
+                canvas.drawText(item.productServiceDescription, margin + 10f, yPos, descriptionPaint)
+                yPos += 14f
+            } else {
+                yPos += 8f
+            }
         }
 
         yPos += 20f

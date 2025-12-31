@@ -8,6 +8,7 @@ data class ProductService(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
+    val description: String = "",
     val pricePerUnit: Double,
     val createdAt: Long = System.currentTimeMillis()
 )

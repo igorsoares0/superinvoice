@@ -158,6 +158,7 @@ class InvoiceTemplateViewModel @Inject constructor(
             invoiceId = 1,
             productServiceId = 1,
             productServiceName = "Design Services",
+            productServiceDescription = "Professional design and branding",
             pricePerUnit = 500.0,
             quantity = 2,
             lineTotal = 1000.0

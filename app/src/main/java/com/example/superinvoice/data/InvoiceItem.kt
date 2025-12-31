@@ -29,6 +29,7 @@ data class InvoiceItem(
     val invoiceId: Int,
     val productServiceId: Int,
     val productServiceName: String,
+    val productServiceDescription: String = "",
     val pricePerUnit: Double,
     val quantity: Int,
     val lineTotal: Double

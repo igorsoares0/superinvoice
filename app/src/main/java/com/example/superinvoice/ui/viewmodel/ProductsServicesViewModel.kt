@@ -34,10 +34,11 @@ class ProductsServicesViewModel @Inject constructor(
                 initialValue = "USD"
             )
 
-    fun addProductService(name: String, pricePerUnit: Double) {
+    fun addProductService(name: String, pricePerUnit: Double, description: String = "") {
         viewModelScope.launch {
             val productService = ProductService(
                 name = name,
+                description = description,
                 pricePerUnit = pricePerUnit
             )
             productServiceRepository.insertProductService(productService)

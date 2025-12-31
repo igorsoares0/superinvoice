@@ -21,7 +21,7 @@ import com.example.superinvoice.data.database.dao.ProductServiceDao
         Invoice::class,
         InvoiceItem::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

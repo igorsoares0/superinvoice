@@ -294,6 +294,7 @@ class EditInvoiceViewModel @Inject constructor(
                     invoiceId = originalInvoice.id,
                     productServiceId = lineItem.productService.id,
                     productServiceName = lineItem.productService.name,
+                    productServiceDescription = lineItem.productService.description,
                     pricePerUnit = lineItem.productService.pricePerUnit,
                     quantity = lineItem.quantity,
                     lineTotal = lineItem.lineTotal

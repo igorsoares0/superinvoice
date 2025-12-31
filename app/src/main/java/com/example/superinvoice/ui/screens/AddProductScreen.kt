@@ -156,7 +156,8 @@ fun AddProductScreen(
                     if (productName.isNotBlank() && priceValue != null && priceValue > 0) {
                         viewModel.addProductService(
                             name = productName,
-                            pricePerUnit = priceValue
+                            pricePerUnit = priceValue,
+                            description = description
                         )
                         onSave()
                     }

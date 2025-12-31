@@ -60,7 +60,7 @@ fun EditProductScreen(
     LaunchedEffect(product) {
         product?.let {
             productName = it.name
-            description = ""
+            description = it.description
             price = it.pricePerUnit.toString()
         }
     }
@@ -172,6 +172,7 @@ fun EditProductScreen(
                             viewModel.updateProductService(
                                 it.copy(
                                     name = productName,
+                                    description = description,
                                     pricePerUnit = priceValue
                                 )
                             )
