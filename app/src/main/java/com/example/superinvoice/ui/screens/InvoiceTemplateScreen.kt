@@ -50,11 +50,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.ui.viewmodel.InvoiceTemplateViewModel
+import androidx.compose.material.icons.filled.Lock
 import kotlinx.coroutines.launch
 
 @Composable
 fun InvoiceTemplateScreen(
     onClose: () -> Unit,
+    isPremium: Boolean = false,
+    onNavigateToPaywall: () -> Unit = {},
     viewModel: InvoiceTemplateViewModel = hiltViewModel()
 ) {
     val selectedTemplate by viewModel.selectedTemplate.collectAsStateWithLifecycle()
@@ -122,6 +125,7 @@ fun InvoiceTemplateScreen(
                 title = "Classic",
                 previewBitmap = classicPreview,
                 isSelected = selectedTemplate == "classic",
+                isLocked = false,
                 onClick = {
                     scope.launch {
                         viewModel.saveSelectedTemplate("classic")
@@ -134,9 +138,14 @@ fun InvoiceTemplateScreen(
                 title = "Modern",
                 previewBitmap = modernPreview,
                 isSelected = selectedTemplate == "modern",
+                isLocked = !isPremium,
                 onClick = {
-                    scope.launch {
-                        viewModel.saveSelectedTemplate("modern")
+                    if (isPremium) {
+                        scope.launch {
+                            viewModel.saveSelectedTemplate("modern")
+                        }
+                    } else {
+                        onNavigateToPaywall()
                     }
                 }
             )
@@ -146,9 +155,14 @@ fun InvoiceTemplateScreen(
                 title = "Professional",
                 previewBitmap = professionalPreview,
                 isSelected = selectedTemplate == "professional",
+                isLocked = !isPremium,
                 onClick = {
-                    scope.launch {
-                        viewModel.saveSelectedTemplate("professional")
+                    if (isPremium) {
+                        scope.launch {
+                            viewModel.saveSelectedTemplate("professional")
+                        }
+                    } else {
+                        onNavigateToPaywall()
                     }
                 }
             )
@@ -185,6 +199,7 @@ private fun TemplateCard(
     title: String,
     previewBitmap: Bitmap?,
     isSelected: Boolean,
+    isLocked: Boolean = false,
     onClick: () -> Unit
 ) {
     Column(
@@ -233,12 +248,23 @@ private fun TemplateCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                )
+                if (isLocked) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Premium",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
 
             if (isSelected) {
                 Box(

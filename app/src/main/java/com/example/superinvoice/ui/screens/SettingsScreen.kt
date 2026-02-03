@@ -42,7 +42,9 @@ fun SettingsScreen(
     onNavigateToManageClients: () -> Unit = {},
     onNavigateToManageProducts: () -> Unit = {},
     onNavigateToAddClient: () -> Unit = {},
-    onNavigateToAddProduct: () -> Unit = {}
+    onNavigateToAddProduct: () -> Unit = {},
+    onNavigateToPaywall: () -> Unit = {},
+    isPremium: Boolean = false
 ) {
     Scaffold(
         containerColor = Color(0xFFF9FAFB),
@@ -81,10 +83,12 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp)
             ) {
-                PremiumCard(
-                    onUnlockClick = { },
-                    modifier = Modifier.padding(top = 24.dp, bottom = 32.dp)
-                )
+                if (!isPremium) {
+                    PremiumCard(
+                        onUnlockClick = onNavigateToPaywall,
+                        modifier = Modifier.padding(top = 24.dp, bottom = 32.dp)
+                    )
+                }
 
                 Text(
                     text = "Business",

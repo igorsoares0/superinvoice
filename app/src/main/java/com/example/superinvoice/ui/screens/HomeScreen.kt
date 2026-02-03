@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.ui.components.BottomNavigationBar
 import com.example.superinvoice.ui.components.EmptyState
 import com.example.superinvoice.ui.components.InvoiceCard
+import com.example.superinvoice.data.billing.BillingManager
 import com.example.superinvoice.ui.components.InvoiceFilterTabs
 import com.example.superinvoice.ui.viewmodel.HomeViewModel
 
@@ -47,6 +48,8 @@ fun HomeScreen(
     onNavigateToAddProduct: () -> Unit = {},
     selectedBottomNavItem: Int = 0,
     onBottomNavItemSelected: (Int) -> Unit = {},
+    isPremium: Boolean = false,
+    invoiceCount: Int = 0,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
@@ -105,6 +108,18 @@ fun HomeScreen(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 40.dp)
             )
+
+            if (!isPremium) {
+                Text(
+                    text = "$invoiceCount/${BillingManager.FREE_INVOICE_LIMIT} invoices used",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
+                    color = if (invoiceCount >= BillingManager.FREE_INVOICE_LIMIT) Color.Red else Color.Gray,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(bottom = 16.dp)
+                )
+            }
 
             Text(
                 text = "Invoice Record",

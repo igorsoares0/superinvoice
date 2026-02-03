@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.superinvoice.ui.viewmodel.NavigationViewModel
 import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
 import com.example.superinvoice.ui.screens.BusinessInformationScreen
@@ -23,6 +26,7 @@ import com.example.superinvoice.ui.screens.InvoiceTemplateScreen
 import com.example.superinvoice.ui.screens.LogoScreen
 import com.example.superinvoice.ui.screens.PaymentInstructionsScreen
 import com.example.superinvoice.ui.screens.PaymentQrCodeScreen
+import com.example.superinvoice.ui.screens.PaywallScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
 import com.example.superinvoice.ui.screens.SettingsScreen
 import com.example.superinvoice.ui.screens.SignatureScreen
@@ -46,11 +50,17 @@ enum class Screen {
     SIGNATURE,
     PAYMENT_QR_CODE,
     CURRENCY,
-    DATE_FORMAT
+    DATE_FORMAT,
+    PAYWALL
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    navigationViewModel: NavigationViewModel = hiltViewModel()
+) {
+    val isPremium by navigationViewModel.isPremium.collectAsStateWithLifecycle()
+    val invoiceCount by navigationViewModel.invoiceCount.collectAsStateWithLifecycle()
+
     var currentScreen by remember { mutableStateOf(Screen.HOME) }
     var selectedBottomNavItem by remember { mutableIntStateOf(0) }
     var navigationStack by remember { mutableStateOf(listOf<Screen>()) }
@@ -113,9 +123,15 @@ fun AppNavigation() {
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
             onNavigateToCreateInvoice = {
-                shouldResetCreateInvoice = true
-                navigateTo(Screen.CREATE_INVOICE)
+                if (navigationViewModel.canCreateInvoice()) {
+                    shouldResetCreateInvoice = true
+                    navigateTo(Screen.CREATE_INVOICE)
+                } else {
+                    navigateTo(Screen.PAYWALL)
+                }
             },
+            isPremium = isPremium,
+            invoiceCount = invoiceCount,
             onNavigateToEditInvoice = { invoiceId -> navigateToEditInvoice(invoiceId) },
             onNavigateToPreview = { invoiceId ->
                 selectedInvoiceId = invoiceId
@@ -232,8 +248,12 @@ fun AppNavigation() {
             onNavigateToTemplates = { navigateTo(Screen.INVOICE_TEMPLATE) },
             onNavigateToBusinessInfo = { navigateTo(Screen.BUSINESS_INFO) },
             onNavigateToPaymentInstructions = { navigateTo(Screen.PAYMENT_INSTRUCTIONS) },
-            onNavigateToLogo = { navigateTo(Screen.LOGO) },
-            onNavigateToSignature = { navigateTo(Screen.SIGNATURE) },
+            onNavigateToLogo = {
+                if (isPremium) navigateTo(Screen.LOGO) else navigateTo(Screen.PAYWALL)
+            },
+            onNavigateToSignature = {
+                if (isPremium) navigateTo(Screen.SIGNATURE) else navigateTo(Screen.PAYWALL)
+            },
             onNavigateToPaymentQrCode = { navigateTo(Screen.PAYMENT_QR_CODE) },
             onNavigateToCurrency = { navigateTo(Screen.CURRENCY) },
             onNavigateToDateFormat = { navigateTo(Screen.DATE_FORMAT) },
@@ -246,7 +266,9 @@ fun AppNavigation() {
                 navigateTo(Screen.PRODUCTS_SERVICES)
             },
             onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
-            onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) }
+            onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
+            onNavigateToPaywall = { navigateTo(Screen.PAYWALL) },
+            isPremium = isPremium
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
             invoiceId = selectedInvoiceId,
@@ -275,7 +297,9 @@ fun AppNavigation() {
             onProductSelectionProcessed = { pendingProductSelection = null }
         )
         Screen.INVOICE_TEMPLATE -> InvoiceTemplateScreen(
-            onClose = { navigateBack() }
+            onClose = { navigateBack() },
+            isPremium = isPremium,
+            onNavigateToPaywall = { navigateTo(Screen.PAYWALL) }
         )
         Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
             invoiceId = selectedInvoiceId,
@@ -311,6 +335,9 @@ fun AppNavigation() {
         Screen.DATE_FORMAT -> DateFormatScreen(
             onClose = { navigateBack() },
             onSave = { navigateBack() }
+        )
+        Screen.PAYWALL -> PaywallScreen(
+            onClose = { navigateBack() }
         )
     }
 }
