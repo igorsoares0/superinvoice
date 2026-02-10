@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.database.entities.InvoiceStatus
+import com.example.superinvoice.data.billing.BillingManager
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
@@ -30,7 +31,8 @@ class HomeViewModel @Inject constructor(
     private val invoiceRepository: InvoiceRepository,
     private val clientRepository: ClientRepository,
     private val settingsRepository: SettingsRepository,
-    private val pdfGenerator: InvoicePdfGenerator
+    private val pdfGenerator: InvoicePdfGenerator,
+    private val billingManager: BillingManager
 ) : ViewModel() {
 
     private val _selectedFilter = MutableStateFlow(InvoiceFilter.PAID)
@@ -146,7 +148,8 @@ class HomeViewModel @Inject constructor(
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
-                    template = template
+                    template = template,
+                    isPremium = billingManager.isPremium.value
                 )
 
                 if (file != null) {
@@ -238,7 +241,8 @@ class HomeViewModel @Inject constructor(
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
-                    template = template
+                    template = template,
+                    isPremium = billingManager.isPremium.value
                 )
 
                 if (file != null) {

@@ -117,7 +117,8 @@ class InvoicePdfGenerator @Inject constructor(
         logoPath: String? = null,
         signaturePath: String? = null,
         paymentQrCodePath: String? = null,
-        template: InvoiceTemplate = InvoiceTemplate.CLASSIC
+        template: InvoiceTemplate = InvoiceTemplate.CLASSIC,
+        isPremium: Boolean = true
     ): File? {
         return try {
             android.util.Log.d("InvoicePDF", "Generating PDF with template: $template")
@@ -140,6 +141,10 @@ class InvoicePdfGenerator @Inject constructor(
                     android.util.Log.d("InvoicePDF", "Drawing PROFESSIONAL template")
                     drawProfessionalTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
+            }
+
+            if (!isPremium) {
+                drawWatermark(canvas)
             }
 
             pdfDocument.finishPage(page)
@@ -211,7 +216,8 @@ class InvoicePdfGenerator @Inject constructor(
         signaturePath: String? = null,
         paymentQrCodePath: String? = null,
         template: InvoiceTemplate = InvoiceTemplate.CLASSIC,
-        scale: Int = 5
+        scale: Int = 5,
+        isPremium: Boolean = true
     ): Bitmap? {
         return try {
             // Create PDF document in memory
@@ -231,6 +237,10 @@ class InvoicePdfGenerator @Inject constructor(
                 InvoiceTemplate.PROFESSIONAL -> {
                     drawProfessionalTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
+            }
+
+            if (!isPremium) {
+                drawWatermark(canvas)
             }
 
             pdfDocument.finishPage(page)
@@ -273,6 +283,22 @@ class InvoicePdfGenerator @Inject constructor(
             e.printStackTrace()
             null
         }
+    }
+
+    private fun drawWatermark(canvas: Canvas) {
+        val watermarkPaint = Paint().apply {
+            color = Color.GRAY
+            alpha = 38 // ~15% opacity (255 * 0.15)
+            textSize = 54f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+        }
+
+        canvas.save()
+        canvas.rotate(-45f, pageWidth / 2f, pageHeight / 2f)
+        canvas.drawText("SUPERINVOICE", pageWidth / 2f, pageHeight / 2f, watermarkPaint)
+        canvas.restore()
     }
 
     private fun drawClassicTemplate(

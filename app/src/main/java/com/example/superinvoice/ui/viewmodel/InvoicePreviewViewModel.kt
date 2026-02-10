@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.ProductService
+import com.example.superinvoice.data.billing.BillingManager
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
@@ -41,7 +42,8 @@ class InvoicePreviewViewModel @Inject constructor(
     private val clientRepository: ClientRepository,
     private val productServiceRepository: ProductServiceRepository,
     private val settingsRepository: SettingsRepository,
-    private val pdfGenerator: InvoicePdfGenerator
+    private val pdfGenerator: InvoicePdfGenerator,
+    private val billingManager: BillingManager
 ) : ViewModel() {
 
     private val _invoice = MutableStateFlow<Invoice?>(null)
@@ -206,7 +208,8 @@ class InvoicePreviewViewModel @Inject constructor(
                             logoPath = _logoPath.value,
                             signaturePath = _signaturePath.value,
                             paymentQrCodePath = _paymentQrCodePath.value,
-                            template = template
+                            template = template,
+                            isPremium = billingManager.isPremium.value
                         )
 
                         withContext(Dispatchers.Main) {
@@ -296,7 +299,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
-                    template = template
+                    template = template,
+                    isPremium = billingManager.isPremium.value
                 )
 
                 if (file != null) {
@@ -389,7 +393,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
-                    template = template
+                    template = template,
+                    isPremium = billingManager.isPremium.value
                 )
 
                 if (file != null) {
