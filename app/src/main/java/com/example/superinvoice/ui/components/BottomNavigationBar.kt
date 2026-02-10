@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
-import com.example.superinvoice.R
+import online.isdevapps.superinvoice.R
 
 sealed class BottomNavItem(
     val title: String,

@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.superinvoice.R
+import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
 import com.example.superinvoice.ui.viewmodel.ClientsViewModel
 

@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
 
     companion object {
-        private const val REVENUECAT_API_KEY = "test_HgGjQIBBJJDnKypkRLPfTsBoFGO"
+        private const val REVENUECAT_API_KEY = "goog_LFCRNoUphtvJVTzfmMUjSSmliKS"
         private const val ENTITLEMENT_ID = "premium"
         const val FREE_INVOICE_LIMIT = 5
     }
@@ -41,15 +41,20 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
         refreshPremiumStatus()
     }
 
+    private fun checkPremium(customerInfo: CustomerInfo): Boolean {
+        return customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
+            || customerInfo.activeSubscriptions.isNotEmpty()
+    }
+
     override fun onReceived(customerInfo: CustomerInfo) {
-        _isPremium.value = customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
+        _isPremium.value = checkPremium(customerInfo)
     }
 
     private fun refreshPremiumStatus() {
         Purchases.sharedInstance.getCustomerInfo(
             callback = object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
                 override fun onReceived(customerInfo: CustomerInfo) {
-                    _isPremium.value = customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
+                    _isPremium.value = checkPremium(customerInfo)
                 }
                 override fun onError(error: com.revenuecat.purchases.PurchasesError) { }
             }
@@ -82,7 +87,7 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
             purchaseParams = purchaseParams,
             onError = { error, _ -> onError(error.message) },
             onSuccess = { transaction, customerInfo ->
-                _isPremium.value = customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
+                _isPremium.value = checkPremium(customerInfo)
                 onSuccess(transaction, customerInfo)
             }
         )
@@ -95,7 +100,7 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
         Purchases.sharedInstance.restorePurchasesWith(
             onError = { error -> onError(error.message) },
             onSuccess = { customerInfo ->
-                _isPremium.value = customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
+                _isPremium.value = checkPremium(customerInfo)
                 onSuccess(customerInfo)
             }
         )

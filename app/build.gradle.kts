@@ -7,17 +7,17 @@ plugins {
 }
 
 android {
-    namespace = "com.example.superinvoice"
+    namespace = "online.isdevapps.superinvoice"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.superinvoice"
+        applicationId = "online.isdevapps.superinvoice"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

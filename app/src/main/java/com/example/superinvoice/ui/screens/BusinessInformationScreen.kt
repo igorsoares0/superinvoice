@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.superinvoice.R
+import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
 import com.example.superinvoice.ui.viewmodel.BusinessInformationViewModel
 

@@ -65,6 +65,10 @@ fun PaywallScreen(
 
     val activity = LocalContext.current as? Activity
 
+    LaunchedEffect(Unit) {
+        viewModel.resetState()
+    }
+
     LaunchedEffect(purchaseSuccess) {
         if (purchaseSuccess) onClose()
     }

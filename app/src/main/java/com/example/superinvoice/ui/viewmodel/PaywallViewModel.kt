@@ -34,6 +34,11 @@ class PaywallViewModel @Inject constructor(
         loadOfferings()
     }
 
+    fun resetState() {
+        _purchaseSuccess.value = false
+        _errorMessage.value = null
+    }
+
     private fun loadOfferings() {
         _isLoading.value = true
         billingManager.fetchOfferings(
