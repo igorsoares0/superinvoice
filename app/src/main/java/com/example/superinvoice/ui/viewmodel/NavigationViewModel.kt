@@ -3,24 +3,22 @@ package com.example.superinvoice.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.billing.BillingManager
-import com.example.superinvoice.data.repository.InvoiceRepository
+import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
     private val billingManager: BillingManager,
-    private val invoiceRepository: InvoiceRepository
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     val isPremium: StateFlow<Boolean> = billingManager.isPremium
 
-    val invoiceCount: StateFlow<Int> = invoiceRepository.getAllInvoices()
-        .map { it.size }
+    val invoiceCount: StateFlow<Int> = settingsRepository.totalInvoicesCreated
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

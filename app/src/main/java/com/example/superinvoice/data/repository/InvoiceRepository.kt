@@ -12,7 +12,8 @@ import javax.inject.Singleton
 @Singleton
 class InvoiceRepository @Inject constructor(
     private val invoiceDao: InvoiceDao,
-    private val invoiceItemDao: InvoiceItemDao
+    private val invoiceItemDao: InvoiceItemDao,
+    private val settingsRepository: SettingsRepository
 ) {
     fun getAllInvoices(): Flow<List<Invoice>> = invoiceDao.getAll()
 
@@ -34,6 +35,7 @@ class InvoiceRepository @Inject constructor(
         val invoiceId = invoiceDao.insert(invoice)
         val itemsWithInvoiceId = items.map { it.copy(invoiceId = invoiceId.toInt()) }
         invoiceItemDao.insertAll(itemsWithInvoiceId)
+        settingsRepository.incrementTotalInvoicesCreated()
         return invoiceId
     }
 
