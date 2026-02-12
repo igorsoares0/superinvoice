@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 enum class InvoiceFilter {
+    ALL,
     PAID,
     UNPAID
 }
@@ -30,6 +31,11 @@ fun InvoiceFilterTabs(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        FilterTab(
+            text = "All",
+            isSelected = selectedFilter == InvoiceFilter.ALL,
+            onClick = { onFilterSelected(InvoiceFilter.ALL) }
+        )
         FilterTab(
             text = "Paid",
             isSelected = selectedFilter == InvoiceFilter.PAID,

@@ -52,6 +52,7 @@ class HomeViewModel @Inject constructor(
         selectedFilter
     ) { invoices, filter ->
         when (filter) {
+            InvoiceFilter.ALL -> invoices
             InvoiceFilter.PAID -> invoices.filter { it.status == InvoiceStatus.PAID }
             InvoiceFilter.UNPAID -> invoices.filter { it.status != InvoiceStatus.PAID }
         }
