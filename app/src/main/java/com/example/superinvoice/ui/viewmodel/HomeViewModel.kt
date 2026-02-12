@@ -35,7 +35,7 @@ class HomeViewModel @Inject constructor(
     private val billingManager: BillingManager
 ) : ViewModel() {
 
-    private val _selectedFilter = MutableStateFlow(InvoiceFilter.PAID)
+    private val _selectedFilter = MutableStateFlow(InvoiceFilter.ALL)
     val selectedFilter: StateFlow<InvoiceFilter> = _selectedFilter.asStateFlow()
 
     val dateFormat: StateFlow<String> = settingsRepository.dateFormat
