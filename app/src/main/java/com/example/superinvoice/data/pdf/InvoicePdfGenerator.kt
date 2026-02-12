@@ -289,16 +289,13 @@ class InvoicePdfGenerator @Inject constructor(
         val watermarkPaint = Paint().apply {
             color = Color.GRAY
             alpha = 38 // ~15% opacity (255 * 0.15)
-            textSize = 54f
+            textSize = 32f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             textAlign = Paint.Align.CENTER
             isAntiAlias = true
         }
 
-        canvas.save()
-        canvas.rotate(-45f, pageWidth / 2f, pageHeight / 2f)
-        canvas.drawText("SUPERINVOICE", pageWidth / 2f, pageHeight / 2f, watermarkPaint)
-        canvas.restore()
+        canvas.drawText("SUPERINVOICE", pageWidth / 2f, pageHeight * 0.75f, watermarkPaint)
     }
 
     private fun drawClassicTemplate(
