@@ -28,6 +28,7 @@ import com.example.superinvoice.ui.screens.PaymentInstructionsScreen
 import com.example.superinvoice.ui.screens.PaymentQrCodeScreen
 import com.example.superinvoice.ui.screens.PaywallScreen
 import com.example.superinvoice.ui.screens.PolicyScreen
+import com.example.superinvoice.ui.screens.TermsScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
 import com.example.superinvoice.ui.screens.SettingsScreen
 import com.example.superinvoice.ui.screens.SignatureScreen
@@ -53,7 +54,8 @@ enum class Screen {
     CURRENCY,
     DATE_FORMAT,
     PAYWALL,
-    POLICY
+    POLICY,
+    TERMS
 }
 
 @Composable
@@ -271,6 +273,7 @@ fun AppNavigation(
             onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
             onNavigateToPaywall = { navigateTo(Screen.PAYWALL) },
             onNavigateToPolicy = { navigateTo(Screen.POLICY) },
+            onNavigateToTerms = { navigateTo(Screen.TERMS) },
             isPremium = isPremium
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
@@ -343,6 +346,9 @@ fun AppNavigation(
             onClose = { navigateBack() }
         )
         Screen.POLICY -> PolicyScreen(
+            onClose = { navigateBack() }
+        )
+        Screen.TERMS -> TermsScreen(
             onClose = { navigateBack() }
         )
     }

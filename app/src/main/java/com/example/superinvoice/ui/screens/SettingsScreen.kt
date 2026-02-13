@@ -45,6 +45,7 @@ fun SettingsScreen(
     onNavigateToAddProduct: () -> Unit = {},
     onNavigateToPaywall: () -> Unit = {},
     onNavigateToPolicy: () -> Unit = {},
+    onNavigateToTerms: () -> Unit = {},
     isPremium: Boolean = false
 ) {
     Scaffold(
@@ -130,7 +131,7 @@ fun SettingsScreen(
                     SettingsOption(text = "Date format", onClick = onNavigateToDateFormat)
                     SettingsOption(text = "Language", onClick = { })
                     SettingsOption(text = "Templates", onClick = onNavigateToTemplates)
-                    SettingsOption(text = "Terms", onClick = { })
+                    SettingsOption(text = "Terms", onClick = onNavigateToTerms)
                     SettingsOption(text = "Policy", onClick = onNavigateToPolicy)
                     SettingsOption(text = "Support", onClick = { })
                 }
