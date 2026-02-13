@@ -15,6 +15,7 @@ import com.revenuecat.purchases.getOfferingsWith
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import online.isdevapps.superinvoice.BuildConfig
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,7 +23,7 @@ import javax.inject.Singleton
 class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
 
     companion object {
-        private const val REVENUECAT_API_KEY = "goog_LFCRNoUphtvJVTzfmMUjSSmliKS"
+        private val REVENUECAT_API_KEY = BuildConfig.REVENUECAT_API_KEY
         private const val ENTITLEMENT_ID = "premium"
         const val FREE_INVOICE_LIMIT = 5
     }

@@ -11,6 +11,10 @@ class Converters {
 
     @TypeConverter
     fun toInvoiceStatus(value: String): InvoiceStatus {
-        return InvoiceStatus.valueOf(value)
+        return try {
+            InvoiceStatus.valueOf(value)
+        } catch (e: IllegalArgumentException) {
+            InvoiceStatus.DRAFT
+        }
     }
 }
