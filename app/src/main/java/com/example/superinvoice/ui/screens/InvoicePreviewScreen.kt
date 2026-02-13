@@ -73,8 +73,6 @@ fun InvoicePreviewScreen(
     invoiceId: Int,
     previewVersion: Int,
     onClose: () -> Unit,
-    onShare: () -> Unit,
-    onSaveAsPdf: () -> Unit,
     viewModel: InvoicePreviewViewModel = hiltViewModel()
 ) {
     LaunchedEffect(invoiceId, previewVersion) {

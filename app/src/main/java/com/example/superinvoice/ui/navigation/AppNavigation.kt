@@ -313,9 +313,7 @@ fun AppNavigation(
         Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
             invoiceId = selectedInvoiceId,
             previewVersion = previewVersion,
-            onClose = { navigateBack() },
-            onShare = { },
-            onSaveAsPdf = { }
+            onClose = { navigateBack() }
         )
         Screen.BUSINESS_INFO -> BusinessInformationScreen(
             onClose = { navigateBack() },
