@@ -58,7 +58,7 @@ class SignatureViewModel @Inject constructor(
                 _signaturePath.value = signatureFile.absolutePath
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 onError()
             }
         }
@@ -83,7 +83,7 @@ class SignatureViewModel @Inject constructor(
                 _signaturePath.value = signatureFile.absolutePath
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 onError()
             }
         }
@@ -100,7 +100,7 @@ class SignatureViewModel @Inject constructor(
                 _signaturePath.value = null
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
             }
         }
     }

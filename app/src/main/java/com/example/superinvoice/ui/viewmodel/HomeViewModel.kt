@@ -129,13 +129,13 @@ class HomeViewModel @Inject constructor(
 
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
-                android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
+
                 val template = when (selectedTemplate) {
                     "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
                     "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
                     else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
                 }
-                android.util.Log.d("HomeViewModel", "Template enum: $template")
+
 
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
@@ -159,7 +159,7 @@ class HomeViewModel @Inject constructor(
                     onError()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 onError()
             }
         }
@@ -222,13 +222,13 @@ class HomeViewModel @Inject constructor(
 
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
-                android.util.Log.d("HomeViewModel", "Selected template from settings: $selectedTemplate")
+
                 val template = when (selectedTemplate) {
                     "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
                     "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
                     else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
                 }
-                android.util.Log.d("HomeViewModel", "Template enum: $template")
+
 
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
@@ -270,7 +270,7 @@ class HomeViewModel @Inject constructor(
                     onError()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 onError()
             }
         }

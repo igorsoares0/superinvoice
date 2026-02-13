@@ -61,7 +61,7 @@ class PaymentQrCodeViewModel @Inject constructor(
                 _qrCodePath.value = qrCodeFile.absolutePath
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 onError()
             }
         }
@@ -80,7 +80,7 @@ class PaymentQrCodeViewModel @Inject constructor(
                 _qrCodePath.value = null
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
             }
         }
     }

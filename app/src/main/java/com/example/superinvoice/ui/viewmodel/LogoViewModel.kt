@@ -61,7 +61,7 @@ class LogoViewModel @Inject constructor(
                 _logoPath.value = logoFile.absolutePath
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 onError()
             }
         }
@@ -80,7 +80,7 @@ class LogoViewModel @Inject constructor(
                 _logoPath.value = null
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
             }
         }
     }

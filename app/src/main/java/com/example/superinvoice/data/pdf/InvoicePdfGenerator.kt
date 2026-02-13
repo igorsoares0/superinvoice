@@ -121,7 +121,6 @@ class InvoicePdfGenerator @Inject constructor(
         isPremium: Boolean = true
     ): File? {
         return try {
-            android.util.Log.d("InvoicePDF", "Generating PDF with template: $template")
             val pdfDocument = PdfDocument()
             val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
             val page = pdfDocument.startPage(pageInfo)
@@ -130,15 +129,12 @@ class InvoicePdfGenerator @Inject constructor(
             // Draw the invoice content based on template
             when (template) {
                 InvoiceTemplate.CLASSIC -> {
-                    android.util.Log.d("InvoicePDF", "Drawing CLASSIC template")
                     drawClassicTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.MODERN -> {
-                    android.util.Log.d("InvoicePDF", "Drawing MODERN template")
                     drawModernTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.PROFESSIONAL -> {
-                    android.util.Log.d("InvoicePDF", "Drawing PROFESSIONAL template")
                     drawProfessionalTemplate(canvas, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
             }
@@ -199,7 +195,7 @@ class InvoicePdfGenerator @Inject constructor(
             pdfDocument.close()
             file
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Error handled silently
             null
         }
     }
@@ -280,7 +276,7 @@ class InvoicePdfGenerator @Inject constructor(
 
             bitmap
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Error handled silently
             null
         }
     }
@@ -340,7 +336,7 @@ class InvoicePdfGenerator @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
             }
         }
 
@@ -557,7 +553,7 @@ class InvoicePdfGenerator @Inject constructor(
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    // Error handled silently
                 }
             }
         }
@@ -659,7 +655,7 @@ class InvoicePdfGenerator @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 // Fallback to text signature if image fails
                 if (businessInfo.ownerName.isNotEmpty()) {
                     val signaturePaint = Paint().apply {
@@ -743,7 +739,7 @@ class InvoicePdfGenerator @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
             }
         }
 
@@ -1059,7 +1055,7 @@ class InvoicePdfGenerator @Inject constructor(
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    // Error handled silently
                 }
             }
             yPos += 15f
@@ -1090,7 +1086,7 @@ class InvoicePdfGenerator @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 if (businessInfo.ownerName.isNotEmpty()) {
                     val signaturePaint = Paint().apply {
                         color = Color.BLACK
@@ -1214,7 +1210,7 @@ class InvoicePdfGenerator @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
             }
         }
 
@@ -1478,7 +1474,7 @@ class InvoicePdfGenerator @Inject constructor(
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    // Error handled silently
                 }
             }
         }
@@ -1562,7 +1558,7 @@ class InvoicePdfGenerator @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                // Error handled silently
                 if (businessInfo.ownerName.isNotEmpty()) {
                     val signaturePaint = Paint().apply {
                         color = Color.BLACK

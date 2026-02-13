@@ -191,8 +191,6 @@ class InvoiceTemplateViewModel @Inject constructor(
     )
 
     suspend fun saveSelectedTemplate(template: String) {
-        android.util.Log.d("TemplateViewModel", "Saving template: $template")
         settingsRepository.saveSelectedTemplate(template)
-        android.util.Log.d("TemplateViewModel", "Template saved successfully")
     }
 }
