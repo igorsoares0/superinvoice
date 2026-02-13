@@ -34,7 +34,7 @@ fun TermsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFFF9FAFB))
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                    .padding(top = 32.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onClose) {
