@@ -44,6 +44,7 @@ fun SettingsScreen(
     onNavigateToAddClient: () -> Unit = {},
     onNavigateToAddProduct: () -> Unit = {},
     onNavigateToPaywall: () -> Unit = {},
+    onNavigateToPolicy: () -> Unit = {},
     isPremium: Boolean = false
 ) {
     Scaffold(
@@ -130,7 +131,7 @@ fun SettingsScreen(
                     SettingsOption(text = "Language", onClick = { })
                     SettingsOption(text = "Templates", onClick = onNavigateToTemplates)
                     SettingsOption(text = "Terms", onClick = { })
-                    SettingsOption(text = "Policy", onClick = { })
+                    SettingsOption(text = "Policy", onClick = onNavigateToPolicy)
                     SettingsOption(text = "Support", onClick = { })
                 }
             }
