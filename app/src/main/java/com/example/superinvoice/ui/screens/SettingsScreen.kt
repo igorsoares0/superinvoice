@@ -46,6 +46,7 @@ fun SettingsScreen(
     onNavigateToPaywall: () -> Unit = {},
     onNavigateToPolicy: () -> Unit = {},
     onNavigateToTerms: () -> Unit = {},
+    onNavigateToSupport: () -> Unit = {},
     isPremium: Boolean = false
 ) {
     Scaffold(
@@ -133,7 +134,7 @@ fun SettingsScreen(
                     SettingsOption(text = "Templates", onClick = onNavigateToTemplates)
                     SettingsOption(text = "Terms", onClick = onNavigateToTerms)
                     SettingsOption(text = "Policy", onClick = onNavigateToPolicy)
-                    SettingsOption(text = "Support", onClick = { })
+                    SettingsOption(text = "Support", onClick = onNavigateToSupport)
                 }
             }
         }

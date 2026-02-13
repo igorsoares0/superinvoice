@@ -152,7 +152,7 @@ fun TermsScreen(
 
             TermsSection(
                 title = "14. Contact Us",
-                body = "If you have any questions about these Terms of Service, please contact us at support@superinvoice.app"
+                body = "If you have any questions about these Terms of Service, please contact us at devforge4@gmail.com"
             )
         }
     }
