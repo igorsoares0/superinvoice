@@ -32,6 +32,15 @@ android {
 
         buildConfigField("String", "REVENUECAT_API_KEY", "\"${localProperties.getProperty("REVENUECAT_API_KEY", "")}\"")
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file(localProperties.getProperty("KEYSTORE_FILE", "andk"))
+            storePassword = localProperties.getProperty("KEYSTORE_PASSWORD", "")
+            keyAlias = localProperties.getProperty("KEY_ALIAS", "")
+            keyPassword = localProperties.getProperty("KEY_PASSWORD", "")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -39,6 +48,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
