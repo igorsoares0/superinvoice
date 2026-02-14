@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -100,13 +101,13 @@ fun EditClientScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
 
                 Text(
-                    text = "Edit Client",
+                    text = stringResource(R.string.title_edit_client),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
@@ -124,28 +125,28 @@ fun EditClientScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 ClientInputField(
-                    placeholder = "Client Name *",
+                    placeholder = stringResource(R.string.client_name_required),
                     value = clientName,
                     onValueChange = { clientName = it },
                     icon = Icons.Default.Person
                 )
 
                 ClientInputField(
-                    placeholder = "Email",
+                    placeholder = stringResource(R.string.email),
                     value = email,
                     onValueChange = { email = it },
                     icon = Icons.Default.Email
                 )
 
                 ClientInputField(
-                    placeholder = "Phone",
+                    placeholder = stringResource(R.string.phone),
                     value = phone,
                     onValueChange = { phone = it },
                     icon = Icons.Default.Phone
                 )
 
                 ClientInputField(
-                    placeholder = "Address",
+                    placeholder = stringResource(R.string.address),
                     value = address,
                     onValueChange = { address = it },
                     iconRes = R.drawable.ic_address
@@ -156,13 +157,13 @@ fun EditClientScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ClientInputField(
-                        placeholder = "City",
+                        placeholder = stringResource(R.string.city),
                         value = city,
                         onValueChange = { city = it },
                         modifier = Modifier.weight(1f)
                     )
                     ClientInputField(
-                        placeholder = "State",
+                        placeholder = stringResource(R.string.state),
                         value = state,
                         onValueChange = { state = it },
                         modifier = Modifier.weight(1f)
@@ -170,14 +171,14 @@ fun EditClientScreen(
                 }
 
                 ClientInputField(
-                    placeholder = "ZIP Code",
+                    placeholder = stringResource(R.string.zip_code),
                     value = zipCode,
                     onValueChange = { zipCode = it },
                     iconRes = R.drawable.ic_zipcode
                 )
 
                 ClientInputField(
-                    placeholder = "Notes",
+                    placeholder = stringResource(R.string.notes),
                     value = notes,
                     onValueChange = { notes = it },
                     iconRes = R.drawable.ic_notes
@@ -219,7 +220,7 @@ fun EditClientScreen(
                 enabled = clientName.isNotBlank()
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )

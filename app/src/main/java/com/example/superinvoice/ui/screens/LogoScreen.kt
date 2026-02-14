@@ -43,12 +43,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.example.superinvoice.ui.viewmodel.LogoViewModel
+import online.isdevapps.superinvoice.R
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -61,6 +64,7 @@ fun LogoScreen(
     val logoPath by viewModel.logoPath.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -70,12 +74,12 @@ fun LogoScreen(
                 uri = it,
                 onSuccess = {
                     scope.launch {
-                        snackbarHostState.showSnackbar("Logo saved successfully")
+                        snackbarHostState.showSnackbar(context.getString(R.string.logo_saved))
                     }
                 },
                 onError = {
                     scope.launch {
-                        snackbarHostState.showSnackbar("Failed to save logo")
+                        snackbarHostState.showSnackbar(context.getString(R.string.logo_save_failed))
                     }
                 }
             )
@@ -103,12 +107,12 @@ fun LogoScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
                 Text(
-                    text = "Business Logo",
+                    text = stringResource(R.string.title_business_logo),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
@@ -127,7 +131,7 @@ fun LogoScreen(
                 Spacer(modifier = Modifier.height(40.dp))
 
                 Text(
-                    text = "Upload your business logo",
+                    text = stringResource(R.string.upload_your_logo),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
@@ -138,7 +142,7 @@ fun LogoScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Your logo will appear on your invoices and documents",
+                    text = stringResource(R.string.logo_description),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Normal,
                     fontSize = 14.sp,
@@ -167,7 +171,7 @@ fun LogoScreen(
                     if (logoPath != null) {
                         Image(
                             painter = rememberAsyncImagePainter(File(logoPath!!)),
-                            contentDescription = "Business Logo",
+                            contentDescription = stringResource(R.string.business_logo),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
                         )
@@ -178,13 +182,13 @@ fun LogoScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = "No logo",
+                                contentDescription = stringResource(R.string.no_logo),
                                 modifier = Modifier.size(48.dp),
                                 tint = Color.Gray
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "No logo uploaded",
+                                text = stringResource(R.string.no_logo_uploaded),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontSize = 14.sp,
                                 color = Color.Gray
@@ -210,12 +214,12 @@ fun LogoScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Upload",
+                        contentDescription = stringResource(R.string.upload),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = if (logoPath != null) "Change Logo" else "Upload Logo",
+                        text = if (logoPath != null) stringResource(R.string.change_logo) else stringResource(R.string.upload_logo),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -228,7 +232,7 @@ fun LogoScreen(
                         onClick = {
                             viewModel.removeLogo {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Logo removed")
+                                    snackbarHostState.showSnackbar(context.getString(R.string.logo_removed))
                                 }
                             }
                         },
@@ -244,12 +248,12 @@ fun LogoScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Remove",
+                            contentDescription = stringResource(R.string.remove),
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.size(8.dp))
                         Text(
-                            text = "Remove Logo",
+                            text = stringResource(R.string.remove_logo),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -259,7 +263,7 @@ fun LogoScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Recommended: PNG or JPG format, 500x500px minimum",
+                    text = stringResource(R.string.recommended_image_format),
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 12.sp,
                     color = Color.Gray,
@@ -283,7 +287,7 @@ fun LogoScreen(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )

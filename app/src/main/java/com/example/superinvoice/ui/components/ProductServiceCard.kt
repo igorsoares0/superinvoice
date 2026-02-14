@@ -28,9 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 import com.example.superinvoice.data.ProductService
 import com.example.superinvoice.util.getCurrencySymbol
 
@@ -92,7 +94,7 @@ fun ProductServiceCard(
                 color = Color.Black
             )
             Text(
-                text = "$currencySymbol${String.format("%.2f", productService.pricePerUnit)} per un",
+                text = stringResource(R.string.price_per_un, "$currencySymbol${String.format("%.2f", productService.pricePerUnit)}"),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
@@ -105,7 +107,7 @@ fun ProductServiceCard(
                 IconButton(onClick = { showMenu = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Menu",
+                        contentDescription = stringResource(R.string.menu),
                         tint = Color.Gray
                     )
                 }
@@ -120,7 +122,7 @@ fun ProductServiceCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Edit",
+                                    text = stringResource(R.string.edit),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Black
@@ -136,7 +138,7 @@ fun ProductServiceCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Delete",
+                                    text = stringResource(R.string.delete),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Red

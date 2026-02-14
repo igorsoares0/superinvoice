@@ -12,8 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import online.isdevapps.superinvoice.R
 
 enum class InvoiceFilter {
     ALL,
@@ -32,17 +34,17 @@ fun InvoiceFilterTabs(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         FilterTab(
-            text = "All",
+            text = stringResource(R.string.filter_all),
             isSelected = selectedFilter == InvoiceFilter.ALL,
             onClick = { onFilterSelected(InvoiceFilter.ALL) }
         )
         FilterTab(
-            text = "Paid",
+            text = stringResource(R.string.filter_paid),
             isSelected = selectedFilter == InvoiceFilter.PAID,
             onClick = { onFilterSelected(InvoiceFilter.PAID) }
         )
         FilterTab(
-            text = "Unpaid",
+            text = stringResource(R.string.filter_unpaid),
             isSelected = selectedFilter == InvoiceFilter.UNPAID,
             onClick = { onFilterSelected(InvoiceFilter.UNPAID) }
         )

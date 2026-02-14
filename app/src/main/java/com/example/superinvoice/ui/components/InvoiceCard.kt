@@ -28,9 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.util.getCurrencySymbol
@@ -104,7 +106,7 @@ fun InvoiceCard(
                 )
                 if (invoice.status == InvoiceStatus.PAID) {
                     Text(
-                        text = "PAID",
+                        text = stringResource(R.string.status_paid),
                         modifier = Modifier
                             .background(
                                 color = Color(0xFF9DEA6E),
@@ -118,7 +120,7 @@ fun InvoiceCard(
                     )
                 } else {
                     Text(
-                        text = "UNPAID",
+                        text = stringResource(R.string.status_unpaid),
                         modifier = Modifier
                             .background(
                                 color = Color(0xFF9DEA6E).copy(alpha = 0.3f),
@@ -137,7 +139,7 @@ fun InvoiceCard(
                 IconButton(onClick = { showMenu = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Menu",
+                        contentDescription = stringResource(R.string.menu),
                         tint = Color.Gray
                     )
                 }
@@ -153,7 +155,7 @@ fun InvoiceCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Preview",
+                                    text = stringResource(R.string.preview),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Black
@@ -169,7 +171,7 @@ fun InvoiceCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Edit",
+                                    text = stringResource(R.string.edit),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Black
@@ -185,7 +187,7 @@ fun InvoiceCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Share",
+                                    text = stringResource(R.string.share),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Black
@@ -201,7 +203,7 @@ fun InvoiceCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Download PDF",
+                                    text = stringResource(R.string.download_pdf),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Black
@@ -217,7 +219,7 @@ fun InvoiceCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = "Delete",
+                                    text = stringResource(R.string.delete),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Red

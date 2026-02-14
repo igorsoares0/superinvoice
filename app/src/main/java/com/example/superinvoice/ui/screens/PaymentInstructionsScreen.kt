@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
@@ -71,12 +72,12 @@ fun PaymentInstructionsScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
                 Text(
-                    text = "Payment Instructions",
+                    text = stringResource(R.string.title_payment_instructions),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
@@ -98,7 +99,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = bankName,
                     onValueChange = { viewModel.setBankName(it) },
-                    placeholder = "Bank Name*",
+                    placeholder = stringResource(R.string.bank_name_required),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -107,7 +108,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = accountHolderName,
                     onValueChange = { viewModel.setAccountHolderName(it) },
-                    placeholder = "Account Holder Name*",
+                    placeholder = stringResource(R.string.account_holder_required),
                     icon = Icons.Default.Person
                 )
 
@@ -116,7 +117,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = accountNumber,
                     onValueChange = { viewModel.setAccountNumber(it) },
-                    placeholder = "Account Number*",
+                    placeholder = stringResource(R.string.account_number_required),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -125,7 +126,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = routingNumber,
                     onValueChange = { viewModel.setRoutingNumber(it) },
-                    placeholder = "Routing Number",
+                    placeholder = stringResource(R.string.routing_number),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -134,7 +135,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = iban,
                     onValueChange = { viewModel.setIban(it) },
-                    placeholder = "IBAN",
+                    placeholder = stringResource(R.string.iban),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -143,7 +144,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = swiftCode,
                     onValueChange = { viewModel.setSwiftCode(it) },
-                    placeholder = "SWIFT/BIC Code",
+                    placeholder = stringResource(R.string.swift_bic_code),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -152,7 +153,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = bankAddress,
                     onValueChange = { viewModel.setBankAddress(it) },
-                    placeholder = "Bank Address",
+                    placeholder = stringResource(R.string.bank_address),
                     iconRes = R.drawable.ic_address
                 )
 
@@ -161,7 +162,7 @@ fun PaymentInstructionsScreen(
                 ClientInputField(
                     value = paymentTerms,
                     onValueChange = { viewModel.setPaymentTerms(it) },
-                    placeholder = "Payment Terms (e.g., Net 30)*",
+                    placeholder = stringResource(R.string.payment_terms_placeholder),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -170,7 +171,7 @@ fun PaymentInstructionsScreen(
                 InvoiceNotesField(
                     value = additionalInstructions,
                     onValueChange = { viewModel.setAdditionalInstructions(it) },
-                    placeholder = "Additional Instructions"
+                    placeholder = stringResource(R.string.additional_instructions)
                 )
 
                 Spacer(modifier = Modifier.height(80.dp))
@@ -194,7 +195,7 @@ fun PaymentInstructionsScreen(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )

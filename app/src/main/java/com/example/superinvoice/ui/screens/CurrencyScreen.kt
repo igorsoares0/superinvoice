@@ -36,7 +36,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.viewmodel.CurrencyViewModel
 
 data class Currency(
@@ -88,12 +90,12 @@ fun CurrencyScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
                 Text(
-                    text = "Currency",
+                    text = stringResource(R.string.title_currency),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
@@ -140,7 +142,7 @@ fun CurrencyScreen(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -207,7 +209,7 @@ private fun CurrencyOption(
         if (isSelected) {
             Icon(
                 imageVector = Icons.Default.Check,
-                contentDescription = "Selected",
+                contentDescription = stringResource(R.string.selected),
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)

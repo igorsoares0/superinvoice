@@ -45,9 +45,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import online.isdevapps.superinvoice.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.ui.viewmodel.InvoiceTemplateViewModel
 import androidx.compose.material.icons.filled.Lock
@@ -83,12 +85,12 @@ fun InvoiceTemplateScreen(
             IconButton(onClick = onClose, modifier = Modifier.size(24.dp)) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
+                    contentDescription = stringResource(R.string.close),
                     tint = Color.Black
                 )
             }
             Text(
-                text = "Invoice Templates",
+                text = stringResource(R.string.title_invoice_templates),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
@@ -113,7 +115,7 @@ fun InvoiceTemplateScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Select your preferred template",
+                text = stringResource(R.string.select_preferred_template),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.Gray,
@@ -122,7 +124,7 @@ fun InvoiceTemplateScreen(
 
             // Classic Template
             TemplateCard(
-                title = "Classic",
+                title = stringResource(R.string.template_classic),
                 previewBitmap = classicPreview,
                 isSelected = selectedTemplate == "classic",
                 isLocked = false,
@@ -135,7 +137,7 @@ fun InvoiceTemplateScreen(
 
             // Modern Template
             TemplateCard(
-                title = "Modern",
+                title = stringResource(R.string.template_modern),
                 previewBitmap = modernPreview,
                 isSelected = selectedTemplate == "modern",
                 isLocked = !isPremium,
@@ -152,7 +154,7 @@ fun InvoiceTemplateScreen(
 
             // Professional Template
             TemplateCard(
-                title = "Professional",
+                title = stringResource(R.string.template_professional),
                 previewBitmap = professionalPreview,
                 isSelected = selectedTemplate == "professional",
                 isLocked = !isPremium,
@@ -184,7 +186,7 @@ fun InvoiceTemplateScreen(
             shape = RoundedCornerShape(26.dp)
         ) {
             Text(
-                text = "Done",
+                text = stringResource(R.string.done),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
             )
@@ -225,7 +227,7 @@ private fun TemplateCard(
             if (previewBitmap != null) {
                 Image(
                     bitmap = previewBitmap.asImageBitmap(),
-                    contentDescription = "$title Template Preview",
+                    contentDescription = stringResource(R.string.template_preview_cd, title),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
@@ -259,7 +261,7 @@ private fun TemplateCard(
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "Premium",
+                        contentDescription = stringResource(R.string.premium),
                         tint = Color.Gray,
                         modifier = Modifier.size(16.dp)
                     )
@@ -278,7 +280,7 @@ private fun TemplateCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
+                        contentDescription = stringResource(R.string.selected),
                         tint = Color.Black,
                         modifier = Modifier.size(16.dp)
                     )

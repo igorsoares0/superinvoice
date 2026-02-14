@@ -13,9 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 
 @Composable
 fun PremiumCard(
@@ -32,7 +34,7 @@ fun PremiumCard(
             .padding(16.dp)
     ) {
         Text(
-            text = "Go to premium",
+            text = stringResource(R.string.go_to_premium),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,
@@ -41,7 +43,7 @@ fun PremiumCard(
         )
 
         Text(
-            text = "Create and send unlimited invoices and take advantage of our premium templates.",
+            text = stringResource(R.string.premium_description),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
@@ -60,7 +62,7 @@ fun PremiumCard(
             shape = RoundedCornerShape(8.dp)
         ) {
             Text(
-                text = "unlock",
+                text = stringResource(R.string.unlock),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
             )

@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
 import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
 import com.example.superinvoice.ui.viewmodel.ProductsServicesViewModel
@@ -88,13 +89,13 @@ fun EditProductScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
 
                 Text(
-                    text = "Edit Product",
+                    text = stringResource(R.string.title_edit_product),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
@@ -112,14 +113,14 @@ fun EditProductScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 ClientInputField(
-                    placeholder = "Product/Service name *",
+                    placeholder = stringResource(R.string.product_name_required),
                     value = productName,
                     onValueChange = { productName = it },
                     iconRes = R.drawable.ic_notes
                 )
 
                 ClientInputField(
-                    placeholder = "Description",
+                    placeholder = stringResource(R.string.description),
                     value = description,
                     onValueChange = { description = it },
                     iconRes = R.drawable.ic_notes
@@ -131,7 +132,7 @@ fun EditProductScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ClientInputField(
-                        placeholder = "Price *",
+                        placeholder = stringResource(R.string.price_required),
                         value = price,
                         onValueChange = { price = it },
                         iconRes = R.drawable.ic_dollar,
@@ -150,7 +151,7 @@ fun EditProductScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "un",
+                            text = stringResource(R.string.unit_abbreviation),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Normal,
                             fontSize = 14.sp,
@@ -191,7 +192,7 @@ fun EditProductScreen(
                 enabled = productName.isNotBlank() && price.toDoubleOrNull() != null
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )

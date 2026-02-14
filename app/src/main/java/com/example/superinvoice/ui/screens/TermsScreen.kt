@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 
 @Composable
 fun TermsScreen(
@@ -40,11 +42,11 @@ fun TermsScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close"
+                        contentDescription = stringResource(R.string.close)
                     )
                 }
                 Text(
-                    text = "Terms of Service",
+                    text = stringResource(R.string.title_terms_of_service),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp
@@ -60,99 +62,80 @@ fun TermsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Last updated: February 2026",
+                text = stringResource(R.string.terms_last_updated),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             TermsSection(
-                title = "1. Acceptance of Terms",
-                body = "By downloading, installing, or using SuperInvoice, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the application."
+                title = stringResource(R.string.terms_section_1_title),
+                body = stringResource(R.string.terms_section_1_body)
             )
 
             TermsSection(
-                title = "2. Description of Service",
-                body = "SuperInvoice is a mobile application that allows users to create, manage, and share invoices. The app provides tools for managing clients, products and services, and generating PDF invoices."
+                title = stringResource(R.string.terms_section_2_title),
+                body = stringResource(R.string.terms_section_2_body)
             )
 
             TermsSection(
-                title = "3. User Accounts and Responsibilities",
-                body = "You are responsible for:\n\n" +
-                        "\u2022 The accuracy of all business information, client data, and invoice details you enter into the app.\n\n" +
-                        "\u2022 Ensuring your invoices comply with applicable local laws and tax regulations.\n\n" +
-                        "\u2022 Maintaining the security of your device and any data stored within the app.\n\n" +
-                        "\u2022 Any invoices generated and shared using the application."
+                title = stringResource(R.string.terms_section_3_title),
+                body = stringResource(R.string.terms_section_3_body)
             )
 
             TermsSection(
-                title = "4. Free and Premium Plans",
-                body = "SuperInvoice offers both free and premium plans:\n\n" +
-                        "\u2022 Free Plan: Allows creation of a limited number of invoices with a watermark applied to generated PDFs.\n\n" +
-                        "\u2022 Premium Plan: Unlocks unlimited invoice creation, watermark-free PDFs, and access to additional features such as custom logos and signatures.\n\n" +
-                        "Premium subscriptions are billed through Google Play and are subject to the app store's terms and conditions."
+                title = stringResource(R.string.terms_section_4_title),
+                body = stringResource(R.string.terms_section_4_body)
             )
 
             TermsSection(
-                title = "5. Subscriptions and Payments",
-                body = "Premium subscriptions are processed through Google Play. By purchasing a subscription:\n\n" +
-                        "\u2022 Payment will be charged to your Google Play account upon confirmation of purchase.\n\n" +
-                        "\u2022 Subscriptions automatically renew unless canceled at least 24 hours before the end of the current billing period.\n\n" +
-                        "\u2022 You can manage or cancel your subscription through Google Play settings.\n\n" +
-                        "\u2022 Refunds are subject to Google Play's refund policy."
+                title = stringResource(R.string.terms_section_5_title),
+                body = stringResource(R.string.terms_section_5_body)
             )
 
             TermsSection(
-                title = "6. Intellectual Property",
-                body = "All content, design, graphics, and software within SuperInvoice are the intellectual property of SuperInvoice and are protected by applicable copyright and trademark laws. You may not copy, modify, distribute, or reverse-engineer any part of the application."
+                title = stringResource(R.string.terms_section_6_title),
+                body = stringResource(R.string.terms_section_6_body)
             )
 
             TermsSection(
-                title = "7. Permitted Use",
-                body = "You agree to use SuperInvoice only for lawful purposes. You may not:\n\n" +
-                        "\u2022 Use the app to generate fraudulent or misleading invoices.\n\n" +
-                        "\u2022 Attempt to circumvent subscription restrictions or tamper with the app's functionality.\n\n" +
-                        "\u2022 Use the app in any way that violates applicable laws or regulations.\n\n" +
-                        "\u2022 Distribute or resell the application or any content generated by it for commercial purposes beyond normal invoicing."
+                title = stringResource(R.string.terms_section_7_title),
+                body = stringResource(R.string.terms_section_7_body)
             )
 
             TermsSection(
-                title = "8. Disclaimer of Warranties",
-                body = "SuperInvoice is provided \"as is\" and \"as available\" without warranties of any kind, either express or implied. We do not guarantee that:\n\n" +
-                        "\u2022 The app will be error-free or uninterrupted.\n\n" +
-                        "\u2022 Invoices generated will meet all legal or regulatory requirements in your jurisdiction.\n\n" +
-                        "\u2022 Data stored on your device will be preserved in all circumstances.\n\n" +
-                        "You are solely responsible for verifying that your invoices are accurate and legally compliant."
+                title = stringResource(R.string.terms_section_8_title),
+                body = stringResource(R.string.terms_section_8_body)
             )
 
             TermsSection(
-                title = "9. Limitation of Liability",
-                body = "To the fullest extent permitted by law, SuperInvoice and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the application, including but not limited to loss of data, revenue, or business opportunities."
+                title = stringResource(R.string.terms_section_9_title),
+                body = stringResource(R.string.terms_section_9_body)
             )
 
             TermsSection(
-                title = "10. Data and Privacy",
-                body = "Your use of SuperInvoice is also governed by our Privacy Policy. By using the app, you consent to the collection and use of information as described in our Privacy Policy."
+                title = stringResource(R.string.terms_section_10_title),
+                body = stringResource(R.string.terms_section_10_body)
             )
 
             TermsSection(
-                title = "11. Termination",
-                body = "We reserve the right to terminate or suspend access to the application at any time, without prior notice, for conduct that we believe violates these Terms of Service or is harmful to other users or the service."
+                title = stringResource(R.string.terms_section_11_title),
+                body = stringResource(R.string.terms_section_11_body)
             )
 
             TermsSection(
-                title = "12. Changes to Terms",
-                body = "We may update these Terms of Service from time to time. Continued use of the app after changes are posted constitutes your acceptance of the revised terms. We encourage you to review these terms periodically."
+                title = stringResource(R.string.terms_section_12_title),
+                body = stringResource(R.string.terms_section_12_body)
             )
 
             TermsSection(
-                title = "13. Governing Law",
-                body = "These Terms of Service shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles."
+                title = stringResource(R.string.terms_section_13_title),
+                body = stringResource(R.string.terms_section_13_body)
             )
 
             TermsSection(
-                title = "14. Contact Us",
-                body = "If you have any questions about these Terms of Service, please contact us at devforge4@gmail.com"
+                title = stringResource(R.string.terms_section_14_title),
+                body = stringResource(R.string.terms_section_14_body)
             )
         }
     }

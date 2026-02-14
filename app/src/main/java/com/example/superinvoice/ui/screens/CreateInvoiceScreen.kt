@@ -44,10 +44,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.ui.components.DatePickerField
@@ -135,14 +137,14 @@ fun CreateInvoiceScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black,
                         modifier = Modifier.size(24.dp)
                     )
                 }
 
                 Text(
-                    text = "New Invoice",
+                    text = stringResource(R.string.title_new_invoice),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -184,7 +186,7 @@ fun CreateInvoiceScreen(
                         ) {
                             // Label at top
                             Text(
-                                text = "Invoice name #",
+                                text = stringResource(R.string.invoice_name_label),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray,
                                 fontSize = 12.sp,
@@ -209,7 +211,7 @@ fun CreateInvoiceScreen(
 
                     // Due Date Field
                     DatePickerField(
-                        label = "Due Date",
+                        label = stringResource(R.string.due_date),
                         value = dueDate,
                         onValueChange = { viewModel.setDueDate(it) },
                         dateFormatPattern = dateFormat,
@@ -222,7 +224,7 @@ fun CreateInvoiceScreen(
                 // Add Client Button
                 NavigationButton(
                     icon = Icons.Default.Person,
-                    text = selectedClient?.name ?: "Add Client",
+                    text = selectedClient?.name ?: stringResource(R.string.add_client),
                     onClick = onNavigateToSelectClient,
                     useGreenCircle = true
                 )
@@ -230,7 +232,7 @@ fun CreateInvoiceScreen(
                 // Add Product or Service Button
                 NavigationButton(
                     icon = Icons.Default.Add,
-                    text = "Add Product or Service",
+                    text = stringResource(R.string.add_product_or_service),
                     onClick = onNavigateToSelectProduct,
                     useGreenCircle = true
                 )
@@ -238,7 +240,7 @@ fun CreateInvoiceScreen(
                 // Items Section (below the button)
                 if (lineItems.isNotEmpty()) {
                     Text(
-                        text = "Items",
+                        text = stringResource(R.string.items),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
@@ -260,7 +262,7 @@ fun CreateInvoiceScreen(
                                     fontSize = 14.sp
                                 )
                                 Text(
-                                    text = "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)} per unit",
+                                    text = stringResource(R.string.price_per_unit, "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}"),
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
@@ -320,7 +322,7 @@ fun CreateInvoiceScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
 
                                     Text(
-                                        text = "Total: $currencySymbol${String.format("%.2f", item.lineTotal)}",
+                                        text = stringResource(R.string.total_with_amount, "$currencySymbol${String.format("%.2f", item.lineTotal)}"),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
                                     )
@@ -329,7 +331,7 @@ fun CreateInvoiceScreen(
                             IconButton(onClick = { viewModel.removeLineItem(index) }) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Remove",
+                                    contentDescription = stringResource(R.string.remove),
                                     tint = Color.Red
                                 )
                             }
@@ -347,7 +349,7 @@ fun CreateInvoiceScreen(
                     icon = null,
                     iconText = "%",
                     text = if (tax.isNotEmpty() && tax.toDoubleOrNull() != null && tax.toDouble() > 0)
-                        "Tax: $currencySymbol$tax" else "Tax",
+                        stringResource(R.string.tax_with_amount, "$currencySymbol$tax") else stringResource(R.string.tax),
                     onClick = {
                         taxInput = tax
                         showTaxDialog = true
@@ -359,7 +361,7 @@ fun CreateInvoiceScreen(
                     icon = null,
                     iconText = "%",
                     text = if (discount.isNotEmpty() && discount.toDoubleOrNull() != null && discount.toDouble() > 0)
-                        "Discount: $currencySymbol$discount" else "Discount",
+                        stringResource(R.string.discount_with_amount, "$currencySymbol$discount") else stringResource(R.string.discount),
                     onClick = {
                         discountInput = discount
                         showDiscountDialog = true
@@ -383,7 +385,7 @@ fun CreateInvoiceScreen(
                                     tint = Color.Gray
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Notes", color = Color.Gray)
+                                Text(stringResource(R.string.notes), color = Color.Gray)
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
@@ -406,7 +408,7 @@ fun CreateInvoiceScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Total",
+                        text = stringResource(R.string.total),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
                         color = Color.Black
@@ -441,7 +443,7 @@ fun CreateInvoiceScreen(
                 enabled = selectedClient != null && lineItems.isNotEmpty()
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )
@@ -456,7 +458,7 @@ fun CreateInvoiceScreen(
                 onDismissRequest = { showTaxDialog = false },
                 title = {
                     Text(
-                        text = "Tax Amount",
+                        text = stringResource(R.string.tax_amount),
                         color = Color.Black,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -465,7 +467,7 @@ fun CreateInvoiceScreen(
                     OutlinedTextField(
                         value = taxInput,
                         onValueChange = { taxInput = it },
-                        label = { Text("Enter tax amount") },
+                        label = { Text(stringResource(R.string.enter_tax_amount)) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9DEA6E),
@@ -482,12 +484,12 @@ fun CreateInvoiceScreen(
                             showTaxDialog = false
                         }
                     ) {
-                        Text("OK", color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.ok), color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showTaxDialog = false }) {
-                        Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.cancel), color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -501,7 +503,7 @@ fun CreateInvoiceScreen(
                 onDismissRequest = { showDiscountDialog = false },
                 title = {
                     Text(
-                        text = "Discount Amount",
+                        text = stringResource(R.string.discount_amount),
                         color = Color.Black,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -510,7 +512,7 @@ fun CreateInvoiceScreen(
                     OutlinedTextField(
                         value = discountInput,
                         onValueChange = { discountInput = it },
-                        label = { Text("Enter discount amount") },
+                        label = { Text(stringResource(R.string.enter_discount_amount)) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9DEA6E),
@@ -527,12 +529,12 @@ fun CreateInvoiceScreen(
                             showDiscountDialog = false
                         }
                     ) {
-                        Text("OK", color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.ok), color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDiscountDialog = false }) {
-                        Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.cancel), color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
                 },
                 shape = RoundedCornerShape(12.dp),

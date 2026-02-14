@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.components.ClientInputField
@@ -76,12 +77,12 @@ fun BusinessInformationScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
                 Text(
-                    text = "Business Information",
+                    text = stringResource(R.string.title_business_information),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
@@ -101,7 +102,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = businessName,
                     onValueChange = { viewModel.setBusinessName(it) },
-                    placeholder = "Business Name*",
+                    placeholder = stringResource(R.string.business_name_required),
                     icon = Icons.Default.Home
                 )
 
@@ -110,7 +111,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = ownerName,
                     onValueChange = { viewModel.setOwnerName(it) },
-                    placeholder = "Owner Name*",
+                    placeholder = stringResource(R.string.owner_name_required),
                     icon = Icons.Default.Person
                 )
 
@@ -119,7 +120,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = email,
                     onValueChange = { viewModel.setEmail(it) },
-                    placeholder = "Email*",
+                    placeholder = stringResource(R.string.email_required),
                     icon = Icons.Default.Email
                 )
 
@@ -128,7 +129,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = phone,
                     onValueChange = { viewModel.setPhone(it) },
-                    placeholder = "Phone*",
+                    placeholder = stringResource(R.string.phone_required),
                     icon = Icons.Default.Phone
                 )
 
@@ -137,7 +138,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = website,
                     onValueChange = { viewModel.setWebsite(it) },
-                    placeholder = "Website",
+                    placeholder = stringResource(R.string.website),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -146,7 +147,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = address,
                     onValueChange = { viewModel.setAddress(it) },
-                    placeholder = "Address*",
+                    placeholder = stringResource(R.string.address_required),
                     iconRes = R.drawable.ic_address
                 )
 
@@ -159,7 +160,7 @@ fun BusinessInformationScreen(
                     ClientInputField(
                         value = city,
                         onValueChange = { viewModel.setCity(it) },
-                        placeholder = "City*",
+                        placeholder = stringResource(R.string.city_required),
                         iconRes = R.drawable.ic_address,
                         modifier = Modifier.weight(1f)
                     )
@@ -167,7 +168,7 @@ fun BusinessInformationScreen(
                     ClientInputField(
                         value = state,
                         onValueChange = { viewModel.setState(it) },
-                        placeholder = "State*",
+                        placeholder = stringResource(R.string.state_required),
                         iconRes = R.drawable.ic_address,
                         modifier = Modifier.weight(1f)
                     )
@@ -178,7 +179,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = zipCode,
                     onValueChange = { viewModel.setZipCode(it) },
-                    placeholder = "ZIP Code*",
+                    placeholder = stringResource(R.string.zip_code_required),
                     iconRes = R.drawable.ic_zipcode
                 )
 
@@ -187,7 +188,7 @@ fun BusinessInformationScreen(
                 ClientInputField(
                     value = taxId,
                     onValueChange = { viewModel.setTaxId(it) },
-                    placeholder = "Tax ID / EIN",
+                    placeholder = stringResource(R.string.tax_id_ein),
                     iconRes = R.drawable.ic_notes
                 )
 
@@ -212,7 +213,7 @@ fun BusinessInformationScreen(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )

@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 
 @Composable
 fun SupportScreen(
@@ -40,11 +42,11 @@ fun SupportScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close"
+                        contentDescription = stringResource(R.string.close)
                     )
                 }
                 Text(
-                    text = "Support",
+                    text = stringResource(R.string.title_support),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp
@@ -61,7 +63,7 @@ fun SupportScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Need help?",
+                text = stringResource(R.string.support_need_help),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp
@@ -70,7 +72,7 @@ fun SupportScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "If you have any questions, suggestions, or need assistance, feel free to reach out to us. We'll get back to you as soon as possible.",
+                text = stringResource(R.string.support_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.DarkGray,
                 lineHeight = 22.sp
@@ -79,7 +81,7 @@ fun SupportScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Contact email",
+                text = stringResource(R.string.support_contact_email_label),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 fontWeight = FontWeight.SemiBold
@@ -88,7 +90,7 @@ fun SupportScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "devforge4@gmail.com",
+                text = stringResource(R.string.support_contact_email),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black

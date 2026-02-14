@@ -28,10 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.Client
@@ -82,13 +84,13 @@ fun ClientsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
 
                 Text(
-                    text = "Clients",
+                    text = stringResource(R.string.title_clients),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
@@ -107,11 +109,11 @@ fun ClientsScreen(
 
             if (filteredClients.isEmpty()) {
                 EmptyState(
-                    title = if (searchQuery.isEmpty()) "No clients yet" else "No clients found",
+                    title = if (searchQuery.isEmpty()) stringResource(R.string.no_clients_yet) else stringResource(R.string.no_clients_found),
                     message = if (searchQuery.isEmpty())
-                        "Tap the + button to add your first client and start creating invoices."
+                        stringResource(R.string.no_clients_message)
                     else
-                        "No clients match your search. Try a different keyword."
+                        stringResource(R.string.no_clients_search_message)
                 )
             } else {
                 LazyColumn(
@@ -145,7 +147,7 @@ fun ClientsScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add Client"
+                contentDescription = stringResource(R.string.add_client)
             )
         }
     }

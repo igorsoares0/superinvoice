@@ -47,7 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,6 +61,7 @@ import com.example.superinvoice.ui.components.PathState
 import com.example.superinvoice.ui.components.SignatureCanvas
 import com.example.superinvoice.ui.components.toBitmap
 import com.example.superinvoice.ui.viewmodel.SignatureViewModel
+import online.isdevapps.superinvoice.R
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -71,6 +74,7 @@ fun SignatureScreen(
     val signaturePath by viewModel.signaturePath.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var showDrawDialog by remember { mutableStateOf(false) }
     var signaturePaths by remember { mutableStateOf<List<PathState>>(emptyList()) }
 
@@ -82,12 +86,12 @@ fun SignatureScreen(
                 uri = it,
                 onSuccess = {
                     scope.launch {
-                        snackbarHostState.showSnackbar("Signature saved successfully")
+                        snackbarHostState.showSnackbar(context.getString(R.string.signature_saved))
                     }
                 },
                 onError = {
                     scope.launch {
-                        snackbarHostState.showSnackbar("Failed to save signature")
+                        snackbarHostState.showSnackbar(context.getString(R.string.signature_save_failed))
                     }
                 }
             )
@@ -98,7 +102,7 @@ fun SignatureScreen(
     if (showDrawDialog) {
         AlertDialog(
             onDismissRequest = { showDrawDialog = false },
-            title = { Text("Draw your signature") },
+            title = { Text(stringResource(R.string.draw_your_signature)) },
             text = {
                 Box(
                     modifier = Modifier
@@ -122,14 +126,14 @@ fun SignatureScreen(
                                 bitmap = bitmap,
                                 onSuccess = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("Signature saved successfully")
+                                        snackbarHostState.showSnackbar(context.getString(R.string.signature_saved))
                                     }
                                     showDrawDialog = false
                                     signaturePaths = emptyList()
                                 },
                                 onError = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("Failed to save signature")
+                                        snackbarHostState.showSnackbar(context.getString(R.string.signature_save_failed))
                                     }
                                 }
                             )
@@ -137,7 +141,7 @@ fun SignatureScreen(
                     },
                     enabled = signaturePaths.isNotEmpty()
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.save))
                 }
             },
             dismissButton = {
@@ -145,7 +149,7 @@ fun SignatureScreen(
                     showDrawDialog = false
                     signaturePaths = emptyList()
                 }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -172,12 +176,12 @@ fun SignatureScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
                 Text(
-                    text = "Signature",
+                    text = stringResource(R.string.title_signature),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
@@ -196,7 +200,7 @@ fun SignatureScreen(
                 Spacer(modifier = Modifier.height(40.dp))
 
                 Text(
-                    text = "Upload your signature",
+                    text = stringResource(R.string.upload_your_signature),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
@@ -207,7 +211,7 @@ fun SignatureScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Your signature will appear at the bottom of your invoices",
+                    text = stringResource(R.string.signature_description),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Normal,
                     fontSize = 14.sp,
@@ -237,7 +241,7 @@ fun SignatureScreen(
                     if (signaturePath != null) {
                         Image(
                             painter = rememberAsyncImagePainter(File(signaturePath!!)),
-                            contentDescription = "Signature",
+                            contentDescription = stringResource(R.string.signature_cd),
                             modifier = Modifier.fillMaxSize().padding(16.dp),
                             contentScale = ContentScale.Fit
                         )
@@ -248,13 +252,13 @@ fun SignatureScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = "No signature",
+                                contentDescription = stringResource(R.string.no_signature),
                                 modifier = Modifier.size(48.dp),
                                 tint = Color.Gray
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "No signature",
+                                text = stringResource(R.string.no_signature),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontSize = 14.sp,
                                 color = Color.Gray
@@ -280,12 +284,12 @@ fun SignatureScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Upload",
+                        contentDescription = stringResource(R.string.upload),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = "Upload Signature",
+                        text = stringResource(R.string.upload_signature),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -308,12 +312,12 @@ fun SignatureScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Draw",
+                        contentDescription = stringResource(R.string.draw),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = "Draw Signature",
+                        text = stringResource(R.string.draw_signature),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -326,7 +330,7 @@ fun SignatureScreen(
                         onClick = {
                             viewModel.removeSignature {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Signature removed")
+                                    snackbarHostState.showSnackbar(context.getString(R.string.signature_removed))
                                 }
                             }
                         },
@@ -342,12 +346,12 @@ fun SignatureScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Remove",
+                            contentDescription = stringResource(R.string.remove),
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.size(8.dp))
                         Text(
-                            text = "Remove Signature",
+                            text = stringResource(R.string.remove_signature),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -357,7 +361,7 @@ fun SignatureScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Draw your signature or upload a PNG image",
+                    text = stringResource(R.string.draw_signature_or_upload),
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 12.sp,
                     color = Color.Gray,
@@ -381,7 +385,7 @@ fun SignatureScreen(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )

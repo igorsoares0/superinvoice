@@ -25,11 +25,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.ui.components.BottomNavigationBar
@@ -58,6 +61,7 @@ fun HomeScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = Color(0xFFF9FAFB),
@@ -78,7 +82,7 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Invoice"
+                    contentDescription = stringResource(R.string.add_invoice)
                 )
             }
         }
@@ -91,7 +95,7 @@ fun HomeScreen(
                 .padding(horizontal = 20.dp)
         ) {
             Text(
-                text = "Invoices",
+                text = stringResource(R.string.title_invoices),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 28.sp,
@@ -111,7 +115,7 @@ fun HomeScreen(
 
             if (!isPremium) {
                 Text(
-                    text = "$invoiceCount/${BillingManager.FREE_INVOICE_LIMIT} invoices used",
+                    text = stringResource(R.string.invoices_used, invoiceCount, BillingManager.FREE_INVOICE_LIMIT),
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 12.sp,
                     color = if (invoiceCount >= BillingManager.FREE_INVOICE_LIMIT) Color.Red else Color.Gray,
@@ -122,7 +126,7 @@ fun HomeScreen(
             }
 
             Text(
-                text = "Invoice Record",
+                text = stringResource(R.string.invoice_record),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
@@ -130,7 +134,7 @@ fun HomeScreen(
             )
 
             Text(
-                text = "Here you will have access to all your invoices and be able to manage them in the best way.",
+                text = stringResource(R.string.invoice_record_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray,
                 fontSize = 14.sp,
@@ -140,8 +144,8 @@ fun HomeScreen(
 
             if (filteredInvoices.isEmpty()) {
                 EmptyState(
-                    title = "No invoices yet",
-                    message = "Tap the + button to create your first invoice and start managing your business finances."
+                    title = stringResource(R.string.no_invoices_yet),
+                    message = stringResource(R.string.no_invoices_message)
                 )
             } else {
                 LazyColumn(
@@ -160,7 +164,7 @@ fun HomeScreen(
                                     invoice = invoice,
                                     onError = {
                                         scope.launch {
-                                            snackbarHostState.showSnackbar("Error sharing PDF")
+                                            snackbarHostState.showSnackbar(context.getString(R.string.error_sharing_pdf))
                                         }
                                     }
                                 )
@@ -170,12 +174,12 @@ fun HomeScreen(
                                     invoice = invoice,
                                     onSuccess = { path ->
                                         scope.launch {
-                                            snackbarHostState.showSnackbar("PDF saved to Downloads: Invoice_${invoice.number}.pdf")
+                                            snackbarHostState.showSnackbar(context.getString(R.string.pdf_saved_to_downloads, invoice.number))
                                         }
                                     },
                                     onError = {
                                         scope.launch {
-                                            snackbarHostState.showSnackbar("Error generating PDF")
+                                            snackbarHostState.showSnackbar(context.getString(R.string.error_generating_pdf))
                                         }
                                     }
                                 )

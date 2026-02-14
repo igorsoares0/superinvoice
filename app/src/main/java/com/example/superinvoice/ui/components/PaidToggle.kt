@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 
 @Composable
 fun PaidToggle(
@@ -42,7 +44,7 @@ fun PaidToggle(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Paid",
+                text = stringResource(R.string.paid),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
@@ -50,7 +52,7 @@ fun PaidToggle(
             )
 
             Text(
-                text = "Unpaid",
+                text = stringResource(R.string.unpaid),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Normal,
                 fontSize = 12.sp,

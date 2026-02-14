@@ -15,9 +15,11 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 
 @Composable
 fun ClientSearchBar(
@@ -37,7 +39,7 @@ fun ClientSearchBar(
             ),
         placeholder = {
             Text(
-                text = "Search clients...",
+                text = stringResource(R.string.search_clients),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
@@ -47,7 +49,7 @@ fun ClientSearchBar(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Search",
+                contentDescription = stringResource(R.string.search),
                 modifier = Modifier.size(20.dp),
                 tint = Color.Gray
             )

@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -42,35 +43,35 @@ import androidx.compose.ui.window.Popup
 import online.isdevapps.superinvoice.R
 
 sealed class BottomNavItem(
-    val title: String,
+    val titleResId: Int,
     val icon: @Composable () -> Unit
 ) {
     data object Invoices : BottomNavItem(
-        title = "Invoices",
+        titleResId = R.string.nav_invoices,
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_invoice),
-                contentDescription = "Invoices"
+                contentDescription = stringResource(R.string.nav_invoices)
             )
         }
     )
 
     data object Add : BottomNavItem(
-        title = "Add",
+        titleResId = R.string.nav_add,
         icon = {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add"
+                contentDescription = stringResource(R.string.nav_add)
             )
         }
     )
 
     data object Settings : BottomNavItem(
-        title = "Settings",
+        titleResId = R.string.nav_settings,
         icon = {
             Icon(
                 imageVector = Icons.Default.Settings,
-                contentDescription = "Settings"
+                contentDescription = stringResource(R.string.nav_settings)
             )
         }
     )
@@ -111,7 +112,7 @@ fun BottomNavigationBar(
                             }
                         },
                         icon = item.icon,
-                        label = { Text(item.title) },
+                        label = { Text(stringResource(item.titleResId)) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.Black,
                             selectedTextColor = Color.Black,
@@ -168,7 +169,7 @@ fun BottomNavigationBar(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Add Client",
+                                    text = stringResource(R.string.add_client),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -200,7 +201,7 @@ fun BottomNavigationBar(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Add Item",
+                                    text = stringResource(R.string.add_item),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )

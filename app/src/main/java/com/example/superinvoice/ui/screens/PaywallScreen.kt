@@ -43,9 +43,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import online.isdevapps.superinvoice.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.ui.viewmodel.PaywallViewModel
 import com.revenuecat.purchases.Package
@@ -90,12 +92,12 @@ fun PaywallScreen(
             IconButton(onClick = onClose, modifier = Modifier.size(24.dp)) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
+                    contentDescription = stringResource(R.string.close),
                     tint = Color.Black
                 )
             }
             Text(
-                text = "Go Premium",
+                text = stringResource(R.string.title_go_premium),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
@@ -116,7 +118,7 @@ fun PaywallScreen(
                 .padding(horizontal = 20.dp)
         ) {
             Text(
-                text = "Unlock all features",
+                text = stringResource(R.string.unlock_all_features),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
@@ -124,7 +126,7 @@ fun PaywallScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = "Get the most out of SuperInvoice with a premium subscription.",
+                text = stringResource(R.string.premium_subscription_description),
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 14.sp,
                 color = Color.Gray,
@@ -133,18 +135,18 @@ fun PaywallScreen(
             )
 
             // Feature list
-            FeatureRow(text = "Unlimited invoices", isFree = false, isPremium = true)
-            FeatureRow(text = "Classic template", isFree = true, isPremium = true)
-            FeatureRow(text = "Modern template", isFree = false, isPremium = true)
-            FeatureRow(text = "Professional template", isFree = false, isPremium = true)
-            FeatureRow(text = "Custom logo", isFree = false, isPremium = true)
-            FeatureRow(text = "Custom signature", isFree = false, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_unlimited_invoices), isFree = false, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_classic_template), isFree = true, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_modern_template), isFree = false, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_professional_template), isFree = false, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_custom_logo), isFree = false, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_custom_signature), isFree = false, isPremium = true)
 
             Spacer(modifier = Modifier.height(32.dp))
 
             // Plan cards
             Text(
-                text = "Choose your plan",
+                text = stringResource(R.string.choose_your_plan),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
@@ -154,9 +156,9 @@ fun PaywallScreen(
 
             // Annual plan
             PlanCard(
-                title = "Annual",
+                title = stringResource(R.string.plan_annual),
                 price = annualPackage?.product?.price?.formatted ?: "$89.99/yr",
-                subtitle = "Save 17%",
+                subtitle = stringResource(R.string.plan_save_17),
                 isSelected = selectedPlan == "annual",
                 onClick = { selectedPlan = "annual" }
             )
@@ -165,7 +167,7 @@ fun PaywallScreen(
 
             // Monthly plan
             PlanCard(
-                title = "Monthly",
+                title = stringResource(R.string.plan_monthly),
                 price = monthlyPackage?.product?.price?.formatted ?: "$8.99/mo",
                 subtitle = "",
                 isSelected = selectedPlan == "monthly",
@@ -212,7 +214,7 @@ fun PaywallScreen(
                     )
                 } else {
                     Text(
-                        text = "Subscribe",
+                        text = stringResource(R.string.subscribe),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
@@ -227,7 +229,7 @@ fun PaywallScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(
-                    text = "Restore purchases",
+                    text = stringResource(R.string.restore_purchases),
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
@@ -260,14 +262,14 @@ private fun FeatureRow(
             if (isFree) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Included in free",
+                    contentDescription = stringResource(R.string.included_in_free),
                     tint = Color(0xFF9DEA6E),
                     modifier = Modifier.size(20.dp)
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Not in free",
+                    contentDescription = stringResource(R.string.not_in_free),
                     tint = Color(0xFFCCCCCC),
                     modifier = Modifier.size(20.dp)
                 )
@@ -277,7 +279,7 @@ private fun FeatureRow(
             if (isPremium) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Included in premium",
+                    contentDescription = stringResource(R.string.included_in_premium),
                     tint = Color(0xFF9DEA6E),
                     modifier = Modifier.size(20.dp)
                 )

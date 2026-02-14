@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.components.EmptyState
 import com.example.superinvoice.ui.components.ProductServiceCard
 import com.example.superinvoice.ui.viewmodel.ProductsServicesViewModel
@@ -84,13 +86,13 @@ fun ProductsServicesScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
 
                 Text(
-                    text = "Products & Services",
+                    text = stringResource(R.string.title_products_services),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
@@ -114,7 +116,7 @@ fun ProductsServicesScreen(
                     ),
                 placeholder = {
                     Text(
-                        text = "Search products/services...",
+                        text = stringResource(R.string.search_products_services),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
@@ -124,7 +126,7 @@ fun ProductsServicesScreen(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.search),
                         modifier = Modifier.size(20.dp),
                         tint = Color.Gray
                     )
@@ -147,11 +149,11 @@ fun ProductsServicesScreen(
 
             if (filteredProducts.isEmpty()) {
                 EmptyState(
-                    title = if (searchQuery.isEmpty()) "No products or services yet" else "No products found",
+                    title = if (searchQuery.isEmpty()) stringResource(R.string.no_products_yet) else stringResource(R.string.no_products_found),
                     message = if (searchQuery.isEmpty())
-                        "Tap the + button to add your first product or service to include in invoices."
+                        stringResource(R.string.no_products_message)
                     else
-                        "No products or services match your search. Try a different keyword."
+                        stringResource(R.string.no_products_search_message)
                 )
             } else {
                 LazyColumn(
@@ -186,7 +188,7 @@ fun ProductsServicesScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add Product or Service"
+                contentDescription = stringResource(R.string.add_product_or_service_cd)
             )
         }
     }

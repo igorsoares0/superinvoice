@@ -26,8 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import online.isdevapps.superinvoice.R
 import com.example.superinvoice.ui.components.BottomNavigationBar
 import com.example.superinvoice.ui.components.PremiumCard
 import com.example.superinvoice.ui.components.SettingsOption
@@ -58,6 +61,7 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var isRestoringPurchases by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = Color(0xFFF9FAFB),
@@ -79,7 +83,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.title_settings),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 28.sp,
@@ -105,7 +109,7 @@ fun SettingsScreen(
                 }
 
                 Text(
-                    text = "Business",
+                    text = stringResource(R.string.section_business),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
@@ -117,15 +121,15 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.padding(bottom = 32.dp)
                 ) {
-                    SettingsOption(text = "Logo", onClick = onNavigateToLogo)
-                    SettingsOption(text = "Business Information", onClick = onNavigateToBusinessInfo)
-                    SettingsOption(text = "Signature", onClick = onNavigateToSignature)
-                    SettingsOption(text = "Payment Instructions", onClick = onNavigateToPaymentInstructions)
-                    SettingsOption(text = "Payment QR Code", onClick = onNavigateToPaymentQrCode)
+                    SettingsOption(text = stringResource(R.string.settings_logo), onClick = onNavigateToLogo)
+                    SettingsOption(text = stringResource(R.string.settings_business_info), onClick = onNavigateToBusinessInfo)
+                    SettingsOption(text = stringResource(R.string.settings_signature), onClick = onNavigateToSignature)
+                    SettingsOption(text = stringResource(R.string.settings_payment_instructions), onClick = onNavigateToPaymentInstructions)
+                    SettingsOption(text = stringResource(R.string.settings_payment_qr_code), onClick = onNavigateToPaymentQrCode)
                 }
 
                 Text(
-                    text = "General",
+                    text = stringResource(R.string.section_general),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
@@ -137,14 +141,14 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.padding(bottom = 24.dp)
                 ) {
-                    SettingsOption(text = "Manage Clients", onClick = onNavigateToManageClients)
-                    SettingsOption(text = "Manage Products & Services", onClick = onNavigateToManageProducts)
-                    SettingsOption(text = "Currency", onClick = onNavigateToCurrency)
-                    SettingsOption(text = "Date format", onClick = onNavigateToDateFormat)
-                    SettingsOption(text = "Language", onClick = { })
-                    SettingsOption(text = "Templates", onClick = onNavigateToTemplates)
+                    SettingsOption(text = stringResource(R.string.settings_manage_clients), onClick = onNavigateToManageClients)
+                    SettingsOption(text = stringResource(R.string.settings_manage_products), onClick = onNavigateToManageProducts)
+                    SettingsOption(text = stringResource(R.string.settings_currency), onClick = onNavigateToCurrency)
+                    SettingsOption(text = stringResource(R.string.settings_date_format), onClick = onNavigateToDateFormat)
+                    SettingsOption(text = stringResource(R.string.settings_language), onClick = { })
+                    SettingsOption(text = stringResource(R.string.settings_templates), onClick = onNavigateToTemplates)
                     SettingsOption(
-                        text = if (isRestoringPurchases) "Restoring..." else "Restore Purchases",
+                        text = if (isRestoringPurchases) stringResource(R.string.settings_restoring) else stringResource(R.string.settings_restore_purchases),
                         onClick = {
                             if (!isRestoringPurchases) {
                                 isRestoringPurchases = true
@@ -152,7 +156,7 @@ fun SettingsScreen(
                                     {
                                         isRestoringPurchases = false
                                         scope.launch {
-                                            snackbarHostState.showSnackbar("Purchases restored successfully!")
+                                            snackbarHostState.showSnackbar(context.getString(R.string.purchases_restored_successfully))
                                         }
                                     },
                                     { error ->
@@ -165,9 +169,9 @@ fun SettingsScreen(
                             }
                         }
                     )
-                    SettingsOption(text = "Terms", onClick = onNavigateToTerms)
-                    SettingsOption(text = "Policy", onClick = onNavigateToPolicy)
-                    SettingsOption(text = "Support", onClick = onNavigateToSupport)
+                    SettingsOption(text = stringResource(R.string.settings_terms), onClick = onNavigateToTerms)
+                    SettingsOption(text = stringResource(R.string.settings_policy), onClick = onNavigateToPolicy)
+                    SettingsOption(text = stringResource(R.string.settings_support), onClick = onNavigateToSupport)
                 }
             }
         }

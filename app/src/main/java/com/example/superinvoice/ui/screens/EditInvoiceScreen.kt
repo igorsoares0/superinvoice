@@ -46,9 +46,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.isdevapps.superinvoice.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.database.entities.InvoiceStatus
@@ -138,14 +140,14 @@ fun EditInvoiceScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black,
                         modifier = Modifier.size(24.dp)
                     )
                 }
 
                 Text(
-                    text = "Edit Invoice",
+                    text = stringResource(R.string.title_edit_invoice),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -186,7 +188,7 @@ fun EditInvoiceScreen(
                                 .padding(horizontal = 16.dp)
                         ) {
                             Text(
-                                text = "Invoice name #",
+                                text = stringResource(R.string.invoice_name_label),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray,
                                 fontSize = 12.sp,
@@ -210,7 +212,7 @@ fun EditInvoiceScreen(
 
                     // Due Date Field
                     DatePickerField(
-                        label = "Due Date",
+                        label = stringResource(R.string.due_date),
                         value = dueDate,
                         onValueChange = { viewModel.setDueDate(it) },
                         dateFormatPattern = dateFormat,
@@ -223,7 +225,7 @@ fun EditInvoiceScreen(
                 // Client Button
                 NavigationButton(
                     icon = Icons.Default.Person,
-                    text = selectedClient?.name ?: "Select Client",
+                    text = selectedClient?.name ?: stringResource(R.string.select_client),
                     onClick = onNavigateToSelectClient,
                     useGreenCircle = true
                 )
@@ -231,7 +233,7 @@ fun EditInvoiceScreen(
                 // Add Product or Service Button
                 NavigationButton(
                     icon = Icons.Default.Add,
-                    text = "Add Product or Service",
+                    text = stringResource(R.string.add_product_or_service),
                     onClick = onNavigateToSelectProduct,
                     useGreenCircle = true
                 )
@@ -239,7 +241,7 @@ fun EditInvoiceScreen(
                 // Items Section (below the button)
                 if (lineItems.isNotEmpty()) {
                     Text(
-                        text = "Items",
+                        text = stringResource(R.string.items),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
@@ -261,7 +263,7 @@ fun EditInvoiceScreen(
                                     fontSize = 14.sp
                                 )
                                 Text(
-                                    text = "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)} per unit",
+                                    text = stringResource(R.string.price_per_unit, "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}"),
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
@@ -321,7 +323,7 @@ fun EditInvoiceScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
 
                                     Text(
-                                        text = "Total: $currencySymbol${String.format("%.2f", item.lineTotal)}",
+                                        text = stringResource(R.string.total_with_amount, "$currencySymbol${String.format("%.2f", item.lineTotal)}"),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
                                     )
@@ -330,7 +332,7 @@ fun EditInvoiceScreen(
                             IconButton(onClick = { viewModel.removeLineItem(index) }) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Remove",
+                                    contentDescription = stringResource(R.string.remove),
                                     tint = Color.Red
                                 )
                             }
@@ -348,7 +350,7 @@ fun EditInvoiceScreen(
                     icon = null,
                     iconText = "%",
                     text = if (tax.isNotEmpty() && tax.toDoubleOrNull() != null && tax.toDouble() > 0)
-                        "Tax: $$tax" else "Tax",
+                        stringResource(R.string.tax_with_amount, "$$tax") else stringResource(R.string.tax),
                     onClick = {
                         taxInput = tax
                         showTaxDialog = true
@@ -360,7 +362,7 @@ fun EditInvoiceScreen(
                     icon = null,
                     iconText = "%",
                     text = if (discount.isNotEmpty() && discount.toDoubleOrNull() != null && discount.toDouble() > 0)
-                        "Discount: $$discount" else "Discount",
+                        stringResource(R.string.discount_with_amount, "$$discount") else stringResource(R.string.discount),
                     onClick = {
                         discountInput = discount
                         showDiscountDialog = true
@@ -381,7 +383,7 @@ fun EditInvoiceScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Paid",
+                            text = stringResource(R.string.paid),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color.Black
@@ -395,7 +397,7 @@ fun EditInvoiceScreen(
                                 .padding(horizontal = 8.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = if (isPaid) "Paid" else "Unpaid",
+                                text = if (isPaid) stringResource(R.string.paid) else stringResource(R.string.unpaid),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Black
@@ -422,7 +424,7 @@ fun EditInvoiceScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
-                    placeholder = { Text("Notes", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.notes), color = Color.Gray) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF9DEA6E),
                         unfocusedBorderColor = Color(0xFFE0E0E0)
@@ -442,7 +444,7 @@ fun EditInvoiceScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Total",
+                        text = stringResource(R.string.total),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
                         color = Color.Black
@@ -459,7 +461,7 @@ fun EditInvoiceScreen(
 
                 // Delete Invoice Text Button
                 Text(
-                    text = "Delete invoice",
+                    text = stringResource(R.string.delete_invoice),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Red,
@@ -494,7 +496,7 @@ fun EditInvoiceScreen(
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF9CA3AF))
                 ) {
                     Text(
-                        text = "Preview",
+                        text = stringResource(R.string.preview),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
@@ -517,7 +519,7 @@ fun EditInvoiceScreen(
                     enabled = selectedClient != null && lineItems.isNotEmpty()
                 ) {
                     Text(
-                        text = "Save Changes",
+                        text = stringResource(R.string.save_changes),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
@@ -533,7 +535,7 @@ fun EditInvoiceScreen(
                 onDismissRequest = { showTaxDialog = false },
                 title = {
                     Text(
-                        text = "Tax Amount",
+                        text = stringResource(R.string.tax_amount),
                         color = Color.Black,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -542,7 +544,7 @@ fun EditInvoiceScreen(
                     OutlinedTextField(
                         value = taxInput,
                         onValueChange = { taxInput = it },
-                        label = { Text("Enter tax amount") },
+                        label = { Text(stringResource(R.string.enter_tax_amount)) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9DEA6E),
@@ -559,12 +561,12 @@ fun EditInvoiceScreen(
                             showTaxDialog = false
                         }
                     ) {
-                        Text("OK", color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.ok), color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showTaxDialog = false }) {
-                        Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.cancel), color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -578,7 +580,7 @@ fun EditInvoiceScreen(
                 onDismissRequest = { showDiscountDialog = false },
                 title = {
                     Text(
-                        text = "Discount Amount",
+                        text = stringResource(R.string.discount_amount),
                         color = Color.Black,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -587,7 +589,7 @@ fun EditInvoiceScreen(
                     OutlinedTextField(
                         value = discountInput,
                         onValueChange = { discountInput = it },
-                        label = { Text("Enter discount amount") },
+                        label = { Text(stringResource(R.string.enter_discount_amount)) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9DEA6E),
@@ -604,12 +606,12 @@ fun EditInvoiceScreen(
                             showDiscountDialog = false
                         }
                     ) {
-                        Text("OK", color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.ok), color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDiscountDialog = false }) {
-                        Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.cancel), color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -621,8 +623,8 @@ fun EditInvoiceScreen(
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Delete Invoice") },
-                text = { Text("Are you sure you want to delete this invoice? This action cannot be undone.") },
+                title = { Text(stringResource(R.string.delete_invoice_title)) },
+                text = { Text(stringResource(R.string.delete_invoice_confirmation)) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -632,12 +634,12 @@ fun EditInvoiceScreen(
                             }
                         }
                     ) {
-                        Text("Delete", color = Color.Red)
+                        Text(stringResource(R.string.delete), color = Color.Red)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Cancel", color = Color.Gray)
+                        Text(stringResource(R.string.cancel), color = Color.Gray)
                     }
                 }
             )

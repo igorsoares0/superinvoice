@@ -54,6 +54,9 @@ import androidx.compose.ui.layout.ContentScale
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import online.isdevapps.superinvoice.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -84,6 +87,7 @@ fun InvoicePreviewScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Zoom and pan states
     var scale by remember { mutableFloatStateOf(1f) }
@@ -121,12 +125,12 @@ fun InvoicePreviewScreen(
                 IconButton(onClick = onClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = Color.Black
                     )
                 }
                 Text(
-                    text = "Invoice preview",
+                    text = stringResource(R.string.title_invoice_preview),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
@@ -170,7 +174,7 @@ fun InvoicePreviewScreen(
                     if (previewBitmap != null) {
                         Image(
                             bitmap = previewBitmap!!.asImageBitmap(),
-                            contentDescription = "Invoice Preview",
+                            contentDescription = stringResource(R.string.invoice_preview_cd),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .graphicsLayer(
@@ -204,7 +208,7 @@ fun InvoicePreviewScreen(
                         viewModel.shareInvoicePdf(
                             onError = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Error sharing PDF")
+                                    snackbarHostState.showSnackbar(context.getString(R.string.error_sharing_pdf))
                                 }
                             }
                         )
@@ -220,7 +224,7 @@ fun InvoicePreviewScreen(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = "Share",
+                        text = stringResource(R.string.share),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -231,12 +235,12 @@ fun InvoicePreviewScreen(
                         viewModel.downloadInvoicePdf(
                             onSuccess = { path ->
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("PDF saved to: $path")
+                                    snackbarHostState.showSnackbar(context.getString(R.string.pdf_saved_to, path))
                                 }
                             },
                             onError = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Failed to save PDF")
+                                    snackbarHostState.showSnackbar(context.getString(R.string.failed_to_save_pdf))
                                 }
                             }
                         )
@@ -251,7 +255,7 @@ fun InvoicePreviewScreen(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = "Save as PDF",
+                        text = stringResource(R.string.save_as_pdf),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -286,7 +290,7 @@ private fun ClassicTemplatePreview(
                             ) {
                                 Image(
                                     painter = rememberAsyncImagePainter(File(path)),
-                                    contentDescription = "Business Logo",
+                                    contentDescription = stringResource(R.string.business_logo),
                                     modifier = Modifier.height(40.dp),
                                     contentScale = ContentScale.Fit
                                 )
@@ -304,7 +308,7 @@ private fun ClassicTemplatePreview(
                                 color = Color.Black
                             )
                             Text(
-                                text = "INVOICE",
+                                text = stringResource(R.string.invoice_label),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Normal,
                                 fontSize = 20.sp,
@@ -326,7 +330,7 @@ private fun ClassicTemplatePreview(
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
-                                        text = "FROM:",
+                                        text = stringResource(R.string.from_label),
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 0.8.sp,
@@ -400,7 +404,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (businessInfo?.taxId?.isNotEmpty() == true) {
                                         Text(
-                                            text = "Tax ID: ${businessInfo?.taxId}",
+                                            text = stringResource(R.string.tax_id_label, businessInfo?.taxId ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -419,7 +423,7 @@ private fun ClassicTemplatePreview(
                             ) {
                                 Row {
                                     Text(
-                                        text = "INVOICE NO:",
+                                        text = stringResource(R.string.invoice_no_label),
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 0.8.sp,
@@ -436,7 +440,7 @@ private fun ClassicTemplatePreview(
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Row {
                                     Text(
-                                        text = "DATE:",
+                                        text = stringResource(R.string.date_label),
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 0.8.sp,
@@ -453,7 +457,7 @@ private fun ClassicTemplatePreview(
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Row {
                                     Text(
-                                        text = "DUE DATE:",
+                                        text = stringResource(R.string.due_date_label),
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 0.8.sp,
@@ -483,7 +487,7 @@ private fun ClassicTemplatePreview(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text = "ISSUED TO:",
+                                    text = stringResource(R.string.issued_to_label),
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     letterSpacing = 0.8.sp,
@@ -522,7 +526,7 @@ private fun ClassicTemplatePreview(
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
-                                        text = "PAY TO:",
+                                        text = stringResource(R.string.pay_to_label),
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 0.8.sp,
@@ -545,7 +549,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
                                         Text(
-                                            text = "Acc Name: ${paymentInfo?.accountHolderName}",
+                                            text = stringResource(R.string.acc_name_label, paymentInfo?.accountHolderName ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -553,7 +557,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
                                         Text(
-                                            text = "Acc Number: ${paymentInfo?.accountNumber}",
+                                            text = stringResource(R.string.acc_number_label, paymentInfo?.accountNumber ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -561,7 +565,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
                                         Text(
-                                            text = "Routing: ${paymentInfo?.routingNumber}",
+                                            text = stringResource(R.string.routing_label, paymentInfo?.routingNumber ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -569,7 +573,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (paymentInfo?.iban?.isNotEmpty() == true) {
                                         Text(
-                                            text = "IBAN: ${paymentInfo?.iban}",
+                                            text = stringResource(R.string.iban_label, paymentInfo?.iban ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -577,7 +581,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
                                         Text(
-                                            text = "SWIFT: ${paymentInfo?.swiftCode}",
+                                            text = stringResource(R.string.swift_label, paymentInfo?.swiftCode ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -585,7 +589,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
                                         Text(
-                                            text = "Terms: ${paymentInfo?.paymentTerms}",
+                                            text = stringResource(R.string.terms_label, paymentInfo?.paymentTerms ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -593,7 +597,7 @@ private fun ClassicTemplatePreview(
                                     }
                                     if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
                                         Text(
-                                            text = "Notes: ${paymentInfo?.additionalInstructions}",
+                                            text = stringResource(R.string.notes_label, paymentInfo?.additionalInstructions ?: ""),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = Color.Black
@@ -604,7 +608,7 @@ private fun ClassicTemplatePreview(
                                     paymentQrCodePath?.let { qrPath ->
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Scan to Pay:",
+                                            text = stringResource(R.string.scan_to_pay),
                                             fontSize = 8.sp,
                                             fontWeight = FontWeight.SemiBold,
                                             letterSpacing = 0.8.sp,
@@ -613,7 +617,7 @@ private fun ClassicTemplatePreview(
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Image(
                                             painter = rememberAsyncImagePainter(File(qrPath)),
-                                            contentDescription = "Payment QR Code",
+                                            contentDescription = stringResource(R.string.payment_qr_code),
                                             modifier = Modifier
                                                 .width(80.dp)
                                                 .height(80.dp),
@@ -643,14 +647,14 @@ private fun ClassicTemplatePreview(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "DESCRIPTION",
+                                text = stringResource(R.string.description_label),
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 0.8.sp,
                                 modifier = Modifier.weight(2f)
                             )
                             Text(
-                                text = "UNIT PRICE",
+                                text = stringResource(R.string.unit_price_label),
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 0.8.sp,
@@ -658,7 +662,7 @@ private fun ClassicTemplatePreview(
                                 modifier = Modifier.weight(1f)
                             )
                             Text(
-                                text = "QTY",
+                                text = stringResource(R.string.qty_label),
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 0.8.sp,
@@ -666,7 +670,7 @@ private fun ClassicTemplatePreview(
                                 modifier = Modifier.weight(0.5f)
                             )
                             Text(
-                                text = "TOTAL",
+                                text = stringResource(R.string.total_label),
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 0.8.sp,
@@ -699,7 +703,7 @@ private fun ClassicTemplatePreview(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "SUBTOTAL",
+                                    text = stringResource(R.string.subtotal_label),
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     letterSpacing = 0.8.sp,
@@ -720,7 +724,7 @@ private fun ClassicTemplatePreview(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = "TAX",
+                                        text = stringResource(R.string.tax_label),
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 0.8.sp,
@@ -742,7 +746,7 @@ private fun ClassicTemplatePreview(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = "DISCOUNT",
+                                        text = stringResource(R.string.discount_label),
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 0.8.sp,
@@ -763,7 +767,7 @@ private fun ClassicTemplatePreview(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "TOTAL",
+                                    text = stringResource(R.string.total_label),
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     letterSpacing = 0.8.sp,
@@ -791,7 +795,7 @@ private fun ClassicTemplatePreview(
                             ) {
                                 Image(
                                     painter = rememberAsyncImagePainter(File(path)),
-                                    contentDescription = "Signature",
+                                    contentDescription = stringResource(R.string.signature_cd),
                                     modifier = Modifier.height(30.dp),
                                     contentScale = ContentScale.Fit
                                 )
@@ -825,7 +829,7 @@ private fun ModernTemplatePreview(
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = "Business Logo",
+                    contentDescription = stringResource(R.string.business_logo),
                     modifier = Modifier.height(32.dp),
                     contentScale = ContentScale.Fit
                 )
@@ -867,7 +871,7 @@ private fun ModernTemplatePreview(
                         Text(text = cityStateZip, fontSize = 8.sp, color = Color.Gray)
                     }
                     if (businessInfo?.taxId?.isNotEmpty() == true) {
-                        Text(text = "Tax ID: ${businessInfo?.taxId}", fontSize = 8.sp, color = Color.Gray)
+                        Text(text = stringResource(R.string.tax_id_label, businessInfo?.taxId ?: ""), fontSize = 8.sp, color = Color.Gray)
                     }
                 }
             } else {
@@ -879,20 +883,20 @@ private fun ModernTemplatePreview(
             // Right - Invoice # and Dates
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "INVOICE #${invoice?.number ?: ""}",
+                    text = stringResource(R.string.invoice_number_format, invoice?.number ?: ""),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "DATE:", fontSize = 7.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
+                Text(text = stringResource(R.string.date_label), fontSize = 7.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
                 Text(
                     text = invoice?.let { dateFormat.format(Date(it.createdDate)) } ?: "",
                     fontSize = 8.sp,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                Text(text = "DUE DATE:", fontSize = 7.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
+                Text(text = stringResource(R.string.due_date_label), fontSize = 7.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
                 Text(text = formattedDueDate, fontSize = 8.sp, color = Color.Black)
             }
         }
@@ -902,7 +906,7 @@ private fun ModernTemplatePreview(
         Spacer(modifier = Modifier.height(16.dp))
 
         // BILLED TO section
-        Text(text = "{ BILLED TO }", fontSize = 8.sp, color = Color.Gray)
+        Text(text = stringResource(R.string.billed_to_label), fontSize = 8.sp, color = Color.Gray)
         Spacer(modifier = Modifier.height(6.dp))
         Text(text = client?.name ?: "", fontSize = 9.sp, fontWeight = FontWeight.Normal, color = Color.Black)
         if (client?.phone?.isNotEmpty() == true) {
@@ -919,28 +923,28 @@ private fun ModernTemplatePreview(
         // Table Header
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                text = "DESCRIPTION",
+                text = stringResource(R.string.description_label),
                 fontSize = 7.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 0.8.sp,
                 modifier = Modifier.weight(2f)
             )
             Text(
-                text = "RATE",
+                text = stringResource(R.string.rate_label),
                 fontSize = 7.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 0.8.sp,
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = "HOURS",
+                text = stringResource(R.string.hours_label),
                 fontSize = 7.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 0.8.sp,
                 modifier = Modifier.weight(0.7f)
             )
             Text(
-                text = "PRICE",
+                text = stringResource(R.string.price_label),
                 fontSize = 7.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 0.8.sp,
@@ -980,7 +984,7 @@ private fun ModernTemplatePreview(
         // Totals
         Column(modifier = Modifier.align(Alignment.End)) {
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                Text(text = "TOTAL AMOUNT", fontSize = 9.sp, modifier = Modifier.width(100.dp))
+                Text(text = stringResource(R.string.total_amount_label), fontSize = 9.sp, modifier = Modifier.width(100.dp))
                 Text(
                     text = "$currencySymbol${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
                     fontSize = 9.sp,
@@ -991,7 +995,7 @@ private fun ModernTemplatePreview(
             if ((invoice?.tax ?: 0.0) > 0) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "VAT", fontSize = 9.sp, modifier = Modifier.width(100.dp))
+                    Text(text = stringResource(R.string.vat_label), fontSize = 9.sp, modifier = Modifier.width(100.dp))
                     Text(
                         text = "$currencySymbol${String.format("%.2f", invoice?.tax ?: 0.0)}",
                         fontSize = 9.sp,
@@ -1003,7 +1007,7 @@ private fun ModernTemplatePreview(
             if ((invoice?.discount ?: 0.0) > 0) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "DISCOUNT", fontSize = 9.sp, modifier = Modifier.width(100.dp))
+                    Text(text = stringResource(R.string.discount_label), fontSize = 9.sp, modifier = Modifier.width(100.dp))
                     Text(
                         text = "-$currencySymbol${String.format("%.2f", invoice?.discount ?: 0.0)}",
                         fontSize = 9.sp,
@@ -1014,7 +1018,7 @@ private fun ModernTemplatePreview(
             }
             Spacer(modifier = Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                Text(text = "AMOUNT DUE", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(100.dp))
+                Text(text = stringResource(R.string.amount_due_label), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(100.dp))
                 Text(
                     text = "$currencySymbol${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
                     fontSize = 10.sp,
@@ -1031,39 +1035,39 @@ private fun ModernTemplatePreview(
             Divider(thickness = 0.5.dp, color = Color.LightGray)
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "{ PAYMENT INFORMATION }", fontSize = 8.sp, color = Color.Gray)
+            Text(text = stringResource(R.string.payment_information_label), fontSize = 8.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(6.dp))
             if (paymentInfo?.bankName?.isNotEmpty() == true) {
-                Text(text = "Bank: ${paymentInfo?.bankName}", fontSize = 9.sp)
+                Text(text = stringResource(R.string.bank_label, paymentInfo?.bankName ?: ""), fontSize = 9.sp)
             }
             if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
-                Text(text = "Account Holder: ${paymentInfo?.accountHolderName}", fontSize = 9.sp)
+                Text(text = stringResource(R.string.account_holder_label, paymentInfo?.accountHolderName ?: ""), fontSize = 9.sp)
             }
             if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
-                Text(text = "Account Number: ${paymentInfo?.accountNumber}", fontSize = 9.sp)
+                Text(text = stringResource(R.string.account_number_label, paymentInfo?.accountNumber ?: ""), fontSize = 9.sp)
             }
             if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
-                Text(text = "Routing Number: ${paymentInfo?.routingNumber}", fontSize = 9.sp)
+                Text(text = stringResource(R.string.routing_number_label, paymentInfo?.routingNumber ?: ""), fontSize = 9.sp)
             }
             if (paymentInfo?.iban?.isNotEmpty() == true) {
-                Text(text = "IBAN: ${paymentInfo?.iban}", fontSize = 9.sp)
+                Text(text = stringResource(R.string.iban_label, paymentInfo?.iban ?: ""), fontSize = 9.sp)
             }
             if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
-                Text(text = "SWIFT: ${paymentInfo?.swiftCode}", fontSize = 9.sp)
+                Text(text = stringResource(R.string.swift_label, paymentInfo?.swiftCode ?: ""), fontSize = 9.sp)
             }
 
             // QR Code for payment
             paymentQrCodePath?.let { qrPath ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Scan to Pay:",
+                    text = stringResource(R.string.scan_to_pay),
                     fontSize = 8.sp,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Image(
                     painter = rememberAsyncImagePainter(File(qrPath)),
-                    contentDescription = "Payment QR Code",
+                    contentDescription = stringResource(R.string.payment_qr_code),
                     modifier = Modifier
                         .width(80.dp)
                         .height(80.dp),
@@ -1081,7 +1085,7 @@ private fun ModernTemplatePreview(
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = "Signature",
+                    contentDescription = stringResource(R.string.signature_cd),
                     modifier = Modifier.height(28.dp),
                     contentScale = ContentScale.Fit
                 )
@@ -1091,27 +1095,27 @@ private fun ModernTemplatePreview(
         // Bottom section
         Spacer(modifier = Modifier.height(32.dp))
         Text(
-            text = "INVOICE",
+            text = stringResource(R.string.invoice_label),
             fontSize = 36.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "THANK YOU FOR YOUR BUSINESS!",
+            text = stringResource(R.string.thank_you_label),
             fontSize = 7.sp,
             color = Color.Gray,
             letterSpacing = 0.8.sp
         )
         Spacer(modifier = Modifier.height(8.dp))
         if (businessInfo?.phone?.isNotEmpty() == true) {
-            Text(text = "HELPDESK: ${businessInfo?.phone}", fontSize = 7.sp, color = Color.Black)
+            Text(text = stringResource(R.string.helpdesk_label, businessInfo?.phone ?: ""), fontSize = 7.sp, color = Color.Black)
         }
         if (businessInfo?.email?.isNotEmpty() == true) {
-            Text(text = "E-MAIL: ${businessInfo?.email}", fontSize = 7.sp, color = Color.Black)
+            Text(text = stringResource(R.string.email_label, businessInfo?.email ?: ""), fontSize = 7.sp, color = Color.Black)
         }
         if (businessInfo?.website?.isNotEmpty() == true) {
-            Text(text = "WEB: ${businessInfo?.website}", fontSize = 7.sp, color = Color.Black)
+            Text(text = stringResource(R.string.web_label, businessInfo?.website ?: ""), fontSize = 7.sp, color = Color.Black)
         }
     }
 }
@@ -1141,7 +1145,7 @@ private fun ProfessionalTemplatePreview(
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = "Business Logo",
+                    contentDescription = stringResource(R.string.business_logo),
                     modifier = Modifier.height(32.dp),
                     contentScale = ContentScale.Fit
                 )
@@ -1179,14 +1183,14 @@ private fun ProfessionalTemplatePreview(
             Text(text = cityStateZip, fontSize = 8.sp, color = Color.DarkGray)
         }
         if (businessInfo?.taxId?.isNotEmpty() == true) {
-            Text(text = "Tax ID: ${businessInfo?.taxId}", fontSize = 8.sp, color = Color.DarkGray)
+            Text(text = stringResource(R.string.tax_id_label, businessInfo?.taxId ?: ""), fontSize = 8.sp, color = Color.DarkGray)
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
         // Large "INVOICE" title at center
         Text(
-            text = "INVOICE",
+            text = stringResource(R.string.invoice_label),
             fontSize = 26.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 4.sp,
@@ -1205,7 +1209,7 @@ private fun ProfessionalTemplatePreview(
             // Left - Issued to
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Issued to:",
+                    text = stringResource(R.string.issued_to_professional),
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black
@@ -1225,13 +1229,13 @@ private fun ProfessionalTemplatePreview(
             // Right - Invoice No and Dates
             Column(horizontalAlignment = Alignment.End) {
                 Row {
-                    Text(text = "Invoice No:", fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = stringResource(R.string.invoice_no_professional), fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = "#${invoice?.number ?: ""}", fontSize = 8.sp, color = Color.Black)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row {
-                    Text(text = "Date Issued:", fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = stringResource(R.string.date_issued_label), fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = invoice?.let { dateFormat.format(Date(it.createdDate)) } ?: "",
@@ -1241,7 +1245,7 @@ private fun ProfessionalTemplatePreview(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row {
-                    Text(text = "Due Date:", fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = stringResource(R.string.due_date_professional), fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = formattedDueDate, fontSize = 8.sp, color = Color.Black)
                 }
@@ -1261,7 +1265,7 @@ private fun ProfessionalTemplatePreview(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Description",
+                    text = stringResource(R.string.description_header),
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF9FAFB),
@@ -1269,7 +1273,7 @@ private fun ProfessionalTemplatePreview(
                     maxLines = 1
                 )
                 Text(
-                    text = "Quantity",
+                    text = stringResource(R.string.quantity_header),
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF9FAFB),
@@ -1278,7 +1282,7 @@ private fun ProfessionalTemplatePreview(
                     maxLines = 1
                 )
                 Text(
-                    text = "Unit Price",
+                    text = stringResource(R.string.unit_price_header),
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF9FAFB),
@@ -1287,7 +1291,7 @@ private fun ProfessionalTemplatePreview(
                     maxLines = 1
                 )
                 Text(
-                    text = "Total",
+                    text = stringResource(R.string.total_header),
                     fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF9FAFB),
@@ -1350,7 +1354,7 @@ private fun ProfessionalTemplatePreview(
             Column(modifier = Modifier.weight(1f)) {
                 if (paymentInfo?.bankName?.isNotEmpty() == true) {
                     Text(
-                        text = "PAYMENT INFO",
+                        text = stringResource(R.string.payment_info_label),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.Black
@@ -1364,49 +1368,49 @@ private fun ProfessionalTemplatePreview(
                     }
                     if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
                         Text(
-                            text = "Account Name: ${paymentInfo?.accountHolderName}",
+                            text = stringResource(R.string.account_name_label, paymentInfo?.accountHolderName ?: ""),
                             fontSize = 8.sp,
                             color = Color.DarkGray
                         )
                     }
                     if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
                         Text(
-                            text = "Account No: ${paymentInfo?.accountNumber}",
+                            text = stringResource(R.string.account_no_label, paymentInfo?.accountNumber ?: ""),
                             fontSize = 8.sp,
                             color = Color.DarkGray
                         )
                     }
                     if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
                         Text(
-                            text = "Routing: ${paymentInfo?.routingNumber}",
+                            text = stringResource(R.string.routing_label, paymentInfo?.routingNumber ?: ""),
                             fontSize = 8.sp,
                             color = Color.DarkGray
                         )
                     }
                     if (paymentInfo?.iban?.isNotEmpty() == true) {
                         Text(
-                            text = "IBAN: ${paymentInfo?.iban}",
+                            text = stringResource(R.string.iban_label, paymentInfo?.iban ?: ""),
                             fontSize = 8.sp,
                             color = Color.DarkGray
                         )
                     }
                     if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
                         Text(
-                            text = "SWIFT: ${paymentInfo?.swiftCode}",
+                            text = stringResource(R.string.swift_label, paymentInfo?.swiftCode ?: ""),
                             fontSize = 8.sp,
                             color = Color.DarkGray
                         )
                     }
                     if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
                         Text(
-                            text = "Terms: ${paymentInfo?.paymentTerms}",
+                            text = stringResource(R.string.terms_label, paymentInfo?.paymentTerms ?: ""),
                             fontSize = 8.sp,
                             color = Color.DarkGray
                         )
                     }
                     if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
                         Text(
-                            text = "Notes: ${paymentInfo?.additionalInstructions}",
+                            text = stringResource(R.string.notes_label, paymentInfo?.additionalInstructions ?: ""),
                             fontSize = 8.sp,
                             color = Color.DarkGray
                         )
@@ -1416,7 +1420,7 @@ private fun ProfessionalTemplatePreview(
                     paymentQrCodePath?.let { qrPath ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Scan to Pay:",
+                            text = stringResource(R.string.scan_to_pay),
                             fontSize = 8.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.Black
@@ -1424,7 +1428,7 @@ private fun ProfessionalTemplatePreview(
                         Spacer(modifier = Modifier.height(4.dp))
                         Image(
                             painter = rememberAsyncImagePainter(File(qrPath)),
-                            contentDescription = "Payment QR Code",
+                            contentDescription = stringResource(R.string.payment_qr_code),
                             modifier = Modifier
                                 .width(80.dp)
                                 .height(80.dp),
@@ -1439,7 +1443,7 @@ private fun ProfessionalTemplatePreview(
             // Right - Totals
             Column(horizontalAlignment = Alignment.End, modifier = Modifier.weight(1f)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = "Subtotal:", fontSize = 9.sp)
+                    Text(text = stringResource(R.string.subtotal_colon), fontSize = 9.sp)
                     Text(
                         text = "$currencySymbol${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
                         fontSize = 9.sp,
@@ -1449,7 +1453,7 @@ private fun ProfessionalTemplatePreview(
                 if ((invoice?.tax ?: 0.0) > 0) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(text = "Tax:", fontSize = 9.sp)
+                        Text(text = stringResource(R.string.tax_colon), fontSize = 9.sp)
                         Text(
                             text = "$currencySymbol${String.format("%.2f", invoice?.tax ?: 0.0)}",
                             fontSize = 9.sp,
@@ -1460,7 +1464,7 @@ private fun ProfessionalTemplatePreview(
                 if ((invoice?.discount ?: 0.0) > 0) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(text = "Discount:", fontSize = 9.sp)
+                        Text(text = stringResource(R.string.discount_colon), fontSize = 9.sp)
                         Text(
                             text = "-$currencySymbol${String.format("%.2f", invoice?.discount ?: 0.0)}",
                             fontSize = 9.sp,
@@ -1470,7 +1474,7 @@ private fun ProfessionalTemplatePreview(
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = "TOTAL:", fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = stringResource(R.string.total_colon), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                     Text(
                         text = "$currencySymbol${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
                         fontSize = 10.sp,
@@ -1490,7 +1494,7 @@ private fun ProfessionalTemplatePreview(
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = "Signature",
+                    contentDescription = stringResource(R.string.signature_cd),
                     modifier = Modifier.height(28.dp),
                     contentScale = ContentScale.Fit
                 )
