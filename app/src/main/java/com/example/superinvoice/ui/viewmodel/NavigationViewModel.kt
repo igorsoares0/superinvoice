@@ -28,4 +28,17 @@ class NavigationViewModel @Inject constructor(
     fun canCreateInvoice(): Boolean {
         return billingManager.isPremium.value || invoiceCount.value < BillingManager.FREE_INVOICE_LIMIT
     }
+
+    fun restorePurchases(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        billingManager.restorePurchases(
+            onSuccess = { customerInfo ->
+                if (customerInfo.entitlements["premium"]?.isActive == true) {
+                    onSuccess()
+                } else {
+                    onError("No active subscription found")
+                }
+            },
+            onError = { message -> onError(message) }
+        )
+    }
 }

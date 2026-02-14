@@ -277,6 +277,9 @@ fun AppNavigation(
             onNavigateToPolicy = { navigateTo(Screen.POLICY) },
             onNavigateToTerms = { navigateTo(Screen.TERMS) },
             onNavigateToSupport = { navigateTo(Screen.SUPPORT) },
+            onRestorePurchases = { onSuccess, onError ->
+                navigationViewModel.restorePurchases(onSuccess, onError)
+            },
             isPremium = isPremium
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(

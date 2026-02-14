@@ -11,11 +11,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import com.example.superinvoice.ui.components.BottomNavigationBar
 import com.example.superinvoice.ui.components.PremiumCard
 import com.example.superinvoice.ui.components.SettingsOption
@@ -47,10 +52,16 @@ fun SettingsScreen(
     onNavigateToPolicy: () -> Unit = {},
     onNavigateToTerms: () -> Unit = {},
     onNavigateToSupport: () -> Unit = {},
+    onRestorePurchases: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit = { _, _ -> },
     isPremium: Boolean = false
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    var isRestoringPurchases by remember { mutableStateOf(false) }
+
     Scaffold(
         containerColor = Color(0xFFF9FAFB),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
@@ -132,6 +143,28 @@ fun SettingsScreen(
                     SettingsOption(text = "Date format", onClick = onNavigateToDateFormat)
                     SettingsOption(text = "Language", onClick = { })
                     SettingsOption(text = "Templates", onClick = onNavigateToTemplates)
+                    SettingsOption(
+                        text = if (isRestoringPurchases) "Restoring..." else "Restore Purchases",
+                        onClick = {
+                            if (!isRestoringPurchases) {
+                                isRestoringPurchases = true
+                                onRestorePurchases(
+                                    {
+                                        isRestoringPurchases = false
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("Purchases restored successfully!")
+                                        }
+                                    },
+                                    { error ->
+                                        isRestoringPurchases = false
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(error)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    )
                     SettingsOption(text = "Terms", onClick = onNavigateToTerms)
                     SettingsOption(text = "Policy", onClick = onNavigateToPolicy)
                     SettingsOption(text = "Support", onClick = onNavigateToSupport)
