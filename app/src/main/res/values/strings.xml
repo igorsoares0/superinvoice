@@ -177,6 +177,7 @@
     <string name="plan_monthly">Monthly</string>
     <string name="subscribe">Subscribe</string>
     <string name="restore_purchases">Restore purchases</string>
+    <string name="no_active_subscription_found">No active subscription found</string>
     <string name="included_in_free">Included in free</string>
     <string name="not_in_free">Not in free</string>
     <string name="included_in_premium">Included in premium</string>

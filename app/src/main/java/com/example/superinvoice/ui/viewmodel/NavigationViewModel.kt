@@ -1,5 +1,6 @@
 package com.example.superinvoice.ui.viewmodel
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.billing.BillingManager
@@ -8,12 +9,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import online.isdevapps.superinvoice.R
 import javax.inject.Inject
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
     private val billingManager: BillingManager,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val application: Application
 ) : ViewModel() {
 
     val isPremium: StateFlow<Boolean> = billingManager.isPremium
@@ -35,7 +38,7 @@ class NavigationViewModel @Inject constructor(
                 if (billingManager.isPremium.value) {
                     onSuccess()
                 } else {
-                    onError("No active subscription found")
+                    onError(application.getString(R.string.no_active_subscription_found))
                 }
             },
             onError = { message -> onError(message) }

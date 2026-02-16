@@ -1,6 +1,7 @@
 package com.example.superinvoice.ui.viewmodel
 
 import android.app.Activity
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import com.example.superinvoice.data.billing.BillingManager
 import com.revenuecat.purchases.Package
@@ -8,11 +9,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import online.isdevapps.superinvoice.R
 import javax.inject.Inject
 
 @HiltViewModel
 class PaywallViewModel @Inject constructor(
-    private val billingManager: BillingManager
+    private val billingManager: BillingManager,
+    private val application: Application
 ) : ViewModel() {
 
     private val _monthlyPackage = MutableStateFlow<Package?>(null)
@@ -80,7 +83,7 @@ class PaywallViewModel @Inject constructor(
                 if (billingManager.isPremium.value) {
                     _purchaseSuccess.value = true
                 } else {
-                    _errorMessage.value = "No active subscription found"
+                    _errorMessage.value = application.getString(R.string.no_active_subscription_found)
                 }
             },
             onError = { message ->
