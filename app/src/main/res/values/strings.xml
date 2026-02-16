@@ -31,7 +31,7 @@
     <!-- Home Screen -->
     <string name="title_invoices">Invoices</string>
     <string name="add_invoice">Add Invoice</string>
-    <string name="invoices_used">%1$d/%2$d invoices used</string>
+    <string name="invoices_used">%1$d/%2$d free invoices created</string>
     <string name="invoice_record">Invoice Record</string>
     <string name="invoice_record_description">Here you will have access to all your invoices and be able to manage them in the best way.</string>
     <string name="no_invoices_yet">No invoices yet</string>

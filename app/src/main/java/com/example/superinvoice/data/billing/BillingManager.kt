@@ -12,6 +12,9 @@ import com.revenuecat.purchases.models.StoreTransaction
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
 import com.revenuecat.purchases.getOfferingsWith
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +29,9 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
         private val REVENUECAT_API_KEY = BuildConfig.REVENUECAT_API_KEY
         private const val ENTITLEMENT_ID = "premium"
         const val FREE_INVOICE_LIMIT = 5
+        private const val TAG = "BillingManager"
+        private const val MAX_RETRY_ATTEMPTS = 3
+        private const val INITIAL_RETRY_DELAY_MS = 2000L
     }
 
     private val _isPremium = MutableStateFlow(false)
@@ -51,13 +57,23 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
         _isPremium.value = checkPremium(customerInfo)
     }
 
-    private fun refreshPremiumStatus() {
+    private fun refreshPremiumStatus(attempt: Int = 0) {
         Purchases.sharedInstance.getCustomerInfo(
             callback = object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
                 override fun onReceived(customerInfo: CustomerInfo) {
                     _isPremium.value = checkPremium(customerInfo)
                 }
-                override fun onError(error: com.revenuecat.purchases.PurchasesError) { }
+                override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                    Log.w(TAG, "Failed to refresh premium status (attempt ${attempt + 1}): ${error.message}")
+                    if (attempt < MAX_RETRY_ATTEMPTS) {
+                        val delayMs = INITIAL_RETRY_DELAY_MS * (1L shl attempt)
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            refreshPremiumStatus(attempt + 1)
+                        }, delayMs)
+                    } else {
+                        Log.e(TAG, "Exhausted retries for premium status refresh")
+                    }
+                }
             }
         )
     }

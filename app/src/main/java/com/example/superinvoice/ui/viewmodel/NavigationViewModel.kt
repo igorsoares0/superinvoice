@@ -31,8 +31,8 @@ class NavigationViewModel @Inject constructor(
 
     fun restorePurchases(onSuccess: () -> Unit, onError: (String) -> Unit) {
         billingManager.restorePurchases(
-            onSuccess = { customerInfo ->
-                if (customerInfo.entitlements["premium"]?.isActive == true) {
+            onSuccess = { _ ->
+                if (billingManager.isPremium.value) {
                     onSuccess()
                 } else {
                     onError("No active subscription found")

@@ -75,9 +75,9 @@ class PaywallViewModel @Inject constructor(
         _isLoading.value = true
         _errorMessage.value = null
         billingManager.restorePurchases(
-            onSuccess = { customerInfo ->
+            onSuccess = { _ ->
                 _isLoading.value = false
-                if (customerInfo.entitlements["premium"]?.isActive == true) {
+                if (billingManager.isPremium.value) {
                     _purchaseSuccess.value = true
                 } else {
                     _errorMessage.value = "No active subscription found"
