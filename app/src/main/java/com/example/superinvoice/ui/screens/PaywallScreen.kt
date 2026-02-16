@@ -225,14 +225,23 @@ fun PaywallScreen(
 
             // Restore purchases
             TextButton(
-                onClick = { viewModel.restorePurchases() },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                onClick = { if (!isLoading) viewModel.restorePurchases() },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                enabled = !isLoading
             ) {
-                Text(
-                    text = stringResource(R.string.restore_purchases),
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = Color.Gray,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.restore_purchases),
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
