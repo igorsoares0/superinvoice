@@ -1,0 +1,383 @@
+<resources>
+    <string name="app_name">superinvoice</string>
+
+    <!-- Common -->
+    <string name="close">Cerrar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">OK</string>
+    <string name="delete">Eliminar</string>
+    <string name="edit">Editar</string>
+    <string name="preview">Vista previa</string>
+    <string name="share">Compartir</string>
+    <string name="remove">Quitar</string>
+    <string name="upload">Subir</string>
+    <string name="draw">Dibujar</string>
+    <string name="arrow">Flecha</string>
+    <string name="search">Buscar</string>
+    <string name="menu">Menú</string>
+    <string name="selected">Seleccionado</string>
+    <string name="notes">Notas</string>
+    <string name="total">Total</string>
+    <string name="items">Artículos</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_invoices">Facturas</string>
+    <string name="nav_add">Agregar</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="add_client">Agregar Cliente</string>
+    <string name="add_item">Agregar Artículo</string>
+
+    <!-- Home Screen -->
+    <string name="title_invoices">Facturas</string>
+    <string name="add_invoice">Agregar Factura</string>
+    <string name="invoices_used">%1$d/%2$d facturas gratuitas creadas</string>
+    <string name="invoice_record">Registro de Facturas</string>
+    <string name="invoice_record_description">Aquí tendrás acceso a todas tus facturas y podrás gestionarlas de la mejor manera.</string>
+    <string name="no_invoices_yet">Aún no hay facturas</string>
+    <string name="no_invoices_message">Toca el botón + para crear tu primera factura y comenzar a gestionar las finanzas de tu negocio.</string>
+    <string name="error_sharing_pdf">Error al compartir PDF</string>
+    <string name="pdf_saved_to_downloads">PDF guardado en Descargas: Invoice_%1$s.pdf</string>
+    <string name="error_generating_pdf">Error al generar PDF</string>
+
+    <!-- Invoice Filter Tabs -->
+    <string name="filter_all">Todas</string>
+    <string name="filter_paid">Pagadas</string>
+    <string name="filter_unpaid">Pendientes</string>
+
+    <!-- Invoice Card -->
+    <string name="status_paid">PAGADO</string>
+    <string name="status_unpaid">PENDIENTE</string>
+    <string name="download_pdf">Descargar PDF</string>
+
+    <!-- Settings Screen -->
+    <string name="title_settings">Ajustes</string>
+    <string name="section_business">Empresa</string>
+    <string name="settings_logo">Logo</string>
+    <string name="settings_business_info">Información de la Empresa</string>
+    <string name="settings_signature">Firma</string>
+    <string name="settings_payment_instructions">Instrucciones de Pago</string>
+    <string name="settings_payment_qr_code">Código QR de Pago</string>
+    <string name="section_general">General</string>
+    <string name="settings_manage_clients">Gestionar Clientes</string>
+    <string name="settings_manage_products">Gestionar Productos &amp; Servicios</string>
+    <string name="settings_currency">Moneda</string>
+    <string name="settings_date_format">Formato de fecha</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_templates">Plantillas</string>
+    <string name="settings_restore_purchases">Restaurar Compras</string>
+    <string name="settings_restoring">Restaurando…</string>
+    <string name="purchases_restored_successfully">¡Compras restauradas con éxito!</string>
+    <string name="settings_terms">Términos</string>
+    <string name="settings_policy">Política</string>
+    <string name="settings_support">Soporte</string>
+
+    <!-- Premium Card -->
+    <string name="go_to_premium">Hazte premium</string>
+    <string name="premium_description">Crea y envía facturas ilimitadas y aprovecha nuestras plantillas premium.</string>
+    <string name="unlock">desbloquear</string>
+
+    <!-- Create Invoice Screen -->
+    <string name="title_new_invoice">Nueva Factura</string>
+    <string name="invoice_name_label">Nombre de factura #</string>
+    <string name="due_date">Fecha de Vencimiento</string>
+    <string name="add_product_or_service">Agregar Producto o Servicio</string>
+    <string name="price_per_unit">%1$s por unidad</string>
+    <string name="total_with_amount">Total: %1$s</string>
+    <string name="tax">Impuesto</string>
+    <string name="tax_with_amount">Impuesto: %1$s</string>
+    <string name="discount">Descuento</string>
+    <string name="discount_with_amount">Descuento: %1$s</string>
+    <string name="tax_amount">Monto del Impuesto</string>
+    <string name="enter_tax_amount">Ingrese el monto del impuesto</string>
+    <string name="discount_amount">Monto del Descuento</string>
+    <string name="enter_discount_amount">Ingrese el monto del descuento</string>
+
+    <!-- Edit Invoice Screen -->
+    <string name="title_edit_invoice">Editar Factura</string>
+    <string name="select_client">Seleccionar Cliente</string>
+    <string name="paid">Pagado</string>
+    <string name="unpaid">Pendiente</string>
+    <string name="delete_invoice">Eliminar factura</string>
+    <string name="save_changes">Guardar Cambios</string>
+    <string name="delete_invoice_title">Eliminar Factura</string>
+    <string name="delete_invoice_confirmation">¿Estás seguro de que deseas eliminar esta factura? Esta acción no se puede deshacer.</string>
+
+    <!-- Add/Edit Client Screen -->
+    <string name="title_add_client">Agregar Cliente</string>
+    <string name="title_edit_client">Editar Cliente</string>
+    <string name="client_name_required">Nombre del Cliente *</string>
+    <string name="email">Correo electrónico</string>
+    <string name="phone">Teléfono</string>
+    <string name="address">Dirección</string>
+    <string name="city">Ciudad</string>
+    <string name="state">Estado/Provincia</string>
+    <string name="zip_code">Código Postal</string>
+
+    <!-- Clients Screen -->
+    <string name="title_clients">Clientes</string>
+    <string name="no_clients_yet">Aún no hay clientes</string>
+    <string name="no_clients_message">Toca el botón + para agregar tu primer cliente y comenzar a crear facturas.</string>
+    <string name="no_clients_found">No se encontraron clientes</string>
+    <string name="no_clients_search_message">Ningún cliente coincide con tu búsqueda. Intenta con otra palabra clave.</string>
+    <string name="search_clients">Buscar clientes…</string>
+
+    <!-- Business Information Screen -->
+    <string name="title_business_information">Información de la Empresa</string>
+    <string name="business_name_required">Nombre de la Empresa*</string>
+    <string name="owner_name_required">Nombre del Propietario*</string>
+    <string name="email_required">Correo electrónico*</string>
+    <string name="phone_required">Teléfono*</string>
+    <string name="website">Sitio web</string>
+    <string name="address_required">Dirección*</string>
+    <string name="city_required">Ciudad*</string>
+    <string name="state_required">Estado/Provincia*</string>
+    <string name="zip_code_required">Código Postal*</string>
+    <string name="tax_id_ein">NIF / CIF</string>
+
+    <!-- Add/Edit Product Screen -->
+    <string name="title_add_product">Agregar Producto</string>
+    <string name="title_edit_product">Editar Producto</string>
+    <string name="product_name_required">Nombre del Producto/Servicio *</string>
+    <string name="description">Descripción</string>
+    <string name="price_required">Precio *</string>
+    <string name="unit_abbreviation">ud</string>
+
+    <!-- Products & Services Screen -->
+    <string name="title_products_services">Productos &amp; Servicios</string>
+    <string name="search_products_services">Buscar productos/servicios…</string>
+    <string name="no_products_yet">Aún no hay productos o servicios</string>
+    <string name="no_products_message">Toca el botón + para agregar tu primer producto o servicio para incluir en las facturas.</string>
+    <string name="no_products_found">No se encontraron productos</string>
+    <string name="no_products_search_message">Ningún producto o servicio coincide con tu búsqueda. Intenta con otra palabra clave.</string>
+    <string name="add_product_or_service_cd">Agregar Producto o Servicio</string>
+
+    <!-- Product Service Card -->
+    <string name="price_per_un">%1$s por ud</string>
+
+    <!-- Currency Screen -->
+    <string name="title_currency">Moneda</string>
+
+    <!-- Date Format Screen -->
+    <string name="title_date_format">Formato de Fecha</string>
+
+    <!-- Paywall Screen -->
+    <string name="title_go_premium">Hazte Premium</string>
+    <string name="unlock_all_features">Desbloquea todas las funciones</string>
+    <string name="premium_subscription_description">Aprovecha al máximo SuperInvoice con una suscripción premium.</string>
+    <string name="feature_unlimited_invoices">Facturas ilimitadas</string>
+    <string name="feature_classic_template">Plantilla clásica</string>
+    <string name="feature_modern_template">Plantilla moderna</string>
+    <string name="feature_professional_template">Plantilla profesional</string>
+    <string name="feature_custom_logo">Logo personalizado</string>
+    <string name="feature_custom_signature">Firma personalizada</string>
+    <string name="choose_your_plan">Elige tu plan</string>
+    <string name="plan_annual">Anual</string>
+    <string name="plan_save_17">Ahorra 17%</string>
+    <string name="plan_monthly">Mensual</string>
+    <string name="subscribe">Suscribirse</string>
+    <string name="restore_purchases">Restaurar compras</string>
+    <string name="no_active_subscription_found">No se encontró ninguna suscripción activa</string>
+    <string name="included_in_free">Incluido en gratuito</string>
+    <string name="not_in_free">No incluido en gratuito</string>
+    <string name="included_in_premium">Incluido en premium</string>
+
+    <!-- Signature Screen -->
+    <string name="title_signature">Firma</string>
+    <string name="upload_your_signature">Sube tu firma</string>
+    <string name="signature_description">Tu firma aparecerá en la parte inferior de tus facturas</string>
+    <string name="no_signature">Sin firma</string>
+    <string name="upload_signature">Subir Firma</string>
+    <string name="draw_signature">Dibujar Firma</string>
+    <string name="remove_signature">Quitar Firma</string>
+    <string name="draw_signature_or_upload">Dibuja tu firma o sube una imagen PNG</string>
+    <string name="draw_your_signature">Dibuja tu firma</string>
+    <string name="signature_saved">Firma guardada con éxito</string>
+    <string name="signature_save_failed">Error al guardar la firma</string>
+    <string name="signature_removed">Firma eliminada</string>
+
+    <!-- Logo Screen -->
+    <string name="title_business_logo">Logo de la Empresa</string>
+    <string name="upload_your_logo">Sube el logo de tu empresa</string>
+    <string name="logo_description">Tu logo aparecerá en tus facturas y documentos</string>
+    <string name="business_logo">Logo de la Empresa</string>
+    <string name="no_logo">Sin logo</string>
+    <string name="no_logo_uploaded">No se ha subido ningún logo</string>
+    <string name="upload_logo">Subir Logo</string>
+    <string name="change_logo">Cambiar Logo</string>
+    <string name="remove_logo">Quitar Logo</string>
+    <string name="recommended_image_format">Recomendado: formato PNG o JPG, mínimo 500x500px</string>
+    <string name="logo_saved">Logo guardado con éxito</string>
+    <string name="logo_save_failed">Error al guardar el logo</string>
+    <string name="logo_removed">Logo eliminado</string>
+
+    <!-- Payment Instructions Screen -->
+    <string name="title_payment_instructions">Instrucciones de Pago</string>
+    <string name="bank_name_required">Nombre del Banco*</string>
+    <string name="account_holder_required">Nombre del Titular*</string>
+    <string name="account_number_required">Número de Cuenta*</string>
+    <string name="routing_number">Número de Sucursal</string>
+    <string name="iban">IBAN</string>
+    <string name="swift_bic_code">Código SWIFT/BIC</string>
+    <string name="bank_address">Dirección del Banco</string>
+    <string name="payment_terms_placeholder">Condiciones de Pago (ej.: 30 días)*</string>
+    <string name="additional_instructions">Instrucciones Adicionales</string>
+
+    <!-- Payment QR Code Screen -->
+    <string name="title_payment_qr_code">Código QR de Pago</string>
+    <string name="upload_your_qr_code">Sube tu código QR de pago</string>
+    <string name="qr_code_description">Los clientes pueden escanear este código QR para realizar pagos</string>
+    <string name="payment_qr_code">Código QR de Pago</string>
+    <string name="no_qr_code">Sin código QR</string>
+    <string name="no_qr_code_uploaded">No se ha subido ningún código QR</string>
+    <string name="upload_qr_code">Subir Código QR</string>
+    <string name="change_qr_code">Cambiar Código QR</string>
+    <string name="remove_qr_code">Quitar Código QR</string>
+    <string name="qr_code_saved">Código QR guardado con éxito</string>
+    <string name="qr_code_save_failed">Error al guardar el código QR</string>
+    <string name="qr_code_removed">Código QR eliminado</string>
+
+    <!-- Invoice Template Screen -->
+    <string name="title_invoice_templates">Plantillas de Factura</string>
+    <string name="select_preferred_template">Selecciona tu plantilla preferida</string>
+    <string name="template_classic">Clásica</string>
+    <string name="template_modern">Moderna</string>
+    <string name="template_professional">Profesional</string>
+    <string name="done">Listo</string>
+    <string name="premium">Premium</string>
+    <string name="template_preview_cd">Vista previa de la plantilla %1$s</string>
+
+    <!-- Invoice Preview Screen -->
+    <string name="title_invoice_preview">Vista previa de factura</string>
+    <string name="invoice_preview_cd">Vista Previa de Factura</string>
+    <string name="save_as_pdf">Guardar como PDF</string>
+    <string name="pdf_saved_to">PDF guardado en: %1$s</string>
+    <string name="failed_to_save_pdf">Error al guardar el PDF</string>
+
+    <!-- Invoice Template Labels (Classic) -->
+    <string name="invoice_label">FACTURA</string>
+    <string name="from_label">DE:</string>
+    <string name="tax_id_label">NIF/CIF: %1$s</string>
+    <string name="invoice_no_label">FACTURA Nº:</string>
+    <string name="date_label">FECHA:</string>
+    <string name="due_date_label">VENCIMIENTO:</string>
+    <string name="issued_to_label">DESTINATARIO:</string>
+    <string name="pay_to_label">PAGAR A:</string>
+    <string name="acc_name_label">Titular: %1$s</string>
+    <string name="acc_number_label">Nº de Cuenta: %1$s</string>
+    <string name="routing_label">Sucursal: %1$s</string>
+    <string name="iban_label">IBAN: %1$s</string>
+    <string name="swift_label">SWIFT: %1$s</string>
+    <string name="terms_label">Condiciones: %1$s</string>
+    <string name="notes_label">Notas: %1$s</string>
+    <string name="scan_to_pay">Escanear para Pagar:</string>
+    <string name="description_label">DESCRIPCIÓN</string>
+    <string name="unit_price_label">PRECIO UNIT.</string>
+    <string name="qty_label">CANT</string>
+    <string name="total_label">TOTAL</string>
+    <string name="subtotal_label">SUBTOTAL</string>
+    <string name="tax_label">IMPUESTO</string>
+    <string name="discount_label">DESCUENTO</string>
+    <string name="signature_cd">Firma</string>
+
+    <!-- Invoice Template Labels (Modern) -->
+    <string name="invoice_number_format">FACTURA #%1$s</string>
+    <string name="billed_to_label">{ COBRADO A }</string>
+    <string name="rate_label">TARIFA</string>
+    <string name="hours_label">HORAS</string>
+    <string name="price_label">PRECIO</string>
+    <string name="total_amount_label">MONTO TOTAL</string>
+    <string name="vat_label">IVA</string>
+    <string name="amount_due_label">MONTO A PAGAR</string>
+    <string name="payment_information_label">{ INFORMACIÓN DE PAGO }</string>
+    <string name="bank_label">Banco: %1$s</string>
+    <string name="account_holder_label">Titular: %1$s</string>
+    <string name="account_number_label">Número de Cuenta: %1$s</string>
+    <string name="routing_number_label">Sucursal: %1$s</string>
+    <string name="thank_you_label">¡GRACIAS POR SU PREFERENCIA!</string>
+    <string name="helpdesk_label">SOPORTE: %1$s</string>
+    <string name="email_label">E-MAIL: %1$s</string>
+    <string name="web_label">WEB: %1$s</string>
+
+    <!-- Invoice Template Labels (Professional) -->
+    <string name="issued_to_professional">Destinatario:</string>
+    <string name="invoice_no_professional">Factura Nº:</string>
+    <string name="date_issued_label">Fecha de Emisión:</string>
+    <string name="due_date_professional">Fecha de Vencimiento:</string>
+    <string name="description_header">Descripción</string>
+    <string name="quantity_header">Cantidad</string>
+    <string name="unit_price_header">Precio Unitario</string>
+    <string name="total_header">Total</string>
+    <string name="payment_info_label">DATOS DE PAGO</string>
+    <string name="account_name_label">Titular: %1$s</string>
+    <string name="account_no_label">Nº de Cuenta: %1$s</string>
+    <string name="subtotal_colon">Subtotal:</string>
+    <string name="tax_colon">Impuesto:</string>
+    <string name="discount_colon">Descuento:</string>
+    <string name="total_colon">TOTAL:</string>
+
+    <!-- Policy Screen -->
+    <string name="title_privacy_policy">Política de Privacidad</string>
+    <string name="policy_last_updated">Última actualización: Febrero de 2026</string>
+    <string name="policy_section_1_title">1. Introducción</string>
+    <string name="policy_section_1_body">Bienvenido a SuperInvoice. Respetamos tu privacidad y estamos comprometidos con la protección de tus datos personales. Esta Política de Privacidad explica cómo recopilamos, usamos y protegemos tu información al utilizar nuestra aplicación.</string>
+    <string name="policy_section_2_title">2. Información que Recopilamos</string>
+    <string name="policy_section_2_body">Podemos recopilar los siguientes tipos de información:\n\n\u2022 Información de la Empresa: Nombre de la empresa, nombre del propietario, dirección, correo electrónico, teléfono, sitio web y NIF/CIF que proporcionas en los Ajustes.\n\n\u2022 Información de Clientes: Nombres, correos electrónicos, teléfonos y direcciones de tus clientes agregados en la app.\n\n\u2022 Datos de Facturas: Números de factura, montos, artículos, fechas y detalles de pago que creas en la app.\n\n\u2022 Archivos Multimedia: Imágenes de logo, firma y código QR que subes.\n\n\u2022 Información de Compra: Estado de la suscripción y detalles de transacciones procesadas por la tienda de aplicaciones.</string>
+    <string name="policy_section_3_title">3. Cómo Usamos tu Información</string>
+    <string name="policy_section_3_body">Tu información se utiliza para:\n\n\u2022 Generar facturas y documentos PDF según lo solicites.\n\n\u2022 Almacenar los datos de tu empresa y clientes localmente en tu dispositivo por conveniencia.\n\n\u2022 Procesar y gestionar el estado de tu suscripción.\n\n\u2022 Mejorar la funcionalidad y la experiencia del usuario.</string>
+    <string name="policy_section_4_title">4. Almacenamiento de Datos</string>
+    <string name="policy_section_4_body">Todos los datos de tu empresa, información de clientes y facturas se almacenan localmente en tu dispositivo. No subimos ni almacenamos tus facturas, datos de clientes o información de la empresa en servidores externos. Los datos de suscripción y compra son gestionados por la tienda de aplicaciones correspondiente (Google Play).</string>
+    <string name="policy_section_5_title">5. Servicios de Terceros</string>
+    <string name="policy_section_5_body">Utilizamos los siguientes servicios de terceros:\n\n\u2022 RevenueCat: Para gestionar suscripciones y compras dentro de la app. RevenueCat puede recopilar datos de uso anónimos. Consulta la política de privacidad de RevenueCat para más detalles.\n\n\u2022 Google Play Billing: Para el procesamiento de pagos y suscripciones.</string>
+    <string name="policy_section_6_title">6. Compartición de Datos</string>
+    <string name="policy_section_6_body">No vendemos, intercambiamos ni alquilamos tu información personal a terceros. Tus datos solo pueden compartirse cuando:\n\n\u2022 Eliges explícitamente compartir una factura por correo electrónico, apps de mensajería u otros métodos de compartición.\n\n\u2022 Lo exija la ley o procedimientos legales.</string>
+    <string name="policy_section_7_title">7. Seguridad de los Datos</string>
+    <string name="policy_section_7_body">Tomamos medidas razonables para proteger tu información. Como los datos se almacenan localmente en tu dispositivo, su seguridad también depende de la configuración de seguridad de tu dispositivo, como el bloqueo de pantalla y la encriptación.</string>
+    <string name="policy_section_8_title">8. Tus Derechos</string>
+    <string name="policy_section_8_body">Tienes derecho a:\n\n\u2022 Acceder, actualizar o eliminar la información de tu empresa y clientes en cualquier momento desde los ajustes de la app.\n\n\u2022 Eliminar todos los datos de la app desinstalando la aplicación.\n\n\u2022 Cancelar tu suscripción en cualquier momento desde la tienda de aplicaciones.</string>
+    <string name="policy_section_9_title">9. Privacidad de los Niños</string>
+    <string name="policy_section_9_body">SuperInvoice no está destinado para el uso por parte de niños menores de 13 años. No recopilamos intencionalmente información personal de niños.</string>
+    <string name="policy_section_10_title">10. Cambios en esta Política</string>
+    <string name="policy_section_10_body">Podemos actualizar esta Política de Privacidad periódicamente. Cualquier cambio se reflejará en la app con una fecha de revisión actualizada. Te recomendamos revisar esta política periódicamente.</string>
+    <string name="policy_section_11_title">11. Contáctanos</string>
+    <string name="policy_section_11_body">Si tienes preguntas o inquietudes sobre esta Política de Privacidad, contáctanos en devforge4@gmail.com</string>
+
+    <!-- Terms Screen -->
+    <string name="title_terms_of_service">Términos de Servicio</string>
+    <string name="terms_last_updated">Última actualización: Febrero de 2026</string>
+    <string name="terms_section_1_title">1. Aceptación de los Términos</string>
+    <string name="terms_section_1_body">Al descargar, instalar o usar SuperInvoice, aceptas estar sujeto a estos Términos de Servicio. Si no estás de acuerdo con estos términos, por favor no uses la aplicación.</string>
+    <string name="terms_section_2_title">2. Descripción del Servicio</string>
+    <string name="terms_section_2_body">SuperInvoice es una aplicación móvil que permite a los usuarios crear, gestionar y compartir facturas. La app proporciona herramientas para gestionar clientes, productos y servicios, y generar facturas en PDF.</string>
+    <string name="terms_section_3_title">3. Cuentas de Usuario y Responsabilidades</string>
+    <string name="terms_section_3_body">Eres responsable de:\n\n\u2022 La exactitud de toda la información de la empresa, datos de clientes y detalles de facturas que ingreses en la app.\n\n\u2022 Asegurarte de que tus facturas cumplan con las leyes locales y regulaciones fiscales aplicables.\n\n\u2022 Mantener la seguridad de tu dispositivo y de cualquier dato almacenado en la app.\n\n\u2022 Cualquier factura generada y compartida usando la aplicación.</string>
+    <string name="terms_section_4_title">4. Planes Gratuito y Premium</string>
+    <string name="terms_section_4_body">SuperInvoice ofrece planes gratuito y premium:\n\n\u2022 Plan Gratuito: Permite la creación de un número limitado de facturas con marca de agua en los PDF generados.\n\n\u2022 Plan Premium: Desbloquea la creación ilimitada de facturas, PDF sin marca de agua y acceso a funciones adicionales como logos y firmas personalizadas.\n\nLas suscripciones premium se facturan a través de Google Play y están sujetas a los términos y condiciones de la tienda de aplicaciones.</string>
+    <string name="terms_section_5_title">5. Suscripciones y Pagos</string>
+    <string name="terms_section_5_body">Las suscripciones premium se procesan a través de Google Play. Al adquirir una suscripción:\n\n\u2022 El pago se cargará a tu cuenta de Google Play tras la confirmación de la compra.\n\n\u2022 Las suscripciones se renuevan automáticamente a menos que se cancelen al menos 24 horas antes del final del período de facturación actual.\n\n\u2022 Puedes gestionar o cancelar tu suscripción desde los ajustes de Google Play.\n\n\u2022 Los reembolsos están sujetos a la política de reembolso de Google Play.</string>
+    <string name="terms_section_6_title">6. Propiedad Intelectual</string>
+    <string name="terms_section_6_body">Todo el contenido, diseño, gráficos y software de SuperInvoice son propiedad intelectual de SuperInvoice y están protegidos por las leyes de derechos de autor y marcas registradas aplicables. No puedes copiar, modificar, distribuir ni realizar ingeniería inversa de ninguna parte de la aplicación.</string>
+    <string name="terms_section_7_title">7. Uso Permitido</string>
+    <string name="terms_section_7_body">Aceptas usar SuperInvoice solo para fines legales. No puedes:\n\n\u2022 Usar la app para generar facturas fraudulentas o engañosas.\n\n\u2022 Intentar eludir las restricciones de suscripción o manipular la funcionalidad de la app.\n\n\u2022 Usar la app de cualquier forma que viole leyes o regulaciones aplicables.\n\n\u2022 Distribuir o revender la aplicación o cualquier contenido generado por ella con fines comerciales más allá de la facturación normal.</string>
+    <string name="terms_section_8_title">8. Exención de Garantías</string>
+    <string name="terms_section_8_body">SuperInvoice se proporciona \"tal cual\" y \"según disponibilidad\" sin garantías de ningún tipo, expresas o implícitas. No garantizamos que:\n\n\u2022 La app estará libre de errores o será ininterrumpida.\n\n\u2022 Las facturas generadas cumplirán con todos los requisitos legales o regulatorios en tu jurisdicción.\n\n\u2022 Los datos almacenados en tu dispositivo se preservarán en todas las circunstancias.\n\nEres el único responsable de verificar que tus facturas sean precisas y legalmente conformes.</string>
+    <string name="terms_section_9_title">9. Limitación de Responsabilidad</string>
+    <string name="terms_section_9_body">En la máxima medida permitida por la ley, SuperInvoice y sus desarrolladores no serán responsables de ningún daño indirecto, incidental, especial, consecuente o punitivo derivado de tu uso de la aplicación, incluyendo, pero no limitándose a, la pérdida de datos, ingresos u oportunidades de negocio.</string>
+    <string name="terms_section_10_title">10. Datos y Privacidad</string>
+    <string name="terms_section_10_body">Tu uso de SuperInvoice también se rige por nuestra Política de Privacidad. Al usar la app, consientes la recopilación y uso de información según lo descrito en nuestra Política de Privacidad.</string>
+    <string name="terms_section_11_title">11. Rescisión</string>
+    <string name="terms_section_11_body">Nos reservamos el derecho de terminar o suspender el acceso a la aplicación en cualquier momento, sin previo aviso, por conducta que consideremos que viola estos Términos de Servicio o sea perjudicial para otros usuarios o el servicio.</string>
+    <string name="terms_section_12_title">12. Cambios en los Términos</string>
+    <string name="terms_section_12_body">Podemos actualizar estos Términos de Servicio periódicamente. El uso continuado de la app después de que se publiquen los cambios constituye tu aceptación de los términos revisados. Te recomendamos revisar estos términos periódicamente.</string>
+    <string name="terms_section_13_title">13. Ley Aplicable</string>
+    <string name="terms_section_13_body">Estos Términos de Servicio se regirán e interpretarán de acuerdo con las leyes aplicables, sin tener en cuenta los principios de conflicto de leyes.</string>
+    <string name="terms_section_14_title">14. Contáctanos</string>
+    <string name="terms_section_14_body">Si tienes preguntas sobre estos Términos de Servicio, contáctanos en devforge4@gmail.com</string>
+
+    <!-- Support Screen -->
+    <string name="title_support">Soporte</string>
+    <string name="support_need_help">¿Necesitas ayuda?</string>
+    <string name="support_description">Si tienes preguntas, sugerencias o necesitas asistencia, no dudes en contactarnos. Te responderemos lo antes posible.</string>
+    <string name="support_contact_email_label">Correo de contacto</string>
+    <string name="support_contact_email">devforge4@gmail.com</string>
+</resources>
