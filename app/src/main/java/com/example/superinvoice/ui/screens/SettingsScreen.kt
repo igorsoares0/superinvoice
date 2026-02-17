@@ -145,7 +145,6 @@ fun SettingsScreen(
                     SettingsOption(text = stringResource(R.string.settings_manage_products), onClick = onNavigateToManageProducts)
                     SettingsOption(text = stringResource(R.string.settings_currency), onClick = onNavigateToCurrency)
                     SettingsOption(text = stringResource(R.string.settings_date_format), onClick = onNavigateToDateFormat)
-                    SettingsOption(text = stringResource(R.string.settings_language), onClick = { })
                     SettingsOption(text = stringResource(R.string.settings_templates), onClick = onNavigateToTemplates)
                     SettingsOption(
                         text = if (isRestoringPurchases) stringResource(R.string.settings_restoring) else stringResource(R.string.settings_restore_purchases),
