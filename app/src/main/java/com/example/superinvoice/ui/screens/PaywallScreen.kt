@@ -137,8 +137,8 @@ fun PaywallScreen(
             // Feature list
             FeatureRow(text = stringResource(R.string.feature_unlimited_invoices), isFree = false, isPremium = true)
             FeatureRow(text = stringResource(R.string.feature_classic_template), isFree = true, isPremium = true)
-            FeatureRow(text = stringResource(R.string.feature_modern_template), isFree = false, isPremium = true)
-            FeatureRow(text = stringResource(R.string.feature_professional_template), isFree = false, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_premium_templates), isFree = false, isPremium = true)
+            FeatureRow(text = stringResource(R.string.feature_remove_watermark), isFree = false, isPremium = true)
             FeatureRow(text = stringResource(R.string.feature_custom_logo), isFree = false, isPremium = true)
             FeatureRow(text = stringResource(R.string.feature_custom_signature), isFree = false, isPremium = true)
 

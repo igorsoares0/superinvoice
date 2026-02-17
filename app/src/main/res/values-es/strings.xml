@@ -167,8 +167,8 @@
     <string name="premium_subscription_description">Aprovecha al máximo SuperInvoice con una suscripción premium.</string>
     <string name="feature_unlimited_invoices">Facturas ilimitadas</string>
     <string name="feature_classic_template">Plantilla clásica</string>
-    <string name="feature_modern_template">Plantilla moderna</string>
-    <string name="feature_professional_template">Plantilla profesional</string>
+    <string name="feature_premium_templates">Plantillas premium</string>
+    <string name="feature_remove_watermark">Quitar marca de agua</string>
     <string name="feature_custom_logo">Logo personalizado</string>
     <string name="feature_custom_signature">Firma personalizada</string>
     <string name="choose_your_plan">Elige tu plan</string>
