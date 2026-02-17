@@ -173,7 +173,7 @@
     <string name="feature_custom_signature">Firma personalizada</string>
     <string name="choose_your_plan">Elige tu plan</string>
     <string name="plan_annual">Anual</string>
-    <string name="plan_save_17">Ahorra 17%</string>
+    <string name="plan_save_percent">Ahorra %1$d%%</string>
     <string name="plan_monthly">Mensual</string>
     <string name="subscribe">Suscribirse</string>
     <string name="restore_purchases">Restaurar compras</string>

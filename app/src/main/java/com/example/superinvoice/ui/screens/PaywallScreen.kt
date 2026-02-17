@@ -155,10 +155,16 @@ fun PaywallScreen(
             )
 
             // Annual plan
+            val savingsPercent = if (monthlyPackage != null && annualPackage != null) {
+                val yearlyIfMonthly = monthlyPackage!!.product.price.amountMicros * 12
+                val annualPrice = annualPackage!!.product.price.amountMicros
+                if (yearlyIfMonthly > 0) ((yearlyIfMonthly - annualPrice) * 100 / yearlyIfMonthly).toInt() else 0
+            } else 0
+
             PlanCard(
                 title = stringResource(R.string.plan_annual),
-                price = annualPackage?.product?.price?.formatted ?: "$89.99/yr",
-                subtitle = stringResource(R.string.plan_save_17),
+                price = annualPackage?.product?.price?.formatted ?: "$79.99/yr",
+                subtitle = if (savingsPercent > 0) stringResource(R.string.plan_save_percent, savingsPercent) else "",
                 isSelected = selectedPlan == "annual",
                 onClick = { selectedPlan = "annual" }
             )
