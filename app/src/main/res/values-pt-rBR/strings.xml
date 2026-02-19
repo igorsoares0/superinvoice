@@ -318,6 +318,8 @@
 
     <!-- Policy Screen -->
     <string name="title_privacy_policy">Política de Privacidade</string>
+    <string name="policy_web_description">Nossa Política de Privacidade completa está disponível no nosso site. Toque no botão abaixo para lê-la.</string>
+    <string name="open_privacy_policy">Ver Política de Privacidade</string>
     <string name="policy_last_updated">Última atualização: Fevereiro de 2026</string>
     <string name="policy_section_1_title">1. Introdução</string>
     <string name="policy_section_1_body">Bem-vindo ao SuperInvoice. Respeitamos sua privacidade e estamos comprometidos em proteger seus dados pessoais. Esta Política de Privacidade explica como coletamos, usamos e protegemos suas informações ao utilizar nosso aplicativo.</string>
@@ -344,6 +346,8 @@
 
     <!-- Terms Screen -->
     <string name="title_terms_of_service">Termos de Serviço</string>
+    <string name="terms_web_description">Nossos Termos de Serviço completos estão disponíveis no nosso site. Toque no botão abaixo para lê-los.</string>
+    <string name="open_terms_of_service">Ver Termos de Serviço</string>
     <string name="terms_last_updated">Última atualização: Fevereiro de 2026</string>
     <string name="terms_section_1_title">1. Aceitação dos Termos</string>
     <string name="terms_section_1_body">Ao baixar, instalar ou usar o SuperInvoice, você concorda em estar vinculado a estes Termos de Serviço. Se você não concorda com estes termos, por favor não use o aplicativo.</string>
