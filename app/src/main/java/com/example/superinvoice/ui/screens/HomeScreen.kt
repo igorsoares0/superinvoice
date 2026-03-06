@@ -47,8 +47,6 @@ fun HomeScreen(
     onNavigateToCreateInvoice: () -> Unit = {},
     onNavigateToEditInvoice: (Int) -> Unit = {},
     onNavigateToPreview: (Int) -> Unit = {},
-    onNavigateToAddClient: () -> Unit = {},
-    onNavigateToAddProduct: () -> Unit = {},
     selectedBottomNavItem: Int = 0,
     onBottomNavItemSelected: (Int) -> Unit = {},
     isPremium: Boolean = false,
@@ -69,9 +67,7 @@ fun HomeScreen(
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
-                onItemSelected = onBottomNavItemSelected,
-                onAddClient = onNavigateToAddClient,
-                onAddProduct = onNavigateToAddProduct
+                onItemSelected = onBottomNavItemSelected
             )
         },
         floatingActionButton = {

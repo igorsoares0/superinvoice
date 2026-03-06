@@ -121,7 +121,7 @@ fun AppNavigation(
         // Update bottom nav if returning to HOME or SETTINGS
         when (currentScreen) {
             Screen.HOME -> selectedBottomNavItem = 0
-            Screen.SETTINGS -> selectedBottomNavItem = 2
+            Screen.SETTINGS -> selectedBottomNavItem = 1
             else -> {}
         }
     }
@@ -144,8 +144,6 @@ fun AppNavigation(
                 previewVersion++
                 navigateTo(Screen.INVOICE_PREVIEW)
             },
-            onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
-            onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
             selectedBottomNavItem = selectedBottomNavItem,
             onBottomNavItemSelected = { index ->
                 selectedBottomNavItem = index
@@ -154,7 +152,7 @@ fun AppNavigation(
                         navigationStack = emptyList()
                         currentScreen = Screen.HOME
                     }
-                    2 -> navigateTo(Screen.SETTINGS)
+                    1 -> navigateTo(Screen.SETTINGS)
                 }
             }
         )
@@ -245,7 +243,7 @@ fun AppNavigation(
                         navigationStack = emptyList()
                         currentScreen = Screen.HOME
                     }
-                    2 -> {
+                    1 -> {
                         navigationStack = emptyList()
                         currentScreen = Screen.SETTINGS
                     }
@@ -271,8 +269,6 @@ fun AppNavigation(
                 isSelectingForInvoice = false
                 navigateTo(Screen.PRODUCTS_SERVICES)
             },
-            onNavigateToAddClient = { navigateTo(Screen.ADD_CLIENT) },
-            onNavigateToAddProduct = { navigateTo(Screen.ADD_PRODUCT) },
             onNavigateToPaywall = { navigateTo(Screen.PAYWALL) },
             onNavigateToPolicy = { navigateTo(Screen.POLICY) },
             onNavigateToTerms = { navigateTo(Screen.TERMS) },

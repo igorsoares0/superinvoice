@@ -49,8 +49,6 @@ fun SettingsScreen(
     onNavigateToDateFormat: () -> Unit = {},
     onNavigateToManageClients: () -> Unit = {},
     onNavigateToManageProducts: () -> Unit = {},
-    onNavigateToAddClient: () -> Unit = {},
-    onNavigateToAddProduct: () -> Unit = {},
     onNavigateToPaywall: () -> Unit = {},
     onNavigateToPolicy: () -> Unit = {},
     onNavigateToTerms: () -> Unit = {},
@@ -69,9 +67,7 @@ fun SettingsScreen(
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedBottomNavItem,
-                onItemSelected = onBottomNavItemSelected,
-                onAddClient = onNavigateToAddClient,
-                onAddProduct = onNavigateToAddProduct
+                onItemSelected = onBottomNavItemSelected
             )
         }
     ) { paddingValues ->
