@@ -222,7 +222,8 @@ fun PaywallScreen(
                     Text(
                         text = stringResource(R.string.subscribe),
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        maxLines = 1
                     )
                 }
             }
@@ -326,19 +327,21 @@ private fun PlanCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
             Text(
                 text = title,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
-                color = Color.Black
+                color = Color.Black,
+                maxLines = 1
             )
             if (subtitle.isNotEmpty()) {
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
                     color = Color(0xFF2D5016),
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
                 )
             }
         }
@@ -346,7 +349,8 @@ private fun PlanCard(
             text = price,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
-            color = Color.Black
+            color = Color.Black,
+            maxLines = 1
         )
     }
 }

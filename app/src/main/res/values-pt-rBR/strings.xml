@@ -43,7 +43,7 @@
     <!-- Invoice Filter Tabs -->
     <string name="filter_all">Todas</string>
     <string name="filter_paid">Pagas</string>
-    <string name="filter_unpaid">Pendentes</string>
+    <string name="filter_unpaid">A pagar</string>
 
     <!-- Invoice Card -->
     <string name="status_paid">PAGO</string>

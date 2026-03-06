@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import online.isdevapps.superinvoice.R
 
@@ -30,23 +33,26 @@ fun InvoiceFilterTabs(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         FilterTab(
             text = stringResource(R.string.filter_all),
             isSelected = selectedFilter == InvoiceFilter.ALL,
-            onClick = { onFilterSelected(InvoiceFilter.ALL) }
+            onClick = { onFilterSelected(InvoiceFilter.ALL) },
+            modifier = Modifier.weight(1f)
         )
         FilterTab(
             text = stringResource(R.string.filter_paid),
             isSelected = selectedFilter == InvoiceFilter.PAID,
-            onClick = { onFilterSelected(InvoiceFilter.PAID) }
+            onClick = { onFilterSelected(InvoiceFilter.PAID) },
+            modifier = Modifier.weight(1f)
         )
         FilterTab(
             text = stringResource(R.string.filter_unpaid),
             isSelected = selectedFilter == InvoiceFilter.UNPAID,
-            onClick = { onFilterSelected(InvoiceFilter.UNPAID) }
+            onClick = { onFilterSelected(InvoiceFilter.UNPAID) },
+            modifier = Modifier.weight(1f)
         )
     }
 }
@@ -67,9 +73,12 @@ private fun FilterTab(
             .clip(RoundedCornerShape(20.dp))
             .background(backgroundColor)
             .clickable(onClick = onClick)
-            .padding(horizontal = 24.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         style = MaterialTheme.typography.bodyLarge,
         fontWeight = FontWeight.SemiBold,
-        color = textColor
+        color = textColor,
+        textAlign = TextAlign.Center,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
     )
 }

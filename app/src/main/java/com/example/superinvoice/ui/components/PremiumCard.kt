@@ -54,7 +54,6 @@ fun PremiumCard(
 
         Button(
             onClick = onUnlockClick,
-            modifier = Modifier.height(40.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF2D5016),
                 contentColor = Color(0xFFF9FAFB)
@@ -64,7 +63,8 @@ fun PremiumCard(
             Text(
                 text = stringResource(R.string.unlock),
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                maxLines = 1
             )
         }
     }
