@@ -290,7 +290,7 @@ class InvoicePdfRenderTest {
         private const val TAG = "PDF-RENDER"
 
         /** Troque a cada rodada: "antes", "fase-a", "fase-b"… */
-        private const val RUN_LABEL = "fase-d"
+        private const val RUN_LABEL = "pag"
 
         /** Data fixa para o render não mudar só porque o relógio andou. */
         private const val FIXED_DATE = 1735689600000L // 2025-01-01 00:00 UTC

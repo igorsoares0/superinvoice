@@ -43,6 +43,9 @@ class InvoicePdfGenerator @Inject constructor(
     private val pageHeight = 842 // A4 height in points
     private val margin = 60f
 
+    /** Vinco entre páginas no preview empilhado, em pontos. */
+    private val previewPageGap = 12
+
     data class BusinessInfo(
         val businessName: String = "",
         val ownerName: String = "",
@@ -140,30 +143,30 @@ class InvoicePdfGenerator @Inject constructor(
     ): File? {
         return try {
             val pdfDocument = PdfDocument()
-            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-            val page = pdfDocument.startPage(pageInfo)
-            val canvas = page.canvas
-
             val paints = InvoicePaints(style)
+            val pager = InvoicePager(
+                document = pdfDocument,
+                pageWidth = pageWidth,
+                pageHeight = pageHeight,
+                margin = margin,
+                // Em cada página, por cima do conteúdo.
+                onBeforeFinishPage = if (!isPremium) ({ c -> drawWatermark(c) }) else null
+            )
 
             // Draw the invoice content based on template
             when (template) {
                 InvoiceTemplate.CLASSIC -> {
-                    drawClassicTemplate(canvas, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawClassicTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.MODERN -> {
-                    drawModernTemplate(canvas, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawModernTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.PROFESSIONAL -> {
-                    drawProfessionalTemplate(canvas, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawProfessionalTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
             }
 
-            if (!isPremium) {
-                drawWatermark(canvas)
-            }
-
-            pdfDocument.finishPage(page)
+            pager.finish()
 
             // Save to file using modern MediaStore API (Android 10+) or legacy method
             val fileName = "Invoice_${invoice.number}.pdf"
@@ -239,30 +242,30 @@ class InvoicePdfGenerator @Inject constructor(
         return try {
             // Create PDF document in memory
             val pdfDocument = PdfDocument()
-            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-            val page = pdfDocument.startPage(pageInfo)
-            val canvas = page.canvas
-
             val paints = InvoicePaints(style)
+            val pager = InvoicePager(
+                document = pdfDocument,
+                pageWidth = pageWidth,
+                pageHeight = pageHeight,
+                margin = margin,
+                // Em cada página, por cima do conteúdo.
+                onBeforeFinishPage = if (!isPremium) ({ c -> drawWatermark(c) }) else null
+            )
 
             // Draw the invoice content based on template
             when (template) {
                 InvoiceTemplate.CLASSIC -> {
-                    drawClassicTemplate(canvas, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawClassicTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.MODERN -> {
-                    drawModernTemplate(canvas, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawModernTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
                 InvoiceTemplate.PROFESSIONAL -> {
-                    drawProfessionalTemplate(canvas, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawProfessionalTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
                 }
             }
 
-            if (!isPremium) {
-                drawWatermark(canvas)
-            }
-
-            pdfDocument.finishPage(page)
+            pager.finish()
 
             // Save to temporary file
             val tempFile = File.createTempFile("invoice_preview_", ".pdf", context.cacheDir)
@@ -274,23 +277,40 @@ class InvoicePdfGenerator @Inject constructor(
             // Render PDF to Bitmap with configurable resolution
             val fileDescriptor = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
             val pdfRenderer = PdfRenderer(fileDescriptor)
-            val page0 = pdfRenderer.openPage(0)
 
-            // Create bitmap with the specified scale
+            // Todas as páginas empilhadas numa imagem só, com um vinco
+            // entre elas — assim o preview mostra a fatura inteira sem
+            // precisar de controle de página na tela.
+            val pageGap = if (pdfRenderer.pageCount > 1) previewPageGap * scale else 0
             val bitmap = Bitmap.createBitmap(
                 pageWidth * scale,
-                pageHeight * scale,
+                pageHeight * scale * pdfRenderer.pageCount +
+                    pageGap * (pdfRenderer.pageCount - 1),
                 Bitmap.Config.ARGB_8888
             )
 
-            // Fill with white background
             val bitmapCanvas = Canvas(bitmap)
-            bitmapCanvas.drawColor(Color.WHITE)
+            bitmapCanvas.drawColor(if (pdfRenderer.pageCount > 1) Color.LTGRAY else Color.WHITE)
 
-            // Render PDF page to bitmap at high resolution
-            page0.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-
-            page0.close()
+            for (index in 0 until pdfRenderer.pageCount) {
+                val pdfPage = pdfRenderer.openPage(index)
+                val top = index * (pageHeight * scale + pageGap)
+                val pageBitmap = Bitmap.createBitmap(
+                    pageWidth * scale,
+                    pageHeight * scale,
+                    Bitmap.Config.ARGB_8888
+                )
+                Canvas(pageBitmap).drawColor(Color.WHITE)
+                pdfPage.render(
+                    pageBitmap,
+                    null,
+                    null,
+                    PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                )
+                bitmapCanvas.drawBitmap(pageBitmap, 0f, top.toFloat(), null)
+                pageBitmap.recycle()
+                pdfPage.close()
+            }
             pdfRenderer.close()
             fileDescriptor.close()
 
@@ -318,7 +338,7 @@ class InvoicePdfGenerator @Inject constructor(
     }
 
     private fun drawClassicTemplate(
-        canvas: Canvas,
+        pager: InvoicePager,
         paints: InvoicePaints,
         invoice: Invoice,
         client: Client,
@@ -359,7 +379,7 @@ class InvoicePdfGenerator @Inject constructor(
                             logoHeight.toInt(),
                             true
                         )
-                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
                         yPos += logoHeight + 20f
                         scaledBitmap.recycle()
                         it.recycle()
@@ -376,10 +396,10 @@ class InvoicePdfGenerator @Inject constructor(
         val linePaint = paints.stroke(color = paints.style.ink, width = 1f)
 
         // Draw line
-        canvas.drawLine(margin, yPos + 15, pageWidth - 200f, yPos + 15, linePaint)
+        pager.canvas.drawLine(margin, yPos + 15, pageWidth - 200f, yPos + 15, linePaint)
 
         // Draw INVOICE text
-        canvas.drawText("INVOICE", pageWidth - 180f, yPos + 20, titlePaint)
+        pager.canvas.drawText("INVOICE", pageWidth - 180f, yPos + 20, titlePaint)
         yPos += paints.advance(titlePaint, 60f)
 
         // Section: ISSUED TO and Invoice Info
@@ -392,37 +412,37 @@ class InvoicePdfGenerator @Inject constructor(
         var leftYPos = yPos
 
         if (businessInfo.businessName.isNotEmpty()) {
-            canvas.drawText("FROM:", margin, leftYPos, sectionTitlePaint)
+            pager.canvas.drawText("FROM:", margin, leftYPos, sectionTitlePaint)
             leftYPos += paints.advance(sectionTitlePaint, 18f)
-            canvas.drawText(businessInfo.businessName, margin, leftYPos, bodyPaint)
+            pager.canvas.drawText(businessInfo.businessName, margin, leftYPos, bodyPaint)
             leftYPos += paints.advance(bodyPaint, 15f)
             if (businessInfo.ownerName.isNotEmpty()) {
-                canvas.drawText(businessInfo.ownerName, margin, leftYPos, bodyPaint)
+                pager.canvas.drawText(businessInfo.ownerName, margin, leftYPos, bodyPaint)
                 leftYPos += paints.advance(bodyPaint, 15f)
             }
             if (businessInfo.email.isNotEmpty()) {
-                canvas.drawText(businessInfo.email, margin, leftYPos, bodyPaint)
+                pager.canvas.drawText(businessInfo.email, margin, leftYPos, bodyPaint)
                 leftYPos += paints.advance(bodyPaint, 15f)
             }
             if (businessInfo.phone.isNotEmpty()) {
-                canvas.drawText(businessInfo.phone, margin, leftYPos, bodyPaint)
+                pager.canvas.drawText(businessInfo.phone, margin, leftYPos, bodyPaint)
                 leftYPos += paints.advance(bodyPaint, 15f)
             }
             if (businessInfo.website.isNotEmpty()) {
-                canvas.drawText(businessInfo.website, margin, leftYPos, bodyPaint)
+                pager.canvas.drawText(businessInfo.website, margin, leftYPos, bodyPaint)
                 leftYPos += paints.advance(bodyPaint, 15f)
             }
             if (businessInfo.address.isNotEmpty()) {
-                canvas.drawText(businessInfo.address, margin, leftYPos, bodyPaint)
+                pager.canvas.drawText(businessInfo.address, margin, leftYPos, bodyPaint)
                 leftYPos += paints.advance(bodyPaint, 15f)
             }
             val cityStateZip = cityStateZip(businessInfo.city, businessInfo.state, businessInfo.zipCode)
             if (cityStateZip.isNotEmpty()) {
-                canvas.drawText(cityStateZip, margin, leftYPos, bodyPaint)
+                pager.canvas.drawText(cityStateZip, margin, leftYPos, bodyPaint)
                 leftYPos += paints.advance(bodyPaint, 15f)
             }
             if (businessInfo.taxId.isNotEmpty()) {
-                canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, leftYPos, bodyPaint)
+                pager.canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, leftYPos, bodyPaint)
                 leftYPos += paints.advance(bodyPaint, 15f)
             }
         }
@@ -437,8 +457,8 @@ class InvoicePdfGenerator @Inject constructor(
             100f
         )
 
-        canvas.drawText("INVOICE NO:", rightX, rightYPos, sectionTitlePaint)
-        canvas.drawText(invoice.number, rightX + labelGap, rightYPos, bodyPaint)
+        pager.canvas.drawText("INVOICE NO:", rightX, rightYPos, sectionTitlePaint)
+        pager.canvas.drawText(invoice.number, rightX + labelGap, rightYPos, bodyPaint)
         rightYPos += paints.advance(bodyPaint, 15f)
 
         // Format createdDate (Long timestamp) for DATE
@@ -447,12 +467,12 @@ class InvoicePdfGenerator @Inject constructor(
         // Reformat dueDate (String) for DUE DATE
         val formattedDueDate = reformatDateIfNeeded(invoice.dueDate, dateFormat)
 
-        canvas.drawText("DATE:", rightX, rightYPos, sectionTitlePaint)
-        canvas.drawText(formattedCreatedDate, rightX + labelGap, rightYPos, bodyPaint)
+        pager.canvas.drawText("DATE:", rightX, rightYPos, sectionTitlePaint)
+        pager.canvas.drawText(formattedCreatedDate, rightX + labelGap, rightYPos, bodyPaint)
         rightYPos += paints.advance(bodyPaint, 15f)
 
-        canvas.drawText("DUE DATE:", rightX, rightYPos, sectionTitlePaint)
-        canvas.drawText(formattedDueDate, rightX + labelGap, rightYPos, bodyPaint)
+        pager.canvas.drawText("DUE DATE:", rightX, rightYPos, sectionTitlePaint)
+        pager.canvas.drawText(formattedDueDate, rightX + labelGap, rightYPos, bodyPaint)
         rightYPos += paints.advance(bodyPaint, 15f)
 
         // Advance to the max height of both columns
@@ -463,69 +483,69 @@ class InvoicePdfGenerator @Inject constructor(
         rightYPos = yPos
 
         // ISSUED TO (left)
-        canvas.drawText("ISSUED TO:", margin, leftYPos, sectionTitlePaint)
+        pager.canvas.drawText("ISSUED TO:", margin, leftYPos, sectionTitlePaint)
         leftYPos += paints.advance(sectionTitlePaint, 18f)
-        canvas.drawText(client.name, margin, leftYPos, bodyPaint)
+        pager.canvas.drawText(client.name, margin, leftYPos, bodyPaint)
         leftYPos += paints.advance(bodyPaint, 15f)
         if (client.email.isNotEmpty()) {
-            canvas.drawText(client.email, margin, leftYPos, bodyPaint)
+            pager.canvas.drawText(client.email, margin, leftYPos, bodyPaint)
             leftYPos += paints.advance(bodyPaint, 15f)
         }
         if (client.phone.isNotEmpty()) {
-            canvas.drawText(client.phone, margin, leftYPos, bodyPaint)
+            pager.canvas.drawText(client.phone, margin, leftYPos, bodyPaint)
             leftYPos += paints.advance(bodyPaint, 15f)
         }
         if (client.address.isNotEmpty()) {
-            canvas.drawText(client.address, margin, leftYPos, bodyPaint)
+            pager.canvas.drawText(client.address, margin, leftYPos, bodyPaint)
             leftYPos += paints.advance(bodyPaint, 15f)
         }
         val clientCityStateZip = cityStateZip(client.city, client.state, client.zipCode)
         if (clientCityStateZip.isNotEmpty()) {
-            canvas.drawText(clientCityStateZip, margin, leftYPos, bodyPaint)
+            pager.canvas.drawText(clientCityStateZip, margin, leftYPos, bodyPaint)
             leftYPos += paints.advance(bodyPaint, 15f)
         }
         if (client.notes.isNotEmpty()) {
-            canvas.drawText("Notes: ${client.notes}", margin, leftYPos, bodyPaint)
+            pager.canvas.drawText("Notes: ${client.notes}", margin, leftYPos, bodyPaint)
             leftYPos += paints.advance(bodyPaint, 15f)
         }
 
         // PAY TO (right)
         val payRightX = pageWidth / 2f + 20f
         if (paymentInfo.bankName.isNotEmpty()) {
-            canvas.drawText("PAY TO:", payRightX, rightYPos, sectionTitlePaint)
+            pager.canvas.drawText("PAY TO:", payRightX, rightYPos, sectionTitlePaint)
             rightYPos += paints.advance(sectionTitlePaint, 18f)
-            canvas.drawText(paymentInfo.bankName, payRightX, rightYPos, bodyPaint)
+            pager.canvas.drawText(paymentInfo.bankName, payRightX, rightYPos, bodyPaint)
             rightYPos += paints.advance(bodyPaint, 15f)
             if (paymentInfo.bankAddress.isNotEmpty()) {
-                canvas.drawText(paymentInfo.bankAddress, payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText(paymentInfo.bankAddress, payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
             if (paymentInfo.accountHolderName.isNotEmpty()) {
-                canvas.drawText("Acc Name: ${paymentInfo.accountHolderName}", payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText("Acc Name: ${paymentInfo.accountHolderName}", payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
             if (paymentInfo.accountNumber.isNotEmpty()) {
-                canvas.drawText("Acc Number: ${paymentInfo.accountNumber}", payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText("Acc Number: ${paymentInfo.accountNumber}", payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
             if (paymentInfo.routingNumber.isNotEmpty()) {
-                canvas.drawText("Routing: ${paymentInfo.routingNumber}", payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText("Routing: ${paymentInfo.routingNumber}", payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
             if (paymentInfo.iban.isNotEmpty()) {
-                canvas.drawText("IBAN: ${paymentInfo.iban}", payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText("IBAN: ${paymentInfo.iban}", payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
             if (paymentInfo.swiftCode.isNotEmpty()) {
-                canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
             if (paymentInfo.paymentTerms.isNotEmpty()) {
-                canvas.drawText("Terms: ${paymentInfo.paymentTerms}", payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText("Terms: ${paymentInfo.paymentTerms}", payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
             if (paymentInfo.additionalInstructions.isNotEmpty()) {
-                canvas.drawText("Notes: ${paymentInfo.additionalInstructions}", payRightX, rightYPos, bodyPaint)
+                pager.canvas.drawText("Notes: ${paymentInfo.additionalInstructions}", payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
 
@@ -543,9 +563,9 @@ class InvoicePdfGenerator @Inject constructor(
                                 qrSize.toInt(),
                                 true
                             )
-                            canvas.drawText("Scan to Pay:", payRightX, rightYPos, sectionTitlePaint)
+                            pager.canvas.drawText("Scan to Pay:", payRightX, rightYPos, sectionTitlePaint)
                             rightYPos += paints.advance(sectionTitlePaint, 12f)
-                            canvas.drawBitmap(scaledQr, payRightX, rightYPos, null)
+                            pager.canvas.drawBitmap(scaledQr, payRightX, rightYPos, null)
                             rightYPos += qrSize + 10f
                             scaledQr.recycle()
                             it.recycle()
@@ -561,34 +581,39 @@ class InvoicePdfGenerator @Inject constructor(
         yPos = maxOf(leftYPos, rightYPos) + 30f
 
         // Divider line before table
-        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        pager.canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
         yPos += 20f
 
-        // Table Header
-        canvas.drawText("DESCRIPTION", margin, yPos, sectionTitlePaint)
-        canvas.drawText("UNIT PRICE", pageWidth - margin - 280f, yPos, sectionTitlePaint)
-        canvas.drawText("QTY", pageWidth - margin - 150f, yPos, sectionTitlePaint)
-        canvas.drawText("TOTAL", pageWidth - margin - 80f, yPos, sectionTitlePaint)
-
-        yPos += paints.advance(sectionTitlePaint, 20f)
-        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
-        yPos += paints.advance(sectionTitlePaint, 15f)
+        // Table Header — repetido no topo de cada página de continuação.
+        val drawTableHeader: (Float) -> Float = { start ->
+            var y = start
+            pager.canvas.drawText("DESCRIPTION", margin, y, sectionTitlePaint)
+            pager.canvas.drawText("UNIT PRICE", pageWidth - margin - 280f, y, sectionTitlePaint)
+            pager.canvas.drawText("QTY", pageWidth - margin - 150f, y, sectionTitlePaint)
+            pager.canvas.drawText("TOTAL", pageWidth - margin - 80f, y, sectionTitlePaint)
+            y += paints.advance(sectionTitlePaint, 20f)
+            pager.canvas.drawLine(margin, y, pageWidth - margin, y, linePaint)
+            y + paints.advance(sectionTitlePaint, 15f)
+        }
+        yPos = drawTableHeader(yPos)
 
         // Table Items
         val currencySymbol = getCurrencySymbol(currency)
         val descriptionPaint = paints.text(9f, color = paints.style.muted)
+        val classicRowHeight = paints.advance(bodyPaint, 14f) + paints.advance(descriptionPaint, 14f)
         items.forEach { item ->
+            yPos = pager.flowTo(yPos, classicRowHeight, drawTableHeader)
             val descWidth = (pageWidth - margin - 280f) - margin - 12f
-            canvas.drawText(
+            pager.canvas.drawText(
                 paints.truncate(item.productServiceName, bodyPaint, descWidth),
                 margin, yPos, bodyPaint
             )
-            canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}", pageWidth - margin - 280f, yPos, bodyPaint)
-            canvas.drawText("${item.quantity}", pageWidth - margin - 150f, yPos, bodyPaint)
-            canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}", pageWidth - margin - 80f, yPos, bodyPaint)
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}", pageWidth - margin - 280f, yPos, bodyPaint)
+            pager.canvas.drawText("${item.quantity}", pageWidth - margin - 150f, yPos, bodyPaint)
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}", pageWidth - margin - 80f, yPos, bodyPaint)
             yPos += paints.advance(bodyPaint, 14f)
             if (item.productServiceDescription.isNotEmpty()) {
-                canvas.drawText(
+                pager.canvas.drawText(
                     paints.truncate(item.productServiceDescription, descriptionPaint, descWidth),
                     margin, yPos, descriptionPaint
                 )
@@ -600,30 +625,34 @@ class InvoicePdfGenerator @Inject constructor(
 
         yPos += 20f
 
+        // Totais e assinatura seguem juntos; se não couberem, vão inteiros
+        // para a próxima página em vez de serem cortados.
+        yPos = pager.flowTo(yPos, 150f)
+
         // Totals
         val totalX = pageWidth - margin - 180f
         val totalValueX = pageWidth - margin - 80f
 
-        canvas.drawText("SUBTOTAL", totalX, yPos, sectionTitlePaint)
-        canvas.drawText("$currencySymbol${String.format("%.2f", invoice.subtotal)}", totalValueX, yPos, bodyPaint)
+        pager.canvas.drawText("SUBTOTAL", totalX, yPos, sectionTitlePaint)
+        pager.canvas.drawText("$currencySymbol${String.format("%.2f", invoice.subtotal)}", totalValueX, yPos, bodyPaint)
         yPos += paints.advance(bodyPaint, 15f)
 
         if (invoice.tax > 0) {
-            canvas.drawText("TAX", totalX, yPos, sectionTitlePaint)
-            canvas.drawText("$currencySymbol${String.format("%.2f", invoice.tax)}", totalValueX, yPos, bodyPaint)
+            pager.canvas.drawText("TAX", totalX, yPos, sectionTitlePaint)
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", invoice.tax)}", totalValueX, yPos, bodyPaint)
             yPos += paints.advance(bodyPaint, 15f)
         }
 
         if (invoice.discount > 0) {
-            canvas.drawText("DISCOUNT", totalX, yPos, sectionTitlePaint)
-            canvas.drawText("-$currencySymbol${String.format("%.2f", invoice.discount)}", totalValueX, yPos, bodyPaint)
+            pager.canvas.drawText("DISCOUNT", totalX, yPos, sectionTitlePaint)
+            pager.canvas.drawText("-$currencySymbol${String.format("%.2f", invoice.discount)}", totalValueX, yPos, bodyPaint)
             yPos += paints.advance(bodyPaint, 15f)
         }
 
         val totalPaint = paints.text(11f, weight = InvoicePaints.Weight.Bold, color = paints.style.accent)
 
-        canvas.drawText("TOTAL", totalX, yPos, totalPaint)
-        canvas.drawText("$currencySymbol${String.format("%.2f", invoice.totalAmount)}", totalValueX, yPos, totalPaint)
+        pager.canvas.drawText("TOTAL", totalX, yPos, totalPaint)
+        pager.canvas.drawText("$currencySymbol${String.format("%.2f", invoice.totalAmount)}", totalValueX, yPos, totalPaint)
         yPos += paints.advance(totalPaint, 40f)
 
         // Business signature
@@ -646,7 +675,7 @@ class InvoicePdfGenerator @Inject constructor(
                             signatureHeight.toInt(),
                             true
                         )
-                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
                         yPos += signatureHeight + 20f
                         scaledBitmap.recycle()
                         it.recycle()
@@ -657,20 +686,20 @@ class InvoicePdfGenerator @Inject constructor(
                 // Fallback to text signature if image fails
                 if (businessInfo.ownerName.isNotEmpty()) {
                     val signaturePaint = paints.text(18f)
-                    canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                    pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
                 }
             }
         } ?: run {
             // No signature image, use text signature if owner name exists
             if (businessInfo.ownerName.isNotEmpty()) {
                 val signaturePaint = paints.text(18f)
-                canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
             }
         }
     }
 
     private fun drawModernTemplate(
-        canvas: Canvas,
+        pager: InvoicePager,
         paints: InvoicePaints,
         invoice: Invoice,
         client: Client,
@@ -716,7 +745,7 @@ class InvoicePdfGenerator @Inject constructor(
                             logoHeight.toInt(),
                             true
                         )
-                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
                         yPos += logoHeight + 20f
                         scaledBitmap.recycle()
                         it.recycle()
@@ -733,24 +762,24 @@ class InvoicePdfGenerator @Inject constructor(
 
         if (businessInfo.businessName.isNotEmpty()) {
             val businessNamePaint = paints.text(10f, weight = InvoicePaints.Weight.Bold)
-            canvas.drawText(businessInfo.businessName, margin, leftYPos, businessNamePaint)
+            pager.canvas.drawText(businessInfo.businessName, margin, leftYPos, businessNamePaint)
             leftYPos += paints.advance(businessNamePaint, 13f)
 
             if (businessInfo.ownerName.isNotEmpty()) {
-                canvas.drawText(businessInfo.ownerName, margin, leftYPos, bodySmallPaint)
+                pager.canvas.drawText(businessInfo.ownerName, margin, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 11f)
             }
             if (businessInfo.address.isNotEmpty()) {
-                canvas.drawText(businessInfo.address, margin, leftYPos, bodySmallPaint)
+                pager.canvas.drawText(businessInfo.address, margin, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 11f)
             }
             val cityStateZip = cityStateZip(businessInfo.city, businessInfo.state, businessInfo.zipCode)
             if (cityStateZip.isNotEmpty()) {
-                canvas.drawText(cityStateZip, margin, leftYPos, bodySmallPaint)
+                pager.canvas.drawText(cityStateZip, margin, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 11f)
             }
             if (businessInfo.taxId.isNotEmpty()) {
-                canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 11f)
             }
         }
@@ -760,72 +789,74 @@ class InvoicePdfGenerator @Inject constructor(
         val rightX = pageWidth - margin - 120f
 
         val invoiceTitlePaint = paints.text(12f, family = InvoicePaints.Family.Display, weight = InvoicePaints.Weight.Bold, color = paints.style.accent)
-        canvas.drawText("INVOICE #${invoice.number}", rightX, rightYPos, invoiceTitlePaint)
+        pager.canvas.drawText("INVOICE #${invoice.number}", rightX, rightYPos, invoiceTitlePaint)
         rightYPos += paints.advance(invoiceTitlePaint, 15f)
 
         val formattedCreatedDate = SimpleDateFormat(dateFormat, Locale.getDefault()).format(Date(invoice.createdDate))
         val formattedDueDate = reformatDateIfNeeded(invoice.dueDate, dateFormat)
 
-        canvas.drawText("DATE:", rightX, rightYPos, sectionTitlePaint)
+        pager.canvas.drawText("DATE:", rightX, rightYPos, sectionTitlePaint)
         rightYPos += paints.advance(sectionTitlePaint, 12f)
-        canvas.drawText(formattedCreatedDate, rightX, rightYPos, bodyPaint)
+        pager.canvas.drawText(formattedCreatedDate, rightX, rightYPos, bodyPaint)
         rightYPos += paints.advance(bodyPaint, 15f)
 
-        canvas.drawText("DUE DATE:", rightX, rightYPos, sectionTitlePaint)
+        pager.canvas.drawText("DUE DATE:", rightX, rightYPos, sectionTitlePaint)
         rightYPos += paints.advance(sectionTitlePaint, 12f)
-        canvas.drawText(formattedDueDate, rightX, rightYPos, bodyPaint)
+        pager.canvas.drawText(formattedDueDate, rightX, rightYPos, bodyPaint)
 
         yPos = maxOf(leftYPos, rightYPos) + 25f
 
         // Draw horizontal line separator
         val linePaint = paints.stroke(width = 0.5f)
-        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        pager.canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
         yPos += 20f
 
         // BILLED TO section
         leftYPos = yPos
-        canvas.drawText("{ BILLED TO }", margin, leftYPos, bodySmallPaint)
+        pager.canvas.drawText("{ BILLED TO }", margin, leftYPos, bodySmallPaint)
         leftYPos += paints.advance(bodySmallPaint, 15f)
-        canvas.drawText(client.name, margin, leftYPos, bodyPaint)
+        pager.canvas.drawText(client.name, margin, leftYPos, bodyPaint)
         leftYPos += paints.advance(bodyPaint, 12f)
         if (client.phone.isNotEmpty()) {
-            canvas.drawText(client.phone, margin, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(client.phone, margin, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 12f)
         }
         if (client.email.isNotEmpty()) {
-            canvas.drawText(client.email, margin, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(client.email, margin, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 12f)
         }
         if (client.address.isNotEmpty()) {
-            canvas.drawText(client.address, margin, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(client.address, margin, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 12f)
         }
         val clientCityStateZip = cityStateZip(client.city, client.state, client.zipCode)
         if (clientCityStateZip.isNotEmpty()) {
-            canvas.drawText(clientCityStateZip, margin, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(clientCityStateZip, margin, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 12f)
         }
         if (client.notes.isNotEmpty()) {
-            canvas.drawText("Notes: ${client.notes}", margin, leftYPos, bodySmallPaint)
+            pager.canvas.drawText("Notes: ${client.notes}", margin, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 12f)
         }
 
         yPos = leftYPos + 20f
 
         // Draw horizontal line separator
-        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        pager.canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
         yPos += 25f
 
         // Table Header
         val tableTitlePaint = paints.text(8f, weight = InvoicePaints.Weight.Bold, tracking = 0.1f)
 
-        canvas.drawText("DESCRIPTION", margin, yPos, tableTitlePaint)
-        canvas.drawText("RATE", pageWidth - margin - 280f, yPos, tableTitlePaint)
-        canvas.drawText("QTY", pageWidth - margin - 200f, yPos, tableTitlePaint)
-
         val pricePaint = paints.text(8f, weight = InvoicePaints.Weight.Bold, align = Paint.Align.RIGHT, tracking = 0.1f)
-        canvas.drawText("PRICE", pageWidth - margin, yPos, pricePaint)
-        yPos += paints.advance(pricePaint, 20f)
+        val drawTableHeader: (Float) -> Float = { start ->
+            pager.canvas.drawText("DESCRIPTION", margin, start, tableTitlePaint)
+            pager.canvas.drawText("RATE", pageWidth - margin - 280f, start, tableTitlePaint)
+            pager.canvas.drawText("QTY", pageWidth - margin - 200f, start, tableTitlePaint)
+            pager.canvas.drawText("PRICE", pageWidth - margin, start, pricePaint)
+            start + paints.advance(pricePaint, 20f)
+        }
+        yPos = drawTableHeader(yPos)
 
         // Table rows
         val tableBodyPaint = paints.text(9f)
@@ -834,20 +865,22 @@ class InvoicePdfGenerator @Inject constructor(
 
         val descriptionPaint = paints.text(8f, color = paints.style.muted)
 
+        val modernRowHeight = paints.advance(tableBodyPaint, 12f) + paints.advance(descriptionPaint, 12f)
         items.forEach { item ->
+            yPos = pager.flowTo(yPos, modernRowHeight, drawTableHeader)
             val descWidth = (pageWidth - margin - 280f) - margin - 12f
-            canvas.drawText(
+            pager.canvas.drawText(
                 paints.truncate(item.productServiceName, tableBodyPaint, descWidth),
                 margin, yPos, tableBodyPaint
             )
-            canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}",
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}",
                 pageWidth - margin - 280f, yPos, tableBodyPaint)
-            canvas.drawText("${item.quantity}", pageWidth - margin - 200f, yPos, tableBodyPaint)
-            canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}",
+            pager.canvas.drawText("${item.quantity}", pageWidth - margin - 200f, yPos, tableBodyPaint)
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}",
                 pageWidth - margin, yPos, priceBodyPaint)
             yPos += paints.advance(tableBodyPaint, 12f)
             if (item.productServiceDescription.isNotEmpty()) {
-                canvas.drawText(
+                pager.canvas.drawText(
                     paints.truncate(item.productServiceDescription, descriptionPaint, descWidth),
                     margin, yPos, descriptionPaint
                 )
@@ -860,8 +893,10 @@ class InvoicePdfGenerator @Inject constructor(
         yPos += 30f
 
         // Draw horizontal line before totals
-        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        pager.canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
         yPos += 25f
+
+        yPos = pager.flowTo(yPos, 150f)
 
         // Totals section (right aligned)
         val totalLabelPaint = paints.text(9f)
@@ -875,23 +910,23 @@ class InvoicePdfGenerator @Inject constructor(
 
         val totalsX = pageWidth - margin - 180f
 
-        canvas.drawText("TOTAL AMOUNT", totalsX, yPos, totalLabelPaint)
-        canvas.drawText("$currencySymbol${String.format("%.2f", subtotal)}",
+        pager.canvas.drawText("TOTAL AMOUNT", totalsX, yPos, totalLabelPaint)
+        pager.canvas.drawText("$currencySymbol${String.format("%.2f", subtotal)}",
             pageWidth - margin, yPos, totalValuePaint)
         yPos += paints.advance(totalLabelPaint, 15f)
 
         if (taxAmount > 0) {
             val taxPercentage = if (subtotal > 0) (taxAmount / subtotal) * 100.0 else 0.0
-            canvas.drawText("VAT (${String.format("%.0f", taxPercentage)}%)",
+            pager.canvas.drawText("VAT (${String.format("%.0f", taxPercentage)}%)",
                 totalsX, yPos, totalLabelPaint)
-            canvas.drawText("$currencySymbol${String.format("%.2f", taxAmount)}",
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", taxAmount)}",
                 pageWidth - margin, yPos, totalValuePaint)
             yPos += 15f
         }
 
         if (discountAmount > 0) {
-            canvas.drawText("DISCOUNT", totalsX, yPos, totalLabelPaint)
-            canvas.drawText("-$currencySymbol${String.format("%.2f", discountAmount)}",
+            pager.canvas.drawText("DISCOUNT", totalsX, yPos, totalLabelPaint)
+            pager.canvas.drawText("-$currencySymbol${String.format("%.2f", discountAmount)}",
                 pageWidth - margin, yPos, totalValuePaint)
             yPos += paints.advance(totalLabelPaint, 15f)
         }
@@ -900,53 +935,53 @@ class InvoicePdfGenerator @Inject constructor(
 
         val amountDueValuePaint = paints.text(10f, weight = InvoicePaints.Weight.Bold, color = paints.style.accent, align = Paint.Align.RIGHT)
 
-        canvas.drawText("AMOUNT DUE", totalsX, yPos, amountDuePaint)
-        canvas.drawText("$currencySymbol${String.format("%.2f", total)}",
+        pager.canvas.drawText("AMOUNT DUE", totalsX, yPos, amountDuePaint)
+        pager.canvas.drawText("$currencySymbol${String.format("%.2f", total)}",
             pageWidth - margin, yPos, amountDueValuePaint)
         yPos += paints.advance(amountDuePaint, 30f)
 
         // Payment Information section
         if (paymentInfo.bankName.isNotEmpty()) {
-            canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+            pager.canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
             yPos += 20f
 
-            canvas.drawText("{ PAYMENT INFORMATION }", margin, yPos, bodySmallPaint)
+            pager.canvas.drawText("{ PAYMENT INFORMATION }", margin, yPos, bodySmallPaint)
             yPos += paints.advance(bodySmallPaint, 15f)
 
             if (paymentInfo.bankName.isNotEmpty()) {
-                canvas.drawText("Bank: ${paymentInfo.bankName}", margin, yPos, bodyPaint)
+                pager.canvas.drawText("Bank: ${paymentInfo.bankName}", margin, yPos, bodyPaint)
                 yPos += paints.advance(bodyPaint, 12f)
             }
             if (paymentInfo.accountHolderName.isNotEmpty()) {
-                canvas.drawText("Account Holder: ${paymentInfo.accountHolderName}", margin, yPos, bodyPaint)
+                pager.canvas.drawText("Account Holder: ${paymentInfo.accountHolderName}", margin, yPos, bodyPaint)
                 yPos += paints.advance(bodyPaint, 12f)
             }
             if (paymentInfo.accountNumber.isNotEmpty()) {
-                canvas.drawText("Account Number: ${paymentInfo.accountNumber}", margin, yPos, bodyPaint)
+                pager.canvas.drawText("Account Number: ${paymentInfo.accountNumber}", margin, yPos, bodyPaint)
                 yPos += paints.advance(bodyPaint, 12f)
             }
             if (paymentInfo.routingNumber.isNotEmpty()) {
-                canvas.drawText("Routing Number: ${paymentInfo.routingNumber}", margin, yPos, bodyPaint)
+                pager.canvas.drawText("Routing Number: ${paymentInfo.routingNumber}", margin, yPos, bodyPaint)
                 yPos += paints.advance(bodyPaint, 12f)
             }
             if (paymentInfo.iban.isNotEmpty()) {
-                canvas.drawText("IBAN: ${paymentInfo.iban}", margin, yPos, bodyPaint)
+                pager.canvas.drawText("IBAN: ${paymentInfo.iban}", margin, yPos, bodyPaint)
                 yPos += paints.advance(bodyPaint, 12f)
             }
             if (paymentInfo.swiftCode.isNotEmpty()) {
-                canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", margin, yPos, bodyPaint)
+                pager.canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", margin, yPos, bodyPaint)
                 yPos += paints.advance(bodyPaint, 12f)
             }
             if (paymentInfo.bankAddress.isNotEmpty()) {
-                canvas.drawText("Bank Address: ${paymentInfo.bankAddress}", margin, yPos, bodySmallPaint)
+                pager.canvas.drawText("Bank Address: ${paymentInfo.bankAddress}", margin, yPos, bodySmallPaint)
                 yPos += paints.advance(bodySmallPaint, 12f)
             }
             if (paymentInfo.paymentTerms.isNotEmpty()) {
-                canvas.drawText("Payment Terms: ${paymentInfo.paymentTerms}", margin, yPos, bodySmallPaint)
+                pager.canvas.drawText("Payment Terms: ${paymentInfo.paymentTerms}", margin, yPos, bodySmallPaint)
                 yPos += paints.advance(bodySmallPaint, 12f)
             }
             if (paymentInfo.additionalInstructions.isNotEmpty()) {
-                canvas.drawText("Additional Instructions: ${paymentInfo.additionalInstructions}", margin, yPos, bodySmallPaint)
+                pager.canvas.drawText("Additional Instructions: ${paymentInfo.additionalInstructions}", margin, yPos, bodySmallPaint)
                 yPos += paints.advance(bodySmallPaint, 12f)
             }
 
@@ -964,9 +999,9 @@ class InvoicePdfGenerator @Inject constructor(
                                 qrSize.toInt(),
                                 true
                             )
-                            canvas.drawText("Scan to Pay:", margin, yPos, bodySmallPaint)
+                            pager.canvas.drawText("Scan to Pay:", margin, yPos, bodySmallPaint)
                             yPos += paints.advance(bodySmallPaint, 12f)
-                            canvas.drawBitmap(scaledQr, margin, yPos, null)
+                            pager.canvas.drawBitmap(scaledQr, margin, yPos, null)
                             yPos += qrSize + 10f
                             scaledQr.recycle()
                             it.recycle()
@@ -997,7 +1032,7 @@ class InvoicePdfGenerator @Inject constructor(
                             signatureHeight.toInt(),
                             true
                         )
-                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
                         yPos += signatureHeight + 15f
                         scaledBitmap.recycle()
                         it.recycle()
@@ -1007,49 +1042,50 @@ class InvoicePdfGenerator @Inject constructor(
                 // Error handled silently
                 if (businessInfo.ownerName.isNotEmpty()) {
                     val signaturePaint = paints.text(14f)
-                    canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                    pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
                     yPos += paints.advance(signaturePaint, 20f)
                 }
             }
         } ?: run {
             if (businessInfo.ownerName.isNotEmpty()) {
                 val signaturePaint = paints.text(14f)
-                canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
                 yPos += paints.advance(signaturePaint, 20f)
             }
         }
 
         // Move to bottom section
-        yPos = pageHeight - margin - 100f
+        // Se o conteúdo já chegou aqui, abre página nova em vez de sobrescrever.
+        yPos = pager.reserveFooter(yPos, 100f)
 
         // Large "INVOICE" text at bottom left
         val invoiceBottomPaint = paints.text(48f, family = InvoicePaints.Family.Display, weight = InvoicePaints.Weight.Bold, color = paints.style.accent)
-        canvas.drawText("INVOICE", margin, yPos, invoiceBottomPaint)
+        pager.canvas.drawText("INVOICE", margin, yPos, invoiceBottomPaint)
         yPos += paints.advance(invoiceBottomPaint, 30f)
 
         // Thank you message
         val thankYouPaint = paints.text(8f, color = paints.style.muted, tracking = 0.1f)
-        canvas.drawText("THANK YOU FOR YOUR BUSINESS!", margin, yPos, thankYouPaint)
+        pager.canvas.drawText("THANK YOU FOR YOUR BUSINESS!", margin, yPos, thankYouPaint)
         yPos += paints.advance(thankYouPaint, 15f)
 
         // Contact information at bottom
         val contactPaint = paints.text(7f)
 
         if (businessInfo.phone.isNotEmpty()) {
-            canvas.drawText("HELPDESK: ${businessInfo.phone}", margin, yPos, contactPaint)
+            pager.canvas.drawText("HELPDESK: ${businessInfo.phone}", margin, yPos, contactPaint)
             yPos += paints.advance(contactPaint, 10f)
         }
         if (businessInfo.email.isNotEmpty()) {
-            canvas.drawText("E-MAIL: ${businessInfo.email}", margin, yPos, contactPaint)
+            pager.canvas.drawText("E-MAIL: ${businessInfo.email}", margin, yPos, contactPaint)
             yPos += paints.advance(contactPaint, 10f)
         }
         if (businessInfo.website.isNotEmpty()) {
-            canvas.drawText("WEB: ${businessInfo.website}", margin, yPos, contactPaint)
+            pager.canvas.drawText("WEB: ${businessInfo.website}", margin, yPos, contactPaint)
         }
     }
 
     private fun drawProfessionalTemplate(
-        canvas: Canvas,
+        pager: InvoicePager,
         paints: InvoicePaints,
         invoice: Invoice,
         client: Client,
@@ -1097,7 +1133,7 @@ class InvoicePdfGenerator @Inject constructor(
                             logoHeight.toInt(),
                             true
                         )
-                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
                         yPos += logoHeight + 20f
                         scaledBitmap.recycle()
                         it.recycle()
@@ -1110,32 +1146,32 @@ class InvoicePdfGenerator @Inject constructor(
 
         // Business info at top left
         if (businessInfo.businessName.isNotEmpty()) {
-            canvas.drawText(businessInfo.businessName, margin, yPos, bodyPaint)
+            pager.canvas.drawText(businessInfo.businessName, margin, yPos, bodyPaint)
             yPos += paints.advance(bodyPaint, 12f)
         }
         if (businessInfo.ownerName.isNotEmpty()) {
-            canvas.drawText(businessInfo.ownerName, margin, yPos, bodySmallPaint)
+            pager.canvas.drawText(businessInfo.ownerName, margin, yPos, bodySmallPaint)
             yPos += paints.advance(bodySmallPaint, 10f)
         }
         if (businessInfo.email.isNotEmpty()) {
-            canvas.drawText(businessInfo.email, margin, yPos, bodySmallPaint)
+            pager.canvas.drawText(businessInfo.email, margin, yPos, bodySmallPaint)
             yPos += paints.advance(bodySmallPaint, 10f)
         }
         if (businessInfo.phone.isNotEmpty()) {
-            canvas.drawText(businessInfo.phone, margin, yPos, bodySmallPaint)
+            pager.canvas.drawText(businessInfo.phone, margin, yPos, bodySmallPaint)
             yPos += paints.advance(bodySmallPaint, 10f)
         }
         if (businessInfo.address.isNotEmpty()) {
-            canvas.drawText(businessInfo.address, margin, yPos, bodySmallPaint)
+            pager.canvas.drawText(businessInfo.address, margin, yPos, bodySmallPaint)
             yPos += paints.advance(bodySmallPaint, 10f)
         }
         val cityStateZip = cityStateZip(businessInfo.city, businessInfo.state, businessInfo.zipCode)
         if (cityStateZip.isNotEmpty()) {
-            canvas.drawText(cityStateZip, margin, yPos, bodySmallPaint)
+            pager.canvas.drawText(cityStateZip, margin, yPos, bodySmallPaint)
             yPos += paints.advance(bodySmallPaint, 10f)
         }
         if (businessInfo.taxId.isNotEmpty()) {
-            canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, yPos, bodySmallPaint)
+            pager.canvas.drawText("Tax ID: ${businessInfo.taxId}", margin, yPos, bodySmallPaint)
             yPos += paints.advance(bodySmallPaint, 10f)
         }
 
@@ -1143,7 +1179,7 @@ class InvoicePdfGenerator @Inject constructor(
 
         // Large "INVOICE" title at center
         val titlePaint = paints.text(32f, family = InvoicePaints.Family.Display, weight = InvoicePaints.Weight.Bold, color = paints.style.accent, align = Paint.Align.CENTER, tracking = 0.3f)
-        canvas.drawText("INVOICE", pageWidth / 2f, yPos, titlePaint)
+        pager.canvas.drawText("INVOICE", pageWidth / 2f, yPos, titlePaint)
         yPos += paints.advance(titlePaint, 50f)
 
         // Two columns: Issued to (left) and Invoice info (right)
@@ -1153,29 +1189,29 @@ class InvoicePdfGenerator @Inject constructor(
         var rightYPos = yPos
 
         // Left column - Issued to
-        canvas.drawText("Issued to:", leftX, leftYPos, labelPaint)
+        pager.canvas.drawText("Issued to:", leftX, leftYPos, labelPaint)
         leftYPos += paints.advance(labelPaint, 12f)
-        canvas.drawText(client.name, leftX, leftYPos, bodyPaint)
+        pager.canvas.drawText(client.name, leftX, leftYPos, bodyPaint)
         leftYPos += paints.advance(bodyPaint, 11f)
         if (client.email.isNotEmpty()) {
-            canvas.drawText(client.email, leftX, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(client.email, leftX, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 11f)
         }
         if (client.phone.isNotEmpty()) {
-            canvas.drawText(client.phone, leftX, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(client.phone, leftX, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 11f)
         }
         if (client.address.isNotEmpty()) {
-            canvas.drawText(client.address, leftX, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(client.address, leftX, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 11f)
         }
         val clientCityStateZip = cityStateZip(client.city, client.state, client.zipCode)
         if (clientCityStateZip.isNotEmpty()) {
-            canvas.drawText(clientCityStateZip, leftX, leftYPos, bodySmallPaint)
+            pager.canvas.drawText(clientCityStateZip, leftX, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 11f)
         }
         if (client.notes.isNotEmpty()) {
-            canvas.drawText("Notes: ${client.notes}", leftX, leftYPos, bodySmallPaint)
+            pager.canvas.drawText("Notes: ${client.notes}", leftX, leftYPos, bodySmallPaint)
             leftYPos += paints.advance(bodySmallPaint, 11f)
         }
 
@@ -1185,18 +1221,18 @@ class InvoicePdfGenerator @Inject constructor(
             listOf("Invoice No:", "Date Issued:", "Due Date:"),
             80f
         )
-        canvas.drawText("Invoice No:", rightX, rightYPos, labelPaint)
-        canvas.drawText("#${invoice.number}", rightX + labelGap, rightYPos, bodyPaint)
+        pager.canvas.drawText("Invoice No:", rightX, rightYPos, labelPaint)
+        pager.canvas.drawText("#${invoice.number}", rightX + labelGap, rightYPos, bodyPaint)
         rightYPos += paints.advance(bodyPaint, 12f)
 
         val formattedCreatedDate = SimpleDateFormat(dateFormat, Locale.getDefault()).format(Date(invoice.createdDate))
-        canvas.drawText("Date Issued:", rightX, rightYPos, labelPaint)
-        canvas.drawText(formattedCreatedDate, rightX + labelGap, rightYPos, bodyPaint)
+        pager.canvas.drawText("Date Issued:", rightX, rightYPos, labelPaint)
+        pager.canvas.drawText(formattedCreatedDate, rightX + labelGap, rightYPos, bodyPaint)
         rightYPos += paints.advance(bodyPaint, 12f)
 
         val formattedDueDate = reformatDateIfNeeded(invoice.dueDate, dateFormat)
-        canvas.drawText("Due Date:", rightX, rightYPos, labelPaint)
-        canvas.drawText(formattedDueDate, rightX + labelGap, rightYPos, bodyPaint)
+        pager.canvas.drawText("Due Date:", rightX, rightYPos, labelPaint)
+        pager.canvas.drawText(formattedDueDate, rightX + labelGap, rightYPos, bodyPaint)
 
         yPos = maxOf(leftYPos, rightYPos) + 30f
 
@@ -1207,39 +1243,39 @@ class InvoicePdfGenerator @Inject constructor(
 
         val tableBodyPaint = paints.text(9f)
 
-        // Draw black header background
         val headerHeight = maxOf(25f, paints.lineHeight(tableHeaderTextPaint) + 12f)
-        canvas.drawRect(margin, yPos, pageWidth - margin, yPos + headerHeight, tableHeaderPaint)
-
-        // Draw header text
-        val headerY = yPos + 16f
-        canvas.drawText("Description", margin + 10f, headerY, tableHeaderTextPaint)
-        canvas.drawText("Quantity", pageWidth - margin - 280f, headerY, tableHeaderTextPaint)
-        canvas.drawText("Unit Price", pageWidth - margin - 180f, headerY, tableHeaderTextPaint)
-
         val totalHeaderPaint = paints.text(8f, weight = InvoicePaints.Weight.Bold, color = paints.style.onAccent, align = Paint.Align.RIGHT)
-        canvas.drawText("Total", pageWidth - margin - 10f, headerY, totalHeaderPaint)
-
-        yPos += headerHeight + 15f
+        val drawTableHeader: (Float) -> Float = { start ->
+            pager.canvas.drawRect(margin, start, pageWidth - margin, start + headerHeight, tableHeaderPaint)
+            val headerY = start + 16f
+            pager.canvas.drawText("Description", margin + 10f, headerY, tableHeaderTextPaint)
+            pager.canvas.drawText("Quantity", pageWidth - margin - 280f, headerY, tableHeaderTextPaint)
+            pager.canvas.drawText("Unit Price", pageWidth - margin - 180f, headerY, tableHeaderTextPaint)
+            pager.canvas.drawText("Total", pageWidth - margin - 10f, headerY, totalHeaderPaint)
+            start + headerHeight + 15f
+        }
+        yPos = drawTableHeader(yPos)
 
         // Table rows
         val descriptionPaint = paints.text(8f, color = paints.style.muted)
 
         val totalPaint = paints.text(9f, align = Paint.Align.RIGHT)
+        val professionalRowHeight = paints.advance(tableBodyPaint, 14f) + paints.advance(descriptionPaint, 12f)
         items.forEach { item ->
+            yPos = pager.flowTo(yPos, professionalRowHeight, drawTableHeader)
             val descWidth = (pageWidth - margin - 280f) - (margin + 10f) - 12f
-            canvas.drawText(
+            pager.canvas.drawText(
                 paints.truncate(item.productServiceName, tableBodyPaint, descWidth),
                 margin + 10f, yPos, tableBodyPaint
             )
-            canvas.drawText("${item.quantity}", pageWidth - margin - 280f, yPos, tableBodyPaint)
-            canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}",
+            pager.canvas.drawText("${item.quantity}", pageWidth - margin - 280f, yPos, tableBodyPaint)
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", item.pricePerUnit)}",
                 pageWidth - margin - 180f, yPos, tableBodyPaint)
-            canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}",
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", item.lineTotal)}",
                 pageWidth - margin - 10f, yPos, totalPaint)
             yPos += paints.advance(tableBodyPaint, 12f)
             if (item.productServiceDescription.isNotEmpty()) {
-                canvas.drawText(
+                pager.canvas.drawText(
                     paints.truncate(item.productServiceDescription, descriptionPaint, descWidth),
                     margin + 10f, yPos, descriptionPaint
                 )
@@ -1253,51 +1289,53 @@ class InvoicePdfGenerator @Inject constructor(
 
         // Horizontal line separator
         val linePaint = paints.stroke(width = 1f)
-        canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
+        pager.canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
         yPos += 30f
 
-        // Bottom section: Payment info (left) and Totals (right)
+        // Bottom section: Payment info (left) and Totals (right).
+        // O bloco inteiro migra de página se não couber.
+        yPos = pager.flowTo(yPos, 200f)
         leftYPos = yPos
         rightYPos = yPos
 
         // Left - Payment Info
         if (paymentInfo.bankName.isNotEmpty()) {
-            canvas.drawText("PAYMENT INFO", leftX, leftYPos, labelPaint)
+            pager.canvas.drawText("PAYMENT INFO", leftX, leftYPos, labelPaint)
             leftYPos += paints.advance(labelPaint, 12f)
             if (paymentInfo.bankName.isNotEmpty()) {
-                canvas.drawText(paymentInfo.bankName, leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText(paymentInfo.bankName, leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.bankAddress.isNotEmpty()) {
-                canvas.drawText(paymentInfo.bankAddress, leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText(paymentInfo.bankAddress, leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.accountHolderName.isNotEmpty()) {
-                canvas.drawText("Account Name: ${paymentInfo.accountHolderName}", leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("Account Name: ${paymentInfo.accountHolderName}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.accountNumber.isNotEmpty()) {
-                canvas.drawText("Account No: ${paymentInfo.accountNumber}", leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("Account No: ${paymentInfo.accountNumber}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.routingNumber.isNotEmpty()) {
-                canvas.drawText("Routing: ${paymentInfo.routingNumber}", leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("Routing: ${paymentInfo.routingNumber}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.iban.isNotEmpty()) {
-                canvas.drawText("IBAN: ${paymentInfo.iban}", leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("IBAN: ${paymentInfo.iban}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.swiftCode.isNotEmpty()) {
-                canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("SWIFT: ${paymentInfo.swiftCode}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.paymentTerms.isNotEmpty()) {
-                canvas.drawText("Terms: ${paymentInfo.paymentTerms}", leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("Terms: ${paymentInfo.paymentTerms}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
             if (paymentInfo.additionalInstructions.isNotEmpty()) {
-                canvas.drawText("Notes: ${paymentInfo.additionalInstructions}", leftX, leftYPos, bodySmallPaint)
+                pager.canvas.drawText("Notes: ${paymentInfo.additionalInstructions}", leftX, leftYPos, bodySmallPaint)
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
 
@@ -1316,9 +1354,9 @@ class InvoicePdfGenerator @Inject constructor(
                                 true
                             )
                             leftYPos += 5f
-                            canvas.drawText("Scan to Pay:", leftX, leftYPos, labelPaint)
+                            pager.canvas.drawText("Scan to Pay:", leftX, leftYPos, labelPaint)
                             leftYPos += paints.advance(labelPaint, 12f)
-                            canvas.drawBitmap(scaledQr, leftX, leftYPos, null)
+                            pager.canvas.drawBitmap(scaledQr, leftX, leftYPos, null)
                             leftYPos += qrSize + 10f
                             scaledQr.recycle()
                             it.recycle()
@@ -1337,22 +1375,22 @@ class InvoicePdfGenerator @Inject constructor(
 
         val totalsX = pageWidth - margin - 150f
 
-        canvas.drawText("Subtotal:", totalsX, rightYPos, totalsLabelPaint)
-        canvas.drawText("$currencySymbol${String.format("%.2f", invoice.subtotal)}",
+        pager.canvas.drawText("Subtotal:", totalsX, rightYPos, totalsLabelPaint)
+        pager.canvas.drawText("$currencySymbol${String.format("%.2f", invoice.subtotal)}",
             pageWidth - margin - 10f, rightYPos, totalsValuePaint)
         rightYPos += paints.advance(totalsLabelPaint, 12f)
 
         if (invoice.tax > 0) {
             val taxPercentage = if (invoice.subtotal > 0) (invoice.tax / invoice.subtotal) * 100.0 else 0.0
-            canvas.drawText("Tax (${String.format("%.0f", taxPercentage)}%):", totalsX, rightYPos, totalsLabelPaint)
-            canvas.drawText("$currencySymbol${String.format("%.2f", invoice.tax)}",
+            pager.canvas.drawText("Tax (${String.format("%.0f", taxPercentage)}%):", totalsX, rightYPos, totalsLabelPaint)
+            pager.canvas.drawText("$currencySymbol${String.format("%.2f", invoice.tax)}",
                 pageWidth - margin - 10f, rightYPos, totalsValuePaint)
             rightYPos += paints.advance(totalsLabelPaint, 12f)
         }
 
         if (invoice.discount > 0) {
-            canvas.drawText("Discount:", totalsX, rightYPos, totalsLabelPaint)
-            canvas.drawText("-$currencySymbol${String.format("%.2f", invoice.discount)}",
+            pager.canvas.drawText("Discount:", totalsX, rightYPos, totalsLabelPaint)
+            pager.canvas.drawText("-$currencySymbol${String.format("%.2f", invoice.discount)}",
                 pageWidth - margin - 10f, rightYPos, totalsValuePaint)
             rightYPos += paints.advance(totalsLabelPaint, 12f)
         }
@@ -1361,8 +1399,8 @@ class InvoicePdfGenerator @Inject constructor(
 
         val totalBoldValuePaint = paints.text(11f, weight = InvoicePaints.Weight.Bold, color = paints.style.accent, align = Paint.Align.RIGHT)
 
-        canvas.drawText("TOTAL:", totalsX, rightYPos, totalBoldPaint)
-        canvas.drawText("$currencySymbol${String.format("%.2f", invoice.totalAmount)}",
+        pager.canvas.drawText("TOTAL:", totalsX, rightYPos, totalBoldPaint)
+        pager.canvas.drawText("$currencySymbol${String.format("%.2f", invoice.totalAmount)}",
             pageWidth - margin - 10f, rightYPos, totalBoldValuePaint)
 
         // Signature
@@ -1384,7 +1422,7 @@ class InvoicePdfGenerator @Inject constructor(
                             signatureHeight.toInt(),
                             true
                         )
-                        canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
                         yPos += signatureHeight + 15f
                         scaledBitmap.recycle()
                         it.recycle()
@@ -1394,23 +1432,23 @@ class InvoicePdfGenerator @Inject constructor(
                 // Error handled silently
                 if (businessInfo.ownerName.isNotEmpty()) {
                     val signaturePaint = paints.text(14f)
-                    canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                    pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
                     yPos += paints.advance(signaturePaint, 20f)
                 }
             }
         } ?: run {
             if (businessInfo.ownerName.isNotEmpty()) {
                 val signaturePaint = paints.text(14f)
-                canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
+                pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
                 yPos += paints.advance(signaturePaint, 20f)
             }
         }
 
         // Website at bottom center
-        yPos = pageHeight - margin - 20f
+        yPos = pager.reserveFooter(yPos, 20f)
         val websitePaint = paints.text(8f, align = Paint.Align.CENTER)
         if (businessInfo.website.isNotEmpty()) {
-            canvas.drawText(businessInfo.website, pageWidth / 2f, yPos, websitePaint)
+            pager.canvas.drawText(businessInfo.website, pageWidth / 2f, yPos, websitePaint)
         }
     }
 }
