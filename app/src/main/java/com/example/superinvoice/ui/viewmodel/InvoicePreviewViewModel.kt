@@ -191,11 +191,7 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Generate preview bitmap in background
                 if (client != null && _businessInfo.value != null && _paymentInfo.value != null) {
                     withContext(Dispatchers.IO) {
-                        val template = when (_selectedTemplate.value) {
-                            "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
-                            "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
-                            else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
-                        }
+                        val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(_selectedTemplate.value)
 
                         val bitmap = pdfGenerator.generateInvoicePreviewBitmap(
                             invoice = loadedInvoice,
@@ -209,7 +205,8 @@ class InvoicePreviewViewModel @Inject constructor(
                             signaturePath = _signaturePath.value,
                             paymentQrCodePath = _paymentQrCodePath.value,
                             template = template,
-                            isPremium = billingManager.isPremium.value
+                            isPremium = billingManager.isPremium.value,
+                            style = settingsRepository.invoiceStyle()
                         )
 
                         withContext(Dispatchers.Main) {
@@ -280,11 +277,7 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
 
-                val template = when (selectedTemplate) {
-                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
-                    "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
-                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
-                }
+                val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
                 // Generate PDF
@@ -300,7 +293,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template,
-                    isPremium = billingManager.isPremium.value
+                    isPremium = billingManager.isPremium.value,
+                    style = settingsRepository.invoiceStyle()
                 )
 
                 if (file != null) {
@@ -374,11 +368,7 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
 
-                val template = when (selectedTemplate) {
-                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
-                    "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
-                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
-                }
+                val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
                 // Generate PDF
@@ -394,7 +384,8 @@ class InvoicePreviewViewModel @Inject constructor(
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template,
-                    isPremium = billingManager.isPremium.value
+                    isPremium = billingManager.isPremium.value,
+                    style = settingsRepository.invoiceStyle()
                 )
 
                 if (file != null) {

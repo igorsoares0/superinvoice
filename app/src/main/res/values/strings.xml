@@ -332,4 +332,30 @@
     <string name="support_description">If you have any questions, suggestions, or need assistance, feel free to reach out to us. We\'ll get back to you as soon as possible.</string>
     <string name="support_contact_email_label">Contact email</string>
     <string name="support_contact_email">devforge4@gmail.com</string>
+
+    <!-- Invoice appearance -->
+    <string name="settings_invoice_style">Colors &amp; Fonts</string>
+    <string name="title_invoice_style">Colors &amp; Fonts</string>
+    <string name="invoice_style_description">Choose how your invoice looks. Your logo and signature stay as they are.</string>
+    <string name="invoice_style_accent">Accent colour</string>
+    <string name="invoice_style_typeface">Typeface</string>
+    <string name="accent_black">Black</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_terracotta">Terracotta</string>
+    <string name="accent_green">Green</string>
+    <string name="accent_teal">Teal</string>
+    <string name="accent_navy">Navy</string>
+    <string name="accent_purple">Purple</string>
+    <string name="accent_wine">Wine</string>
+    <string name="accent_bronze">Bronze</string>
+    <string name="font_system">System</string>
+    <string name="font_system_note">The invoice as it has always looked</string>
+    <string name="font_grotesk_sans">Grotesk &amp; Sans</string>
+    <string name="font_grotesk_sans_note">Geometric headings, clean body</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_sans_note">One clean sans throughout</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_serif_note">A more formal, document-like tone</string>
+    <string name="invoice_style_saved">Appearance saved</string>
+    <string name="feature_custom_style">Custom colours &amp; fonts</string>
 </resources>

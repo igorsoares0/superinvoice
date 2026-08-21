@@ -32,6 +32,17 @@ class InvoiceTemplateViewModel @Inject constructor(
         private var cachedClassicPreview: Bitmap? = null
         private var cachedModernPreview: Bitmap? = null
         private var cachedProfessionalPreview: Bitmap? = null
+
+        /**
+         * O cache vive no companion, então sobrevive à destruição do
+         * ViewModel — sem isto, mudar a cor ou a fonte da fatura deixaria
+         * os três previews desta tela mostrando a aparência antiga.
+         */
+        fun invalidatePreviewCache() {
+            cachedClassicPreview = null
+            cachedModernPreview = null
+            cachedProfessionalPreview = null
+        }
     }
 
     val selectedTemplate: StateFlow<String> = settingsRepository.selectedTemplate
@@ -68,6 +79,7 @@ class InvoiceTemplateViewModel @Inject constructor(
 
                 // Generate previews with lower resolution (2x) for faster loading
                 val previewScale = 2
+                val style = settingsRepository.invoiceStyle()
 
                 // Generate Classic preview (se ainda não existe)
                 if (cachedClassicPreview == null) {
@@ -83,7 +95,8 @@ class InvoiceTemplateViewModel @Inject constructor(
                         signaturePath = null,
                         paymentQrCodePath = null,
                         template = InvoiceTemplate.CLASSIC,
-                        scale = previewScale
+                        scale = previewScale,
+                        style = style
                     )
                     cachedClassicPreview = classicBitmap
                     _classicPreview.value = classicBitmap
@@ -103,7 +116,8 @@ class InvoiceTemplateViewModel @Inject constructor(
                         signaturePath = null,
                         paymentQrCodePath = null,
                         template = InvoiceTemplate.MODERN,
-                        scale = previewScale
+                        scale = previewScale,
+                        style = style
                     )
                     cachedModernPreview = modernBitmap
                     _modernPreview.value = modernBitmap
@@ -123,7 +137,8 @@ class InvoiceTemplateViewModel @Inject constructor(
                         signaturePath = null,
                         paymentQrCodePath = null,
                         template = InvoiceTemplate.PROFESSIONAL,
-                        scale = previewScale
+                        scale = previewScale,
+                        style = style
                     )
                     cachedProfessionalPreview = professionalBitmap
                     _professionalPreview.value = professionalBitmap

@@ -140,6 +140,11 @@ fun PaywallScreen(
                     isFree = false,
                     isPremium = true
                 )
+                FeatureRow(
+                    text = stringResource(R.string.feature_custom_style),
+                    isFree = false,
+                    isPremium = true
+                )
 
                 Spacer(modifier = Modifier.height(Space.xxl))
 

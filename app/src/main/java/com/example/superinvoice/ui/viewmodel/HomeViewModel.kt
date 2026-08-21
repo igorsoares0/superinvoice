@@ -130,11 +130,7 @@ class HomeViewModel @Inject constructor(
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
 
-                val template = when (selectedTemplate) {
-                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
-                    "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
-                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
-                }
+                val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
                 // Generate PDF
@@ -150,7 +146,8 @@ class HomeViewModel @Inject constructor(
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template,
-                    isPremium = billingManager.isPremium.value
+                    isPremium = billingManager.isPremium.value,
+                    style = settingsRepository.invoiceStyle()
                 )
 
                 if (file != null) {
@@ -223,11 +220,7 @@ class HomeViewModel @Inject constructor(
                 // Get selected template
                 val selectedTemplate = settingsRepository.selectedTemplate.first()
 
-                val template = when (selectedTemplate) {
-                    "modern" -> com.example.superinvoice.data.pdf.InvoiceTemplate.MODERN
-                    "professional" -> com.example.superinvoice.data.pdf.InvoiceTemplate.PROFESSIONAL
-                    else -> com.example.superinvoice.data.pdf.InvoiceTemplate.CLASSIC
-                }
+                val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
                 // Generate PDF
@@ -243,7 +236,8 @@ class HomeViewModel @Inject constructor(
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template,
-                    isPremium = billingManager.isPremium.value
+                    isPremium = billingManager.isPremium.value,
+                    style = settingsRepository.invoiceStyle()
                 )
 
                 if (file != null) {

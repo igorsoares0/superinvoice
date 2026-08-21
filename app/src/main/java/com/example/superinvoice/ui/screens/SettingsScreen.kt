@@ -39,6 +39,7 @@ fun SettingsScreen(
     onNavigateToPaymentInstructions: () -> Unit = {},
     onNavigateToLogo: () -> Unit = {},
     onNavigateToSignature: () -> Unit = {},
+    onNavigateToInvoiceStyle: () -> Unit = {},
     onNavigateToPaymentQrCode: () -> Unit = {},
     onNavigateToCurrency: () -> Unit = {},
     onNavigateToDateFormat: () -> Unit = {},
@@ -96,6 +97,10 @@ fun SettingsScreen(
                 SettingsOption(
                     text = stringResource(R.string.settings_signature),
                     onClick = onNavigateToSignature
+                )
+                SettingsOption(
+                    text = stringResource(R.string.settings_invoice_style),
+                    onClick = onNavigateToInvoiceStyle
                 )
                 SettingsOption(
                     text = stringResource(R.string.settings_payment_instructions),

@@ -22,6 +22,7 @@ import com.example.superinvoice.ui.screens.DateFormatScreen
 import com.example.superinvoice.ui.screens.EditInvoiceScreen
 import com.example.superinvoice.ui.screens.HomeScreen
 import com.example.superinvoice.ui.screens.InvoicePreviewScreen
+import com.example.superinvoice.ui.screens.InvoiceStyleScreen
 import com.example.superinvoice.ui.screens.InvoiceTemplateScreen
 import com.example.superinvoice.ui.screens.LogoScreen
 import com.example.superinvoice.ui.screens.PaymentInstructionsScreen
@@ -51,6 +52,7 @@ enum class Screen {
     PAYMENT_INSTRUCTIONS,
     LOGO,
     SIGNATURE,
+    INVOICE_STYLE,
     PAYMENT_QR_CODE,
     CURRENCY,
     DATE_FORMAT,
@@ -258,6 +260,9 @@ fun AppNavigation(
             onNavigateToSignature = {
                 if (isPremium) navigateTo(Screen.SIGNATURE) else navigateTo(Screen.PAYWALL)
             },
+            onNavigateToInvoiceStyle = {
+                if (isPremium) navigateTo(Screen.INVOICE_STYLE) else navigateTo(Screen.PAYWALL)
+            },
             onNavigateToPaymentQrCode = { navigateTo(Screen.PAYMENT_QR_CODE) },
             onNavigateToCurrency = { navigateTo(Screen.CURRENCY) },
             onNavigateToDateFormat = { navigateTo(Screen.DATE_FORMAT) },
@@ -313,6 +318,10 @@ fun AppNavigation(
             invoiceId = selectedInvoiceId,
             previewVersion = previewVersion,
             onClose = { navigateBack() }
+        )
+        Screen.INVOICE_STYLE -> InvoiceStyleScreen(
+            onClose = { navigateBack() },
+            onSave = { navigateBack() }
         )
         Screen.BUSINESS_INFO -> BusinessInformationScreen(
             onClose = { navigateBack() },

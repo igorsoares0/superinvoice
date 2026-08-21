@@ -7,8 +7,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.superinvoice.data.pdf.InvoiceAccent
+import com.example.superinvoice.data.pdf.InvoiceFontChoice
+import com.example.superinvoice.data.pdf.InvoiceStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,6 +50,8 @@ class SettingsRepository @Inject constructor(
     private val CURRENCY = stringPreferencesKey("currency")
     private val DATE_FORMAT = stringPreferencesKey("date_format")
     private val SELECTED_TEMPLATE = stringPreferencesKey("selected_template")
+    private val INVOICE_ACCENT = stringPreferencesKey("invoice_accent")
+    private val INVOICE_FONT = stringPreferencesKey("invoice_font")
     private val LOGO_PATH = stringPreferencesKey("logo_path")
     private val SIGNATURE_PATH = stringPreferencesKey("signature_path")
     private val PAYMENT_QR_CODE_PATH = stringPreferencesKey("payment_qr_code_path")
@@ -78,6 +84,10 @@ class SettingsRepository @Inject constructor(
     val currency: Flow<String> = context.dataStore.data.map { it[CURRENCY] ?: "USD" }
     val dateFormat: Flow<String> = context.dataStore.data.map { it[DATE_FORMAT] ?: "MM/dd/yyyy" }
     val selectedTemplate: Flow<String> = context.dataStore.data.map { it[SELECTED_TEMPLATE] ?: "classic" }
+    val invoiceAccent: Flow<InvoiceAccent> =
+        context.dataStore.data.map { InvoiceAccent.from(it[INVOICE_ACCENT]) }
+    val invoiceFont: Flow<InvoiceFontChoice> =
+        context.dataStore.data.map { InvoiceFontChoice.from(it[INVOICE_FONT]) }
     val logoPath: Flow<String> = context.dataStore.data.map { it[LOGO_PATH] ?: "" }
     val signaturePath: Flow<String> = context.dataStore.data.map { it[SIGNATURE_PATH] ?: "" }
     val paymentQrCodePath: Flow<String> = context.dataStore.data.map { it[PAYMENT_QR_CODE_PATH] ?: "" }
@@ -153,6 +163,23 @@ class SettingsRepository @Inject constructor(
     suspend fun saveSelectedTemplate(template: String) {
         context.dataStore.edit { preferences ->
             preferences[SELECTED_TEMPLATE] = template
+        }
+    }
+
+    /**
+     * A aparência escolhida, pronta para o gerador de PDF. Se o usuário
+     * nunca abriu o editor, isto devolve exatamente o documento de sempre.
+     */
+    suspend fun invoiceStyle(): InvoiceStyle = InvoiceStyle.of(
+        accent = invoiceAccent.first(),
+        fonts = invoiceFont.first().fonts(context)
+    )
+
+    // Save Invoice Appearance
+    suspend fun saveInvoiceStyle(accent: InvoiceAccent, font: InvoiceFontChoice) {
+        context.dataStore.edit { preferences ->
+            preferences[INVOICE_ACCENT] = accent.id
+            preferences[INVOICE_FONT] = font.id
         }
     }
 
