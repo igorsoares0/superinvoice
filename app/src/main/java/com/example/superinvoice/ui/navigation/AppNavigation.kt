@@ -6,9 +6,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import com.example.superinvoice.ui.viewmodel.NavigationViewModel
 import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
@@ -68,6 +70,10 @@ fun AppNavigation(
 ) {
     val isPremium by navigationViewModel.isPremium.collectAsStateWithLifecycle()
     val invoiceCount by navigationViewModel.invoiceCount.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
+    // O gate de criação virou assíncrono (espera o status premium resolver), então
+    // precisa de trava: dois toques rápidos empilhariam duas navegações.
+    var isCheckingInvoiceGate by remember { mutableStateOf(false) }
 
     var currentScreen by remember { mutableStateOf(Screen.HOME) }
     var selectedBottomNavItem by remember { mutableIntStateOf(0) }
@@ -131,11 +137,20 @@ fun AppNavigation(
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
             onNavigateToCreateInvoice = {
-                if (navigationViewModel.canCreateInvoice()) {
-                    shouldResetCreateInvoice = true
-                    navigateTo(Screen.CREATE_INVOICE)
-                } else {
-                    navigateTo(Screen.PAYWALL)
+                if (!isCheckingInvoiceGate) {
+                    isCheckingInvoiceGate = true
+                    coroutineScope.launch {
+                        try {
+                            if (navigationViewModel.canCreateInvoice()) {
+                                shouldResetCreateInvoice = true
+                                navigateTo(Screen.CREATE_INVOICE)
+                            } else {
+                                navigateTo(Screen.PAYWALL)
+                            }
+                        } finally {
+                            isCheckingInvoiceGate = false
+                        }
+                    }
                 }
             },
             isPremium = isPremium,

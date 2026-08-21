@@ -28,8 +28,16 @@ class NavigationViewModel @Inject constructor(
             initialValue = 0
         )
 
-    fun canCreateInvoice(): Boolean {
-        return billingManager.isPremium.value || invoiceCount.value < BillingManager.FREE_INVOICE_LIMIT
+    /**
+     * Suspende até saber se o usuário é premium antes de decidir.
+     *
+     * Lendo `isPremium.value` direto, um assinante que abrisse o app e tocasse em "nova
+     * fatura" nos primeiros segundos era mandado para o paywall, porque o status ainda
+     * não tinha voltado do RevenueCat.
+     */
+    suspend fun canCreateInvoice(): Boolean {
+        if (billingManager.awaitPremiumStatus()) return true
+        return invoiceCount.value < BillingManager.FREE_INVOICE_LIMIT
     }
 
     fun restorePurchases(onSuccess: () -> Unit, onError: (String) -> Unit) {

@@ -25,7 +25,7 @@ android {
         applicationId = "online.isdevapps.superinvoice"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
+        versionCode = 8
         versionName = "1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -99,7 +99,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     // RevenueCat
-    implementation("com.revenuecat.purchases:purchases:8.12.1")
+    implementation("com.revenuecat.purchases:purchases:10.18.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

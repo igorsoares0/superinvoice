@@ -1,6 +1,8 @@
 package com.example.superinvoice.ui.screens
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,6 +57,7 @@ import com.example.superinvoice.ui.theme.Red
 import com.example.superinvoice.ui.theme.Size
 import com.example.superinvoice.ui.theme.Space
 import com.example.superinvoice.ui.viewmodel.PaywallViewModel
+import com.revenuecat.purchases.Package
 import online.isdevapps.superinvoice.R
 
 @Composable
@@ -70,10 +73,10 @@ fun PaywallScreen(
 
     var selectedPlan by remember { mutableStateOf("annual") }
 
-    val activity = LocalContext.current as? Activity
+    val activity = LocalContext.current.findActivity()
 
     LaunchedEffect(Unit) {
-        viewModel.resetState()
+        viewModel.onScreenShown()
     }
 
     LaunchedEffect(purchaseSuccess) {
@@ -148,48 +151,62 @@ fun PaywallScreen(
 
                 Spacer(modifier = Modifier.height(Space.xxl))
 
-                Text(
-                    text = stringResource(R.string.choose_your_plan).uppercase(),
-                    style = InvType.label,
-                    color = Neutral,
-                    modifier = Modifier.padding(bottom = Space.lg)
-                )
+                val plans = buildList {
+                    annualPackage?.let { add(PlanOption("annual", it)) }
+                    monthlyPackage?.let { add(PlanOption("monthly", it)) }
+                }
 
-                val savingsPercent = if (monthlyPackage != null && annualPackage != null) {
-                    val yearlyIfMonthly = monthlyPackage!!.product.price.amountMicros * 12
-                    val annualPrice = annualPackage!!.product.price.amountMicros
-                    if (yearlyIfMonthly > 0) {
-                        ((yearlyIfMonthly - annualPrice) * 100 / yearlyIfMonthly).toInt()
+                // Se o plano selecionado não existe nesta offering, cai para o primeiro
+                // disponível — senão o botão apontaria para um pacote nulo.
+                val planIds = plans.joinToString(",") { it.id }
+                LaunchedEffect(planIds) {
+                    if (plans.none { it.id == selectedPlan }) {
+                        selectedPlan = plans.firstOrNull()?.id ?: ""
+                    }
+                }
+
+                if (plans.isNotEmpty()) {
+                    Text(
+                        text = stringResource(R.string.choose_your_plan).uppercase(),
+                        style = InvType.label,
+                        color = Neutral,
+                        modifier = Modifier.padding(bottom = Space.lg)
+                    )
+
+                    val savingsPercent = if (monthlyPackage != null && annualPackage != null) {
+                        val yearlyIfMonthly = monthlyPackage!!.product.price.amountMicros * 12
+                        val annualPrice = annualPackage!!.product.price.amountMicros
+                        if (yearlyIfMonthly > 0) {
+                            ((yearlyIfMonthly - annualPrice) * 100 / yearlyIfMonthly).toInt()
+                        } else {
+                            0
+                        }
                     } else {
                         0
                     }
-                } else {
-                    0
+
+                    plans.forEachIndexed { index, plan ->
+                        if (index > 0) Spacer(modifier = Modifier.height(Space.md))
+                        PlanCard(
+                            title = stringResource(
+                                if (plan.id == "annual") R.string.plan_annual else R.string.plan_monthly
+                            ),
+                            // Sempre o preço real da loja, na moeda do usuário. Não existe
+                            // mais fallback fixo: mostrar "$79.99/yr" para quem paga em
+                            // outra moeda é preço enganoso.
+                            price = plan.rcPackage.product.price.formatted,
+                            subtitle = if (plan.id == "annual" && savingsPercent > 0) {
+                                stringResource(R.string.plan_save_percent, savingsPercent)
+                            } else {
+                                ""
+                            },
+                            isSelected = selectedPlan == plan.id,
+                            onClick = { selectedPlan = plan.id }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(Space.xl))
                 }
-
-                PlanCard(
-                    title = stringResource(R.string.plan_annual),
-                    price = annualPackage?.product?.price?.formatted ?: "$79.99/yr",
-                    subtitle = if (savingsPercent > 0) {
-                        stringResource(R.string.plan_save_percent, savingsPercent)
-                    } else {
-                        ""
-                    },
-                    isSelected = selectedPlan == "annual",
-                    onClick = { selectedPlan = "annual" }
-                )
-
-                Spacer(modifier = Modifier.height(Space.md))
-
-                PlanCard(
-                    title = stringResource(R.string.plan_monthly),
-                    price = monthlyPackage?.product?.price?.formatted ?: "$8.99/mo",
-                    subtitle = "",
-                    isSelected = selectedPlan == "monthly",
-                    onClick = { selectedPlan = "monthly" }
-                )
-
-                Spacer(modifier = Modifier.height(Space.xl))
 
                 if (errorMessage != null) {
                     Text(
@@ -203,32 +220,43 @@ fun PaywallScreen(
                     )
                 }
 
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(Size.button),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(IconSize.action),
-                            color = Orange
+                when {
+                    isLoading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(Size.button),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(IconSize.action),
+                                color = Orange
+                            )
+                        }
+                    }
+
+                    plans.isEmpty() -> {
+                        // Sem plano não há o que comprar: oferece retry em vez de um
+                        // botão Subscribe que engole o toque.
+                        InvButton(
+                            text = stringResource(R.string.try_again),
+                            onClick = { viewModel.retry() }
                         )
                     }
-                } else {
-                    InvButton(
-                        text = stringResource(R.string.subscribe),
-                        onClick = {
-                            val pkg = if (selectedPlan == "annual") {
-                                annualPackage
-                            } else {
-                                monthlyPackage
+
+                    else -> {
+                        val selected = plans.firstOrNull { it.id == selectedPlan }
+                        InvButton(
+                            text = stringResource(R.string.subscribe),
+                            onClick = {
+                                if (selected != null && activity != null) {
+                                    viewModel.purchase(activity, selected.rcPackage)
+                                } else {
+                                    viewModel.reportCheckoutUnavailable()
+                                }
                             }
-                            if (pkg != null && activity != null) {
-                                viewModel.purchase(activity, pkg)
-                            }
-                        }
-                    )
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(Space.lg))
@@ -354,4 +382,22 @@ private fun PlanCard(
             softWrap = false
         )
     }
+}
+
+private data class PlanOption(val id: String, val rcPackage: Package)
+
+/**
+ * Desembrulha o Context até achar a Activity.
+ *
+ * `LocalContext.current as? Activity` devolvia null quando o contexto vinha embrulhado
+ * (o ContextWrapper do Hilt, por exemplo), e aí o botão Subscribe virava um no-op
+ * silencioso — o usuário tocava e nada acontecia.
+ */
+private fun Context.findActivity(): Activity? {
+    var current: Context = this
+    while (current is ContextWrapper) {
+        if (current is Activity) return current
+        current = current.baseContext
+    }
+    return null
 }

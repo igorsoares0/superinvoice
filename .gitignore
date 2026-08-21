@@ -16,3 +16,6 @@ local.properties
 *.jks
 *.keystore
 app/andk
+
+# Saida de build do compilador Kotlin (erros, sessoes)
+.kotlin/

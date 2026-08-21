@@ -358,4 +358,7 @@
     <string name="font_serif_note">Un tono más formal, de documento</string>
     <string name="invoice_style_saved">Apariencia guardada</string>
     <string name="feature_custom_style">Colores y fuentes personalizados</string>
+    <string name="plans_unavailable">No se pudieron cargar los planes de suscripción. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="try_again">Intentar de nuevo</string>
+    <string name="checkout_unavailable">No se pudo abrir el pago. Inténtalo de nuevo.</string>
 </resources>

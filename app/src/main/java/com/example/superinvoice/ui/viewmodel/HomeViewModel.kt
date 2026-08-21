@@ -146,7 +146,7 @@ class HomeViewModel @Inject constructor(
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template,
-                    isPremium = billingManager.isPremium.value,
+                    isPremium = billingManager.awaitPremiumStatus(),
                     style = settingsRepository.invoiceStyle()
                 )
 
@@ -236,7 +236,7 @@ class HomeViewModel @Inject constructor(
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
                     template = template,
-                    isPremium = billingManager.isPremium.value,
+                    isPremium = billingManager.awaitPremiumStatus(),
                     style = settingsRepository.invoiceStyle()
                 )
 
