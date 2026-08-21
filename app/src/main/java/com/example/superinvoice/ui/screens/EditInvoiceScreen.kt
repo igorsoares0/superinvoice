@@ -1,38 +1,17 @@
 package com.example.superinvoice.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -45,18 +24,42 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import online.isdevapps.superinvoice.R
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.superinvoice.data.Client
+import com.example.superinvoice.data.ProductService
 import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.ui.components.DatePickerField
+import com.example.superinvoice.ui.components.InvAmountDialog
+import com.example.superinvoice.ui.components.InvButton
+import com.example.superinvoice.ui.components.InvButtonVariant
+import com.example.superinvoice.ui.components.InvChip
+import com.example.superinvoice.ui.components.InvDivider
+import com.example.superinvoice.ui.components.InvField
+import com.example.superinvoice.ui.components.InvLineItemRow
+import com.example.superinvoice.ui.components.InvScaffold
+import com.example.superinvoice.ui.components.InvScreenHeader
+import com.example.superinvoice.ui.components.InvSectionRule
+import com.example.superinvoice.ui.components.InvStatusLabel
+import com.example.superinvoice.ui.components.InvTotalSummary
+import com.example.superinvoice.ui.components.InvoiceNotesField
+import com.example.superinvoice.ui.components.SettingsOption
+import com.example.superinvoice.ui.icons.InvIcons
+import com.example.superinvoice.ui.theme.Green
+import com.example.superinvoice.ui.theme.Inert
+import com.example.superinvoice.ui.theme.Ink
+import com.example.superinvoice.ui.theme.InvShape
+import com.example.superinvoice.ui.theme.InvType
+import com.example.superinvoice.ui.theme.Neutral
+import com.example.superinvoice.ui.theme.Orange
+import com.example.superinvoice.ui.theme.Paper
+import com.example.superinvoice.ui.theme.Red
+import com.example.superinvoice.ui.theme.Space
 import com.example.superinvoice.ui.viewmodel.EditInvoiceViewModel
 import com.example.superinvoice.util.getCurrencySymbol
+import online.isdevapps.superinvoice.R
 
 @Composable
 fun EditInvoiceScreen(
@@ -66,8 +69,8 @@ fun EditInvoiceScreen(
     onNavigateToSelectClient: () -> Unit = {},
     onNavigateToSelectProduct: () -> Unit = {},
     onNavigateToPreview: () -> Unit = {},
-    pendingClientSelection: com.example.superinvoice.data.Client? = null,
-    pendingProductSelection: com.example.superinvoice.data.ProductService? = null,
+    pendingClientSelection: Client? = null,
+    pendingProductSelection: ProductService? = null,
     clientSelectionVersion: Int = 0,
     productSelectionVersion: Int = 0,
     onClientSelectionProcessed: () -> Unit = {},
@@ -87,7 +90,6 @@ fun EditInvoiceScreen(
     val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle()
     val selectedClient by viewModel.selectedClient.collectAsStateWithLifecycle()
     val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
-    val subtotal by viewModel.subtotal.collectAsStateWithLifecycle()
     val totalAmount by viewModel.totalAmount.collectAsStateWithLifecycle()
     val invoice by viewModel.invoice.collectAsStateWithLifecycle()
 
@@ -101,7 +103,6 @@ fun EditInvoiceScreen(
 
     val isPaid = invoice?.status == InvoiceStatus.PAID
 
-    // Process pending client selection
     LaunchedEffect(clientSelectionVersion) {
         if (clientSelectionVersion > 0 && pendingClientSelection != null) {
             viewModel.setSelectedClient(pendingClientSelection)
@@ -109,7 +110,6 @@ fun EditInvoiceScreen(
         }
     }
 
-    // Process pending product selection
     LaunchedEffect(productSelectionVersion) {
         if (productSelectionVersion > 0 && pendingProductSelection != null) {
             viewModel.addLineItem(pendingProductSelection, 1)
@@ -117,622 +117,265 @@ fun EditInvoiceScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF9FAFB))
-    ) {
+    if (showTaxDialog) {
+        InvAmountDialog(
+            title = stringResource(R.string.tax_amount),
+            label = stringResource(R.string.enter_tax_amount),
+            value = taxInput,
+            onValueChange = { taxInput = it },
+            onConfirm = {
+                viewModel.setTax(taxInput)
+                showTaxDialog = false
+            },
+            onDismiss = { showTaxDialog = false },
+            confirmText = stringResource(R.string.ok),
+            dismissText = stringResource(R.string.cancel)
+        )
+    }
+
+    if (showDiscountDialog) {
+        InvAmountDialog(
+            title = stringResource(R.string.discount_amount),
+            label = stringResource(R.string.enter_discount_amount),
+            value = discountInput,
+            onValueChange = { discountInput = it },
+            onConfirm = {
+                viewModel.setDiscount(discountInput)
+                showDiscountDialog = false
+            },
+            onDismiss = { showDiscountDialog = false },
+            confirmText = stringResource(R.string.ok),
+            dismissText = stringResource(R.string.cancel)
+        )
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = Paper,
+            shape = InvShape.card,
+            title = {
+                Text(
+                    text = stringResource(R.string.delete_invoice_title),
+                    style = InvType.sectionTitle,
+                    color = Ink
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.delete_invoice_confirmation),
+                    style = InvType.body,
+                    color = Neutral
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteInvoice {
+                            showDeleteDialog = false
+                            onClose()
+                        }
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.delete),
+                        style = InvType.action,
+                        color = Red
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(
+                        text = stringResource(R.string.cancel),
+                        style = InvType.action,
+                        color = Ink
+                    )
+                }
+            }
+        )
+    }
+
+    InvScaffold(modifier = Modifier.imePadding()) {
+        InvScreenHeader(
+            title = stringResource(R.string.title_edit_invoice),
+            onClose = onClose,
+            closeContentDescription = stringResource(R.string.close)
+        )
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp)
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Space.screen)
         ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 50.dp, bottom = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = onClose,
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close),
-                        tint = Color.Black,
-                        modifier = Modifier.size(24.dp)
+            InvField(
+                label = stringResource(R.string.invoice_name_label),
+                value = invoiceNumber,
+                onValueChange = { viewModel.setInvoiceNumber(it) },
+                opensSection = true
+            )
+
+            DatePickerField(
+                label = stringResource(R.string.due_date),
+                value = dueDate,
+                onValueChange = { viewModel.setDueDate(it) },
+                dateFormatPattern = dateFormat
+            )
+
+            SettingsOption(
+                text = selectedClient?.name ?: stringResource(R.string.add_client),
+                icon = InvIcons.Person,
+                onClick = onNavigateToSelectClient
+            )
+
+            SettingsOption(
+                text = stringResource(R.string.add_product_or_service),
+                icon = InvIcons.Plus,
+                onClick = onNavigateToSelectProduct
+            )
+
+            if (lineItems.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(Space.section))
+                Text(
+                    text = stringResource(R.string.items).uppercase(),
+                    style = InvType.label,
+                    color = Neutral,
+                    modifier = Modifier.padding(bottom = Space.md)
+                )
+                InvSectionRule()
+                lineItems.forEachIndexed { index, item ->
+                    InvLineItemRow(
+                        name = item.productService.name,
+                        unitPrice = stringResource(
+                            R.string.price_per_unit,
+                            "$currencySymbol${
+                                String.format("%.2f", item.productService.pricePerUnit)
+                            }"
+                        ),
+                        quantity = item.quantity,
+                        lineTotal = "$currencySymbol${String.format("%.2f", item.lineTotal)}",
+                        onDecrease = {
+                            viewModel.updateLineItemQuantity(index, item.quantity - 1)
+                        },
+                        onIncrease = {
+                            viewModel.updateLineItemQuantity(index, item.quantity + 1)
+                        },
+                        onRemove = { viewModel.removeLineItem(index) },
+                        removeContentDescription = stringResource(R.string.remove)
                     )
                 }
-
-                Text(
-                    text = stringResource(R.string.title_edit_invoice),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp)
-                )
             }
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Invoice Number and Due Date Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Invoice Number Field (editable)
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .border(
-                                width = 1.dp,
-                                color = Color(0xFFE0E0E0),
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .background(
-                                color = Color(0xFFF9FAFB),
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.invoice_name_label),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
+            Spacer(modifier = Modifier.height(Space.section))
 
-                            BasicTextField(
-                                value = invoiceNumber,
-                                onValueChange = { viewModel.setInvoiceNumber(it) },
-                                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = Color.Black
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 4.dp, bottom = 16.dp)
-                            )
-                        }
-                    }
-
-                    // Due Date Field
-                    DatePickerField(
-                        label = stringResource(R.string.due_date),
-                        value = dueDate,
-                        onValueChange = { viewModel.setDueDate(it) },
-                        dateFormatPattern = dateFormat,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Client Button
-                NavigationButton(
-                    icon = Icons.Default.Person,
-                    text = selectedClient?.name ?: stringResource(R.string.select_client),
-                    onClick = onNavigateToSelectClient,
-                    useGreenCircle = true
-                )
-
-                // Add Product or Service Button
-                NavigationButton(
-                    icon = Icons.Default.Add,
-                    text = stringResource(R.string.add_product_or_service),
-                    onClick = onNavigateToSelectProduct,
-                    useGreenCircle = true
-                )
-
-                // Items Section (below the button)
-                if (lineItems.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.items),
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
-                    )
-
-                    lineItems.forEachIndexed { index, item ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = item.productService.name,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp
-                                )
-                                Text(
-                                    text = stringResource(R.string.price_per_unit, "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}"),
-                                    fontSize = 12.sp,
-                                    color = Color.Gray
-                                )
-
-                                // Quantity controls
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .border(
-                                                1.dp,
-                                                if (item.quantity > 1) Color.Black else Color.Gray,
-                                                RoundedCornerShape(4.dp)
-                                            )
-                                            .clickable(enabled = item.quantity > 1) {
-                                                if (item.quantity > 1) {
-                                                    viewModel.updateLineItemQuantity(index, item.quantity - 1)
-                                                }
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "-",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (item.quantity > 1) Color.Black else Color.Gray
-                                        )
-                                    }
-
-                                    Text(
-                                        text = "${item.quantity}",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(horizontal = 12.dp)
-                                    )
-
-                                    Box(
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-                                            .clickable {
-                                                viewModel.updateLineItemQuantity(index, item.quantity + 1)
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "+",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Black
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.width(8.dp))
-
-                                    Text(
-                                        text = stringResource(R.string.total_with_amount, "$currencySymbol${String.format("%.2f", item.lineTotal)}"),
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp
-                                    )
-                                }
-                            }
-                            IconButton(onClick = { viewModel.removeLineItem(index) }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = stringResource(R.string.remove),
-                                    tint = Color.Red
-                                )
-                            }
-                        }
-                        if (index < lineItems.size - 1) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                // Tax Button
-                NavigationButton(
-                    icon = null,
-                    iconText = "%",
-                    text = if (tax.isNotEmpty() && tax.toDoubleOrNull() != null && tax.toDouble() > 0)
-                        stringResource(R.string.tax_with_amount, "$$tax") else stringResource(R.string.tax),
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.sm)) {
+                InvChip(
+                    text = if (tax.isNotEmpty() && (tax.toDoubleOrNull() ?: 0.0) > 0) {
+                        stringResource(R.string.tax_with_amount, "$currencySymbol$tax")
+                    } else {
+                        stringResource(R.string.tax)
+                    },
                     onClick = {
                         taxInput = tax
                         showTaxDialog = true
                     }
                 )
-
-                // Discount Button
-                NavigationButton(
-                    icon = null,
-                    iconText = "%",
-                    text = if (discount.isNotEmpty() && discount.toDoubleOrNull() != null && discount.toDouble() > 0)
-                        stringResource(R.string.discount_with_amount, "$$discount") else stringResource(R.string.discount),
+                InvChip(
+                    text = if (discount.isNotEmpty() && (discount.toDoubleOrNull() ?: 0.0) > 0) {
+                        stringResource(R.string.discount_with_amount, "$currencySymbol$discount")
+                    } else {
+                        stringResource(R.string.discount)
+                    },
                     onClick = {
                         discountInput = discount
                         showDiscountDialog = true
                     }
                 )
-
-                // Paid/Unpaid Toggle
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.paid),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.Black
-                        )
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = if (isPaid) Color(0xFF9DEA6E) else Color(0xFF9DEA6E).copy(alpha = 0.3f),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(horizontal = 8.dp, vertical = 2.dp)
-                        ) {
-                            Text(
-                                text = if (isPaid) stringResource(R.string.paid) else stringResource(R.string.unpaid),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                        }
-                    }
-
-                    Switch(
-                        checked = isPaid,
-                        onCheckedChange = { viewModel.togglePaidStatus() },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color(0xFFF9FAFB),
-                            checkedTrackColor = Color(0xFF9DEA6E),
-                            uncheckedThumbColor = Color(0xFFF9FAFB),
-                            uncheckedTrackColor = Color.Gray
-                        )
-                    )
-                }
-
-                // Notes Field
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = { viewModel.setNotes(it) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
-                    placeholder = { Text(stringResource(R.string.notes), color = Color.Gray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF9DEA6E),
-                        unfocusedBorderColor = Color(0xFFE0E0E0)
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Total Section
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.total),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                    Text(
-                        text = "$currency $currencySymbol${String.format("%.2f", totalAmount)}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Delete Invoice Text Button
-                Text(
-                    text = stringResource(R.string.delete_invoice),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Red,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showDeleteDialog = true }
-                        .padding(vertical = 12.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(Space.section))
 
-            // Bottom Buttons
+            InvSectionRule()
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxWidth()
+                    .padding(vertical = Space.sm),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Space.md)
             ) {
-                Button(
-                    onClick = onNavigateToPreview,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF9FAFB),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF9CA3AF))
-                ) {
-                    Text(
-                        text = stringResource(R.string.preview),
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        viewModel.updateInvoice {
-                            onSave()
-                        }
+                InvStatusLabel(
+                    label = if (isPaid) {
+                        stringResource(R.string.paid)
+                    } else {
+                        stringResource(R.string.unpaid)
                     },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF9DEA6E),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = selectedClient != null && lineItems.isNotEmpty()
-                ) {
-                    Text(
-                        text = stringResource(R.string.save_changes),
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
+                    color = if (isPaid) Green else Orange,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = isPaid,
+                    onCheckedChange = { viewModel.togglePaidStatus() },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Paper,
+                        checkedTrackColor = Green,
+                        checkedBorderColor = Green,
+                        uncheckedThumbColor = Paper,
+                        uncheckedTrackColor = Inert,
+                        uncheckedBorderColor = Inert
                     )
-                }
+                )
             }
+            InvDivider()
 
-            Spacer(modifier = Modifier.height(80.dp))
-        }
+            Spacer(modifier = Modifier.height(Space.section))
 
-        // Tax Dialog
-        if (showTaxDialog) {
-            AlertDialog(
-                onDismissRequest = { showTaxDialog = false },
-                title = {
-                    Text(
-                        text = stringResource(R.string.tax_amount),
-                        color = Color.Black,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
-                text = {
-                    OutlinedTextField(
-                        value = taxInput,
-                        onValueChange = { taxInput = it },
-                        label = { Text(stringResource(R.string.enter_tax_amount)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF9DEA6E),
-                            focusedLabelColor = Color(0xFF9DEA6E),
-                            unfocusedTextColor = Color.Black,
-                            focusedTextColor = Color.Black
-                        )
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.setTax(taxInput)
-                            showTaxDialog = false
-                        }
-                    ) {
-                        Text(stringResource(R.string.ok), color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showTaxDialog = false }) {
-                        Text(stringResource(R.string.cancel), color = Color.Gray, fontWeight = FontWeight.Medium)
-                    }
-                },
-                shape = RoundedCornerShape(12.dp),
-                containerColor = Color(0xFFF9FAFB)
+            InvoiceNotesField(
+                value = notes,
+                onValueChange = { viewModel.setNotes(it) },
+                label = stringResource(R.string.notes),
+                opensSection = true
             )
-        }
 
-        // Discount Dialog
-        if (showDiscountDialog) {
-            AlertDialog(
-                onDismissRequest = { showDiscountDialog = false },
-                title = {
-                    Text(
-                        text = stringResource(R.string.discount_amount),
-                        color = Color.Black,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
-                text = {
-                    OutlinedTextField(
-                        value = discountInput,
-                        onValueChange = { discountInput = it },
-                        label = { Text(stringResource(R.string.enter_discount_amount)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF9DEA6E),
-                            focusedLabelColor = Color(0xFF9DEA6E),
-                            unfocusedTextColor = Color.Black,
-                            focusedTextColor = Color.Black
-                        )
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.setDiscount(discountInput)
-                            showDiscountDialog = false
-                        }
-                    ) {
-                        Text(stringResource(R.string.ok), color = Color(0xFF9DEA6E), fontWeight = FontWeight.SemiBold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDiscountDialog = false }) {
-                        Text(stringResource(R.string.cancel), color = Color.Gray, fontWeight = FontWeight.Medium)
-                    }
-                },
-                shape = RoundedCornerShape(12.dp),
-                containerColor = Color(0xFFF9FAFB)
+            Spacer(modifier = Modifier.height(Space.section))
+
+            InvTotalSummary(
+                label = stringResource(R.string.total),
+                amount = "$currencySymbol${String.format("%.2f", totalAmount)}",
+                meta = currency
             )
-        }
 
-        // Delete Confirmation Dialog
-        if (showDeleteDialog) {
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = false },
-                title = { Text(stringResource(R.string.delete_invoice_title)) },
-                text = { Text(stringResource(R.string.delete_invoice_confirmation)) },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.deleteInvoice {
-                                showDeleteDialog = false
-                                onClose()
-                            }
-                        }
-                    ) {
-                        Text(stringResource(R.string.delete), color = Color.Red)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDeleteDialog = false }) {
-                        Text(stringResource(R.string.cancel), color = Color.Gray)
-                    }
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun NavigationButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    iconText: String? = null,
-    text: String,
-    onClick: () -> Unit,
-    useGreenCircle: Boolean = false
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(if (useGreenCircle) 12.dp else 8.dp))
-            .clickable(onClick = onClick)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.weight(1f)
-        ) {
-            if (useGreenCircle) {
-                // Green circle with icon (for Add Client and Add Product)
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(
-                            color = Color(0xFF9DEA6E),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (icon != null) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(22.dp),
-                            tint = Color.Black
-                        )
-                    } else if (iconText != null) {
-                        Text(
-                            text = iconText,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-            } else {
-                // Original style (for Tax and Discount)
-                if (icon != null) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.Black
-                    )
-                } else if (iconText != null) {
-                    Box(
-                        modifier = Modifier.size(20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = iconText,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-            }
             Text(
-                text = text,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Black
+                text = stringResource(R.string.delete_invoice),
+                style = InvType.action,
+                color = Red,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showDeleteDialog = true }
+                    .padding(vertical = Space.xl)
             )
         }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null,
-            modifier = Modifier.size(if (useGreenCircle) 24.dp else 20.dp),
-            tint = if (useGreenCircle) Color.Black else Color.Gray
-        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Space.screen, vertical = Space.xl),
+            horizontalArrangement = Arrangement.spacedBy(Space.md)
+        ) {
+            InvButton(
+                text = stringResource(R.string.preview),
+                variant = InvButtonVariant.Secondary,
+                onClick = onNavigateToPreview,
+                modifier = Modifier.weight(1f)
+            )
+            InvButton(
+                text = stringResource(R.string.save_changes),
+                enabled = selectedClient != null && lineItems.isNotEmpty(),
+                onClick = { viewModel.updateInvoice { onSave() } },
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }

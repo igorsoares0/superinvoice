@@ -12,22 +12,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.superinvoice.ui.icons.InvIcons
-import com.example.superinvoice.ui.theme.Ghost
 import com.example.superinvoice.ui.theme.IconSize
 import com.example.superinvoice.ui.theme.Ink
 import com.example.superinvoice.ui.theme.InvType
+import com.example.superinvoice.ui.theme.Neutral
+import com.example.superinvoice.ui.theme.Orange
 import com.example.superinvoice.ui.theme.Space
 
+/**
+ * Linha de escolha única — moeda, formato de data. O selecionado é laranja
+ * com o tique à direita; sem fundo tingido nem contorno.
+ */
 @Composable
-fun SettingsOption(
-    text: String,
+fun InvSelectableRow(
+    title: String,
+    isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    icon: ImageVector? = null,
-    showArrow: Boolean = true
+    subtitle: String? = null,
+    trailingLabel: String? = null
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -38,27 +43,41 @@ fun SettingsOption(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Space.md)
         ) {
-            if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = Ink,
-                    modifier = Modifier.size(IconSize.lg)
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(Space.xs)
+            ) {
+                Text(
+                    text = title,
+                    style = InvType.name,
+                    color = if (isSelected) Orange else Ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = InvType.support,
+                        color = Neutral,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            if (trailingLabel != null) {
+                Text(
+                    text = trailingLabel,
+                    style = InvType.amountRow,
+                    color = if (isSelected) Orange else Neutral,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
-            Text(
-                text = text,
-                style = InvType.name,
-                color = Ink,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            if (showArrow) {
+            if (isSelected) {
                 Icon(
-                    imageVector = InvIcons.ChevronRight,
+                    imageVector = InvIcons.Check,
                     contentDescription = null,
-                    tint = Ghost,
+                    tint = Orange,
                     modifier = Modifier.size(IconSize.md)
                 )
             }

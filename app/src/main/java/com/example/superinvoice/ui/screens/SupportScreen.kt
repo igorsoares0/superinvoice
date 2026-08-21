@@ -1,100 +1,66 @@
 package com.example.superinvoice.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.superinvoice.ui.components.InvScaffold
+import com.example.superinvoice.ui.components.InvScreenHeader
+import com.example.superinvoice.ui.components.InvSectionRule
+import com.example.superinvoice.ui.theme.Ink
+import com.example.superinvoice.ui.theme.InvType
+import com.example.superinvoice.ui.theme.Neutral
+import com.example.superinvoice.ui.theme.Space
 import online.isdevapps.superinvoice.R
 
 @Composable
 fun SupportScreen(
     onClose: () -> Unit
 ) {
-    Scaffold(
-        containerColor = Color(0xFFF9FAFB),
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF9FAFB))
-                    .padding(top = 32.dp, bottom = 12.dp, start = 8.dp, end = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onClose) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close)
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.title_support),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp
-                )
-            }
-        }
-    ) { paddingValues ->
+    InvScaffold {
+        InvScreenHeader(
+            title = stringResource(R.string.title_support),
+            onClose = onClose,
+            closeContentDescription = stringResource(R.string.close)
+        )
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp)
+                .fillMaxWidth()
+                .padding(horizontal = Space.screen)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
             Text(
                 text = stringResource(R.string.support_need_help),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp
+                style = InvType.sectionTitle,
+                color = Ink
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
             Text(
                 text = stringResource(R.string.support_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.DarkGray,
-                lineHeight = 22.sp
+                style = InvType.body,
+                color = Neutral,
+                modifier = Modifier.padding(top = Space.md, bottom = Space.xxl)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = stringResource(R.string.support_contact_email_label),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = stringResource(R.string.support_contact_email),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
-            )
+            InvSectionRule()
+            Column(modifier = Modifier.padding(vertical = Space.lg)) {
+                Text(
+                    text = stringResource(R.string.support_contact_email_label).uppercase(),
+                    style = InvType.label,
+                    color = Neutral
+                )
+                Spacer(modifier = Modifier.height(Space.sm))
+                Text(
+                    text = stringResource(R.string.support_contact_email),
+                    style = InvType.fieldValue,
+                    color = Ink
+                )
+            }
+            InvSectionRule()
         }
     }
 }

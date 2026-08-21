@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import com.example.superinvoice.ui.theme.Paper
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -40,7 +41,7 @@ fun SignatureCanvas(
     Canvas(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF9FAFB))
+            .background(Paper) // só a superfície visível; o bitmap exportado segue igual
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->

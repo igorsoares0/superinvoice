@@ -2,75 +2,52 @@ package com.example.superinvoice.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.draw.shadow
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import kotlinx.coroutines.launch
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import online.isdevapps.superinvoice.R
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberAsyncImagePainter
+import com.example.superinvoice.ui.components.InvButton
+import com.example.superinvoice.ui.components.InvButtonVariant
+import com.example.superinvoice.ui.components.InvScaffold
+import com.example.superinvoice.ui.components.InvScreenHeader
+import com.example.superinvoice.ui.theme.InvShape
+import com.example.superinvoice.ui.theme.Orange
+import com.example.superinvoice.ui.theme.Space
 import com.example.superinvoice.ui.viewmodel.InvoicePreviewViewModel
-import com.example.superinvoice.util.getCurrencySymbol
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import kotlinx.coroutines.launch
+import online.isdevapps.superinvoice.R
 
+/**
+ * A fatura em si é renderizada pelo [com.example.superinvoice.data.pdf.InvoicePdfGenerator]
+ * e chega aqui como bitmap — esta tela é só a moldura em volta dela.
+ */
 @Composable
 fun InvoicePreviewScreen(
     invoiceId: Int,
@@ -82,14 +59,12 @@ fun InvoicePreviewScreen(
         viewModel.loadInvoice(invoiceId)
     }
 
-    val invoice by viewModel.invoice.collectAsStateWithLifecycle()
     val previewBitmap by viewModel.previewBitmap.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // Zoom and pan states
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
@@ -104,1461 +79,106 @@ fun InvoicePreviewScreen(
         offsetY = (offsetY + offsetChange.y).coerceIn(-maxY, maxY)
     }
 
-    Scaffold(
-        containerColor = Color(0xFFF5F5F5),
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        Column(
+    InvScaffold(snackbarHostState = snackbarHostState) {
+        InvScreenHeader(
+            title = stringResource(R.string.title_invoice_preview),
+            onClose = onClose,
+            closeContentDescription = stringResource(R.string.close)
+        )
+
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
-                .padding(paddingValues)
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = Space.screen),
+            contentAlignment = Alignment.Center
         ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF9FAFB))
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onClose) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close),
-                        tint = Color.Black
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.title_invoice_preview),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.width(48.dp))
-            }
-
-            // Scrollable content
             Box(
                 modifier = Modifier
-                    .weight(1f)
                     .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                // Invoice Template Preview
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 8.dp,
-                            shape = RoundedCornerShape(4.dp),
-                            clip = false
+                    .clip(InvShape.card)
+                    .background(Color.White)
+                    .transformable(state = transformableState)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = {
+                                scale = 1f
+                                offsetX = 0f
+                                offsetY = 0f
+                            }
                         )
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color(0xFFF9FAFB))
-                        .transformable(state = transformableState)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = {
-                                    // Reset zoom on double tap
-                                    scale = 1f
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                }
-                            )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                if (previewBitmap != null) {
+                    Image(
+                        bitmap = previewBitmap!!.asImageBitmap(),
+                        contentDescription = stringResource(R.string.invoice_preview_cd),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer(
+                                scaleX = scale,
+                                scaleY = scale,
+                                translationX = offsetX,
+                                translationY = offsetY
+                            ),
+                        contentScale = ContentScale.FillWidth,
+                        filterQuality = FilterQuality.High
+                    )
+                } else {
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(48.dp),
+                        color = Orange
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Space.screen, vertical = Space.xl),
+            horizontalArrangement = Arrangement.spacedBy(Space.md)
+        ) {
+            InvButton(
+                text = stringResource(R.string.share),
+                variant = InvButtonVariant.Secondary,
+                onClick = {
+                    viewModel.shareInvoicePdf(
+                        onError = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.error_sharing_pdf)
+                                )
+                            }
+                        }
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            )
+            InvButton(
+                text = stringResource(R.string.save_as_pdf),
+                onClick = {
+                    viewModel.downloadInvoicePdf(
+                        onSuccess = { path ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.pdf_saved_to, path)
+                                )
+                            }
                         },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (previewBitmap != null) {
-                        Image(
-                            bitmap = previewBitmap!!.asImageBitmap(),
-                            contentDescription = stringResource(R.string.invoice_preview_cd),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .graphicsLayer(
-                                    scaleX = scale,
-                                    scaleY = scale,
-                                    translationX = offsetX,
-                                    translationY = offsetY
-                                ),
-                            contentScale = ContentScale.FillWidth,
-                            filterQuality = FilterQuality.High
-                        )
-                    } else {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(48.dp),
-                            color = Color.Black
-                        )
-                    }
-                }
-            }
-
-            // Bottom Buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF9FAFB))
-                    .padding(horizontal = 20.dp, vertical = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        viewModel.shareInvoicePdf(
-                            onError = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(context.getString(R.string.error_sharing_pdf))
-                                }
+                        onError = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.failed_to_save_pdf)
+                                )
                             }
-                        )
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color(0xFFF9FAFB),
-                        contentColor = Color.Black
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.share),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
+                        }
                     )
-                }
-
-                Button(
-                    onClick = {
-                        viewModel.downloadInvoicePdf(
-                            onSuccess = { path ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(context.getString(R.string.pdf_saved_to, path))
-                                }
-                            },
-                            onError = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(context.getString(R.string.failed_to_save_pdf))
-                                }
-                            }
-                        )
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF9DEA6E),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.save_as_pdf),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ClassicTemplatePreview(
-    invoice: com.example.superinvoice.data.Invoice?,
-    client: com.example.superinvoice.data.Client?,
-    lineItems: List<com.example.superinvoice.ui.viewmodel.InvoicePreviewLineItem>,
-    logoPath: String?,
-    signaturePath: String?,
-    paymentQrCodePath: String?,
-    businessInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.BusinessInfo?,
-    paymentInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.PaymentInfo?,
-    dateFormat: SimpleDateFormat,
-    formattedDueDate: String,
-    currencySymbol: String
-) {
-    Column {
-                        // Logo (if exists)
-                        logoPath?.let { path ->
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Image(
-                                    painter = rememberAsyncImagePainter(File(path)),
-                                    contentDescription = stringResource(R.string.business_logo),
-                                    modifier = Modifier.height(40.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                        }
-
-                        // Title with line
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Divider(
-                                modifier = Modifier.weight(1f),
-                                thickness = 1.dp,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = stringResource(R.string.invoice_label),
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 20.sp,
-                                letterSpacing = 3.sp,
-                                modifier = Modifier.padding(start = 12.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(28.dp))
-
-                        // First Row: FROM (left) and INVOICE INFO (right)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            // Left Column - FROM (Business Information)
-                            if (businessInfo?.businessName?.isNotEmpty() == true) {
-                                Column(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.from_label),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.8.sp,
-                                        color = Color.Black
-                                    )
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Text(
-                                        text = businessInfo?.businessName ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                    if (businessInfo?.ownerName?.isNotEmpty() == true) {
-                                        Text(
-                                            text = businessInfo?.ownerName ?: "",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (businessInfo?.email?.isNotEmpty() == true) {
-                                        Text(
-                                            text = businessInfo?.email ?: "",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (businessInfo?.phone?.isNotEmpty() == true) {
-                                        Text(
-                                            text = businessInfo?.phone ?: "",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (businessInfo?.website?.isNotEmpty() == true) {
-                                        Text(
-                                            text = businessInfo?.website ?: "",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (businessInfo?.address?.isNotEmpty() == true) {
-                                        Text(
-                                            text = businessInfo?.address ?: "",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    val cityStateZip = buildString {
-                                        if (businessInfo?.city?.isNotEmpty() == true) append(businessInfo?.city)
-                                        if (businessInfo?.state?.isNotEmpty() == true) {
-                                            if (isNotEmpty()) append(", ")
-                                            append(businessInfo?.state)
-                                        }
-                                        if (businessInfo?.zipCode?.isNotEmpty() == true) {
-                                            if (isNotEmpty()) append(" ")
-                                            append(businessInfo?.zipCode)
-                                        }
-                                    }
-                                    if (cityStateZip.isNotEmpty()) {
-                                        Text(
-                                            text = cityStateZip,
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (businessInfo?.taxId?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.tax_id_label, businessInfo?.taxId ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                }
-                            } else {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            // Right Column - Invoice Info
-                            Column(
-                                horizontalAlignment = Alignment.End
-                            ) {
-                                Row {
-                                    Text(
-                                        text = stringResource(R.string.invoice_no_label),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.8.sp,
-                                        color = Color.Black
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = invoice?.number ?: "",
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Row {
-                                    Text(
-                                        text = stringResource(R.string.date_label),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.8.sp,
-                                        color = Color.Black
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = invoice?.let { dateFormat.format(Date(it.createdDate)) } ?: "",
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Row {
-                                    Text(
-                                        text = stringResource(R.string.due_date_label),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.8.sp,
-                                        color = Color.Black
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = formattedDueDate,
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Second Row: ISSUED TO (left) and PAY TO (right)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            // Left Column - Issued To
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.issued_to_label),
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    letterSpacing = 0.8.sp,
-                                    color = Color.Black
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = client?.name ?: "",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                )
-                                if (client?.email?.isNotEmpty() == true) {
-                                    Text(
-                                        text = client?.email ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                                if (client?.phone?.isNotEmpty() == true) {
-                                    Text(
-                                        text = client?.phone ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            // Right Column - Pay To
-                            if (paymentInfo?.bankName?.isNotEmpty() == true) {
-                                Column(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.pay_to_label),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.8.sp,
-                                        color = Color.Black
-                                    )
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Text(
-                                        text = paymentInfo?.bankName ?: "",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color.Black
-                                    )
-                                    if (paymentInfo?.bankAddress?.isNotEmpty() == true) {
-                                        Text(
-                                            text = paymentInfo?.bankAddress ?: "",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.acc_name_label, paymentInfo?.accountHolderName ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.acc_number_label, paymentInfo?.accountNumber ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.routing_label, paymentInfo?.routingNumber ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (paymentInfo?.iban?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.iban_label, paymentInfo?.iban ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.swift_label, paymentInfo?.swiftCode ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.terms_label, paymentInfo?.paymentTerms ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-                                    if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
-                                        Text(
-                                            text = stringResource(R.string.notes_label, paymentInfo?.additionalInstructions ?: ""),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = Color.Black
-                                        )
-                                    }
-
-                                    // QR Code for payment
-                                    paymentQrCodePath?.let { qrPath ->
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = stringResource(R.string.scan_to_pay),
-                                            fontSize = 8.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            letterSpacing = 0.8.sp,
-                                            color = Color.Black
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Image(
-                                            painter = rememberAsyncImagePainter(File(qrPath)),
-                                            contentDescription = stringResource(R.string.payment_qr_code),
-                                            modifier = Modifier
-                                                .width(80.dp)
-                                                .height(80.dp),
-                                            contentScale = ContentScale.Fit
-                                        )
-                                    }
-                                }
-                            } else {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Divider before table
-                        Divider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 1.dp,
-                            color = Color(0xFFE0E0E0)
-                        )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        // Table Header
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = stringResource(R.string.description_label),
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                letterSpacing = 0.8.sp,
-                                modifier = Modifier.weight(2f)
-                            )
-                            Text(
-                                text = stringResource(R.string.unit_price_label),
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                letterSpacing = 0.8.sp,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = stringResource(R.string.qty_label),
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                letterSpacing = 0.8.sp,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.weight(0.5f)
-                            )
-                            Text(
-                                text = stringResource(R.string.total_label),
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                letterSpacing = 0.8.sp,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Table Items
-                        lineItems.forEach { item ->
-                            PreviewInvoiceLineItem(
-                                description = item.productService.name,
-                                unitPrice = String.format("%.2f", item.productService.pricePerUnit),
-                                quantity = item.quantity.toString(),
-                                total = "$currencySymbol${String.format("%.2f", item.lineTotal)}",
-                                currencySymbol = currencySymbol
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        // Totals
-                        Column(
-                            modifier = Modifier.align(Alignment.End)
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.subtotal_label),
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    letterSpacing = 0.8.sp,
-                                    modifier = Modifier.width(80.dp)
-                                )
-                                Text(
-                                    text = "$currencySymbol${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    textAlign = TextAlign.End,
-                                    modifier = Modifier.width(60.dp)
-                                )
-                            }
-                            if ((invoice?.tax ?: 0.0) > 0) {
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Row(
-                                    horizontalArrangement = Arrangement.End,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.tax_label),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.8.sp,
-                                        modifier = Modifier.width(80.dp)
-                                    )
-                                    Text(
-                                        text = "$currencySymbol${String.format("%.2f", invoice?.tax ?: 0.0)}",
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        textAlign = TextAlign.End,
-                                        modifier = Modifier.width(60.dp)
-                                    )
-                                }
-                            }
-                            if ((invoice?.discount ?: 0.0) > 0) {
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Row(
-                                    horizontalArrangement = Arrangement.End,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.discount_label),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.8.sp,
-                                        modifier = Modifier.width(80.dp)
-                                    )
-                                    Text(
-                                        text = "-$currencySymbol${String.format("%.2f", invoice?.discount ?: 0.0)}",
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        textAlign = TextAlign.End,
-                                        modifier = Modifier.width(60.dp)
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(3.dp))
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.total_label),
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    letterSpacing = 0.8.sp,
-                                    modifier = Modifier.width(80.dp)
-                                )
-                                Text(
-                                    text = "$currencySymbol${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    textAlign = TextAlign.End,
-                                    modifier = Modifier.width(60.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        // Signature (if exists)
-                        signaturePath?.let { path ->
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Image(
-                                    painter = rememberAsyncImagePainter(File(path)),
-                                    contentDescription = stringResource(R.string.signature_cd),
-                                    modifier = Modifier.height(30.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                        }
-    }
-}
-
-@Composable
-private fun ModernTemplatePreview(
-    invoice: com.example.superinvoice.data.Invoice?,
-    client: com.example.superinvoice.data.Client?,
-    lineItems: List<com.example.superinvoice.ui.viewmodel.InvoicePreviewLineItem>,
-    logoPath: String?,
-    signaturePath: String?,
-    paymentQrCodePath: String?,
-    businessInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.BusinessInfo?,
-    paymentInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.PaymentInfo?,
-    dateFormat: SimpleDateFormat,
-    formattedDueDate: String,
-    currencySymbol: String
-) {
-    Column {
-        // Logo (if exists)
-        logoPath?.let { path ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = stringResource(R.string.business_logo),
-                    modifier = Modifier.height(32.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-
-        // Top section: Business Info (left) and Invoice# + Dates (right)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Left - Business Information
-            if (businessInfo?.businessName?.isNotEmpty() == true) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = businessInfo?.businessName ?: "",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Black
-                    )
-                    if (businessInfo?.ownerName?.isNotEmpty() == true) {
-                        Text(text = businessInfo?.ownerName ?: "", fontSize = 8.sp, color = Color.Gray)
-                    }
-                    if (businessInfo?.address?.isNotEmpty() == true) {
-                        Text(text = businessInfo?.address ?: "", fontSize = 8.sp, color = Color.Gray)
-                    }
-                    val cityStateZip = buildString {
-                        if (businessInfo?.city?.isNotEmpty() == true) append(businessInfo?.city)
-                        if (businessInfo?.state?.isNotEmpty() == true) {
-                            if (isNotEmpty()) append(", ")
-                            append(businessInfo?.state)
-                        }
-                        if (businessInfo?.zipCode?.isNotEmpty() == true) {
-                            if (isNotEmpty()) append(" ")
-                            append(businessInfo?.zipCode)
-                        }
-                    }
-                    if (cityStateZip.isNotEmpty()) {
-                        Text(text = cityStateZip, fontSize = 8.sp, color = Color.Gray)
-                    }
-                    if (businessInfo?.taxId?.isNotEmpty() == true) {
-                        Text(text = stringResource(R.string.tax_id_label, businessInfo?.taxId ?: ""), fontSize = 8.sp, color = Color.Gray)
-                    }
-                }
-            } else {
-                Spacer(modifier = Modifier.weight(1f))
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Right - Invoice # and Dates
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = stringResource(R.string.invoice_number_format, invoice?.number ?: ""),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = stringResource(R.string.date_label), fontSize = 7.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
-                Text(
-                    text = invoice?.let { dateFormat.format(Date(it.createdDate)) } ?: "",
-                    fontSize = 8.sp,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(text = stringResource(R.string.due_date_label), fontSize = 7.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
-                Text(text = formattedDueDate, fontSize = 8.sp, color = Color.Black)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Divider(thickness = 0.5.dp, color = Color.LightGray)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // BILLED TO section
-        Text(text = stringResource(R.string.billed_to_label), fontSize = 8.sp, color = Color.Gray)
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(text = client?.name ?: "", fontSize = 9.sp, fontWeight = FontWeight.Normal, color = Color.Black)
-        if (client?.phone?.isNotEmpty() == true) {
-            Text(text = client?.phone ?: "", fontSize = 8.sp, color = Color.Gray)
-        }
-        if (client?.email?.isNotEmpty() == true) {
-            Text(text = client?.email ?: "", fontSize = 8.sp, color = Color.Gray)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Divider(thickness = 0.5.dp, color = Color.LightGray)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Table Header
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(
-                text = stringResource(R.string.description_label),
-                fontSize = 7.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.8.sp,
-                modifier = Modifier.weight(2f)
-            )
-            Text(
-                text = stringResource(R.string.rate_label),
-                fontSize = 7.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.8.sp,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = stringResource(R.string.hours_label),
-                fontSize = 7.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.8.sp,
-                modifier = Modifier.weight(0.7f)
-            )
-            Text(
-                text = stringResource(R.string.price_label),
-                fontSize = 7.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.8.sp,
-                textAlign = TextAlign.End,
+                },
                 modifier = Modifier.weight(1f)
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Table Items
-        lineItems.forEach { item ->
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = item.productService.name, fontSize = 9.sp, modifier = Modifier.weight(2f))
-                Text(
-                    text = "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}",
-                    fontSize = 9.sp,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(text = "${item.quantity}", fontSize = 9.sp, modifier = Modifier.weight(0.7f))
-                Text(
-                    text = "$currencySymbol${String.format("%.2f", item.lineTotal)}",
-                    fontSize = 9.sp,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Divider(thickness = 0.5.dp, color = Color.LightGray)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Totals
-        Column(modifier = Modifier.align(Alignment.End)) {
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                Text(text = stringResource(R.string.total_amount_label), fontSize = 9.sp, modifier = Modifier.width(100.dp))
-                Text(
-                    text = "$currencySymbol${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
-                    fontSize = 9.sp,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.width(60.dp)
-                )
-            }
-            if ((invoice?.tax ?: 0.0) > 0) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = stringResource(R.string.vat_label), fontSize = 9.sp, modifier = Modifier.width(100.dp))
-                    Text(
-                        text = "$currencySymbol${String.format("%.2f", invoice?.tax ?: 0.0)}",
-                        fontSize = 9.sp,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.width(60.dp)
-                    )
-                }
-            }
-            if ((invoice?.discount ?: 0.0) > 0) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = stringResource(R.string.discount_label), fontSize = 9.sp, modifier = Modifier.width(100.dp))
-                    Text(
-                        text = "-$currencySymbol${String.format("%.2f", invoice?.discount ?: 0.0)}",
-                        fontSize = 9.sp,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.width(60.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                Text(text = stringResource(R.string.amount_due_label), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(100.dp))
-                Text(
-                    text = "$currencySymbol${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.width(60.dp)
-                )
-            }
-        }
-
-        // Payment Info (if exists)
-        if (paymentInfo?.bankName?.isNotEmpty() == true) {
-            Spacer(modifier = Modifier.height(20.dp))
-            Divider(thickness = 0.5.dp, color = Color.LightGray)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(text = stringResource(R.string.payment_information_label), fontSize = 8.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(6.dp))
-            if (paymentInfo?.bankName?.isNotEmpty() == true) {
-                Text(text = stringResource(R.string.bank_label, paymentInfo?.bankName ?: ""), fontSize = 9.sp)
-            }
-            if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
-                Text(text = stringResource(R.string.account_holder_label, paymentInfo?.accountHolderName ?: ""), fontSize = 9.sp)
-            }
-            if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
-                Text(text = stringResource(R.string.account_number_label, paymentInfo?.accountNumber ?: ""), fontSize = 9.sp)
-            }
-            if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
-                Text(text = stringResource(R.string.routing_number_label, paymentInfo?.routingNumber ?: ""), fontSize = 9.sp)
-            }
-            if (paymentInfo?.iban?.isNotEmpty() == true) {
-                Text(text = stringResource(R.string.iban_label, paymentInfo?.iban ?: ""), fontSize = 9.sp)
-            }
-            if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
-                Text(text = stringResource(R.string.swift_label, paymentInfo?.swiftCode ?: ""), fontSize = 9.sp)
-            }
-
-            // QR Code for payment
-            paymentQrCodePath?.let { qrPath ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.scan_to_pay),
-                    fontSize = 8.sp,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Image(
-                    painter = rememberAsyncImagePainter(File(qrPath)),
-                    contentDescription = stringResource(R.string.payment_qr_code),
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(80.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-
-        // Signature (if exists)
-        signaturePath?.let { path ->
-            Spacer(modifier = Modifier.height(24.dp))
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = stringResource(R.string.signature_cd),
-                    modifier = Modifier.height(28.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-
-        // Bottom section
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            text = stringResource(R.string.invoice_label),
-            fontSize = 36.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.thank_you_label),
-            fontSize = 7.sp,
-            color = Color.Gray,
-            letterSpacing = 0.8.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        if (businessInfo?.phone?.isNotEmpty() == true) {
-            Text(text = stringResource(R.string.helpdesk_label, businessInfo?.phone ?: ""), fontSize = 7.sp, color = Color.Black)
-        }
-        if (businessInfo?.email?.isNotEmpty() == true) {
-            Text(text = stringResource(R.string.email_label, businessInfo?.email ?: ""), fontSize = 7.sp, color = Color.Black)
-        }
-        if (businessInfo?.website?.isNotEmpty() == true) {
-            Text(text = stringResource(R.string.web_label, businessInfo?.website ?: ""), fontSize = 7.sp, color = Color.Black)
-        }
     }
 }
 
-@Composable
-private fun ProfessionalTemplatePreview(
-    invoice: com.example.superinvoice.data.Invoice?,
-    client: com.example.superinvoice.data.Client?,
-    lineItems: List<com.example.superinvoice.ui.viewmodel.InvoicePreviewLineItem>,
-    logoPath: String?,
-    signaturePath: String?,
-    paymentQrCodePath: String?,
-    businessInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.BusinessInfo?,
-    paymentInfo: com.example.superinvoice.data.pdf.InvoicePdfGenerator.PaymentInfo?,
-    dateFormat: SimpleDateFormat,
-    formattedDueDate: String,
-    currencySymbol: String
-) {
-    Column {
-        // Logo (if exists)
-        logoPath?.let { path ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = stringResource(R.string.business_logo),
-                    modifier = Modifier.height(32.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-
-        // Business info at top
-        if (businessInfo?.businessName?.isNotEmpty() == true) {
-            Text(text = businessInfo?.businessName ?: "", fontSize = 9.sp, fontWeight = FontWeight.Normal, color = Color.Black)
-        }
-        if (businessInfo?.ownerName?.isNotEmpty() == true) {
-            Text(text = businessInfo?.ownerName ?: "", fontSize = 8.sp, color = Color.DarkGray)
-        }
-        if (businessInfo?.email?.isNotEmpty() == true) {
-            Text(text = businessInfo?.email ?: "", fontSize = 8.sp, color = Color.DarkGray)
-        }
-        if (businessInfo?.phone?.isNotEmpty() == true) {
-            Text(text = businessInfo?.phone ?: "", fontSize = 8.sp, color = Color.DarkGray)
-        }
-        if (businessInfo?.address?.isNotEmpty() == true) {
-            Text(text = businessInfo?.address ?: "", fontSize = 8.sp, color = Color.DarkGray)
-        }
-        val cityStateZip = buildString {
-            if (businessInfo?.city?.isNotEmpty() == true) append(businessInfo?.city)
-            if (businessInfo?.state?.isNotEmpty() == true) {
-                if (isNotEmpty()) append(", ")
-                append(businessInfo?.state)
-            }
-            if (businessInfo?.zipCode?.isNotEmpty() == true) {
-                if (isNotEmpty()) append(" ")
-                append(businessInfo?.zipCode)
-            }
-        }
-        if (cityStateZip.isNotEmpty()) {
-            Text(text = cityStateZip, fontSize = 8.sp, color = Color.DarkGray)
-        }
-        if (businessInfo?.taxId?.isNotEmpty() == true) {
-            Text(text = stringResource(R.string.tax_id_label, businessInfo?.taxId ?: ""), fontSize = 8.sp, color = Color.DarkGray)
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Large "INVOICE" title at center
-        Text(
-            text = stringResource(R.string.invoice_label),
-            fontSize = 26.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 4.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Two columns: Issued to (left) and Invoice info (right)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Left - Issued to
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.issued_to_professional),
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = client?.name ?: "", fontSize = 9.sp, color = Color.Black)
-                if (client?.email?.isNotEmpty() == true) {
-                    Text(text = client?.email ?: "", fontSize = 8.sp, color = Color.DarkGray)
-                }
-                if (client?.phone?.isNotEmpty() == true) {
-                    Text(text = client?.phone ?: "", fontSize = 8.sp, color = Color.DarkGray)
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Right - Invoice No and Dates
-            Column(horizontalAlignment = Alignment.End) {
-                Row {
-                    Text(text = stringResource(R.string.invoice_no_professional), fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "#${invoice?.number ?: ""}", fontSize = 8.sp, color = Color.Black)
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row {
-                    Text(text = stringResource(R.string.date_issued_label), fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = invoice?.let { dateFormat.format(Date(it.createdDate)) } ?: "",
-                        fontSize = 8.sp,
-                        color = Color.Black
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row {
-                    Text(text = stringResource(R.string.due_date_professional), fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = formattedDueDate, fontSize = 8.sp, color = Color.Black)
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Table with black header
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // Header row with black background
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Black)
-                    .padding(vertical = 10.dp, horizontal = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.description_header),
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF9FAFB),
-                    modifier = Modifier.weight(2.5f),
-                    maxLines = 1
-                )
-                Text(
-                    text = stringResource(R.string.quantity_header),
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF9FAFB),
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1
-                )
-                Text(
-                    text = stringResource(R.string.unit_price_header),
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF9FAFB),
-                    modifier = Modifier.weight(1.2f),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1
-                )
-                Text(
-                    text = stringResource(R.string.total_header),
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF9FAFB),
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.End,
-                    maxLines = 1
-                )
-            }
-
-            // Table rows
-            lineItems.forEach { item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp, horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = item.productService.name,
-                        fontSize = 9.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(2.5f)
-                    )
-                    Text(
-                        text = "${item.quantity}",
-                        fontSize = 9.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "$currencySymbol${String.format("%.2f", item.productService.pricePerUnit)}",
-                        fontSize = 9.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1.2f),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "$currencySymbol${String.format("%.2f", item.lineTotal)}",
-                        fontSize = 9.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.End
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Divider(thickness = 1.dp, color = Color.LightGray)
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Bottom section: Payment info (left) and Totals (right)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            // Left - Payment Info
-            Column(modifier = Modifier.weight(1f)) {
-                if (paymentInfo?.bankName?.isNotEmpty() == true) {
-                    Text(
-                        text = stringResource(R.string.payment_info_label),
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Black
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    if (paymentInfo?.bankName?.isNotEmpty() == true) {
-                        Text(text = paymentInfo?.bankName ?: "", fontSize = 8.sp, color = Color.DarkGray)
-                    }
-                    if (paymentInfo?.bankAddress?.isNotEmpty() == true) {
-                        Text(text = paymentInfo?.bankAddress ?: "", fontSize = 8.sp, color = Color.DarkGray)
-                    }
-                    if (paymentInfo?.accountHolderName?.isNotEmpty() == true) {
-                        Text(
-                            text = stringResource(R.string.account_name_label, paymentInfo?.accountHolderName ?: ""),
-                            fontSize = 8.sp,
-                            color = Color.DarkGray
-                        )
-                    }
-                    if (paymentInfo?.accountNumber?.isNotEmpty() == true) {
-                        Text(
-                            text = stringResource(R.string.account_no_label, paymentInfo?.accountNumber ?: ""),
-                            fontSize = 8.sp,
-                            color = Color.DarkGray
-                        )
-                    }
-                    if (paymentInfo?.routingNumber?.isNotEmpty() == true) {
-                        Text(
-                            text = stringResource(R.string.routing_label, paymentInfo?.routingNumber ?: ""),
-                            fontSize = 8.sp,
-                            color = Color.DarkGray
-                        )
-                    }
-                    if (paymentInfo?.iban?.isNotEmpty() == true) {
-                        Text(
-                            text = stringResource(R.string.iban_label, paymentInfo?.iban ?: ""),
-                            fontSize = 8.sp,
-                            color = Color.DarkGray
-                        )
-                    }
-                    if (paymentInfo?.swiftCode?.isNotEmpty() == true) {
-                        Text(
-                            text = stringResource(R.string.swift_label, paymentInfo?.swiftCode ?: ""),
-                            fontSize = 8.sp,
-                            color = Color.DarkGray
-                        )
-                    }
-                    if (paymentInfo?.paymentTerms?.isNotEmpty() == true) {
-                        Text(
-                            text = stringResource(R.string.terms_label, paymentInfo?.paymentTerms ?: ""),
-                            fontSize = 8.sp,
-                            color = Color.DarkGray
-                        )
-                    }
-                    if (paymentInfo?.additionalInstructions?.isNotEmpty() == true) {
-                        Text(
-                            text = stringResource(R.string.notes_label, paymentInfo?.additionalInstructions ?: ""),
-                            fontSize = 8.sp,
-                            color = Color.DarkGray
-                        )
-                    }
-
-                    // QR Code for payment
-                    paymentQrCodePath?.let { qrPath ->
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.scan_to_pay),
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Image(
-                            painter = rememberAsyncImagePainter(File(qrPath)),
-                            contentDescription = stringResource(R.string.payment_qr_code),
-                            modifier = Modifier
-                                .width(80.dp)
-                                .height(80.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Right - Totals
-            Column(horizontalAlignment = Alignment.End, modifier = Modifier.weight(1f)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = stringResource(R.string.subtotal_colon), fontSize = 9.sp)
-                    Text(
-                        text = "$currencySymbol${String.format("%.2f", invoice?.subtotal ?: 0.0)}",
-                        fontSize = 9.sp,
-                        textAlign = TextAlign.End
-                    )
-                }
-                if ((invoice?.tax ?: 0.0) > 0) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(text = stringResource(R.string.tax_colon), fontSize = 9.sp)
-                        Text(
-                            text = "$currencySymbol${String.format("%.2f", invoice?.tax ?: 0.0)}",
-                            fontSize = 9.sp,
-                            textAlign = TextAlign.End
-                        )
-                    }
-                }
-                if ((invoice?.discount ?: 0.0) > 0) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(text = stringResource(R.string.discount_colon), fontSize = 9.sp)
-                        Text(
-                            text = "-$currencySymbol${String.format("%.2f", invoice?.discount ?: 0.0)}",
-                            fontSize = 9.sp,
-                            textAlign = TextAlign.End
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = stringResource(R.string.total_colon), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                    Text(
-                        text = "$currencySymbol${String.format("%.2f", invoice?.totalAmount ?: 0.0)}",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.End
-                    )
-                }
-            }
-        }
-
-        // Signature (if exists)
-        Spacer(modifier = Modifier.height(24.dp))
-        signaturePath?.let { path ->
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(File(path)),
-                    contentDescription = stringResource(R.string.signature_cd),
-                    modifier = Modifier.height(28.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-
-        // Website at bottom center
-        Spacer(modifier = Modifier.height(32.dp))
-        if (businessInfo?.website?.isNotEmpty() == true) {
-            Text(
-                text = businessInfo?.website ?: "",
-                fontSize = 8.sp,
-                color = Color.Black,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@Composable
-private fun PreviewInvoiceLineItem(
-    description: String,
-    unitPrice: String,
-    quantity: String,
-    total: String,
-    currencySymbol: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 3.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = description,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Normal,
-            color = Color.Black,
-            modifier = Modifier.weight(2f)
-        )
-        Text(
-            text = "$currencySymbol$unitPrice",
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Normal,
-            color = Color.Black,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = quantity,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Normal,
-            color = Color.Black,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(0.5f)
-        )
-        Text(
-            text = total,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Normal,
-            color = Color.Black,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}

@@ -1,41 +1,14 @@
 package com.example.superinvoice.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import online.isdevapps.superinvoice.R
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.database.entities.InvoiceStatus
+import com.example.superinvoice.ui.theme.Green
+import com.example.superinvoice.ui.theme.Orange
 import com.example.superinvoice.util.getCurrencySymbol
+import online.isdevapps.superinvoice.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,186 +26,38 @@ fun InvoiceCard(
     onDelete: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    var showMenu by remember { mutableStateOf(false) }
     val dateFormat = SimpleDateFormat(dateFormatPattern, Locale.getDefault())
     val formattedDate = dateFormat.format(Date(invoice.createdDate))
     val currencySymbol = getCurrencySymbol(invoice.currency)
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF9FAFB)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = "#${invoice.number}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = "$currencySymbol${String.format("%.2f", invoice.totalAmount)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = formattedDate,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
-                if (invoice.status == InvoiceStatus.PAID) {
-                    Text(
-                        text = stringResource(R.string.status_paid),
-                        modifier = Modifier
-                            .background(
-                                color = Color(0xFF9DEA6E),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
-                        color = Color.Black
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.status_unpaid),
-                        modifier = Modifier
-                            .background(
-                                color = Color(0xFF9DEA6E).copy(alpha = 0.3f),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
-                        color = Color.Black
-                    )
-                }
-            }
+    val isPaid = invoice.status == InvoiceStatus.PAID
+    val statusColor = if (isPaid) Green else Orange
+    val statusLabel = stringResource(
+        if (isPaid) R.string.status_paid else R.string.status_unpaid
+    )
 
-            Box {
-                IconButton(onClick = { showMenu = true }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.menu),
-                        tint = Color.Gray
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                    shape = RoundedCornerShape(12.dp),
-                    containerColor = Color(0xFFF9FAFB),
-                    modifier = Modifier
-                ) {
-                    onPreview?.let {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.preview),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.Black
-                                )
-                            },
-                            onClick = {
-                                showMenu = false
-                                it()
-                            }
-                        )
-                    }
-                    onEdit?.let {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.edit),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.Black
-                                )
-                            },
-                            onClick = {
-                                showMenu = false
-                                it()
-                            }
-                        )
-                    }
-                    onShare?.let {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.share),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.Black
-                                )
-                            },
-                            onClick = {
-                                showMenu = false
-                                it()
-                            }
-                        )
-                    }
-                    onDownloadPdf?.let {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.download_pdf),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.Black
-                                )
-                            },
-                            onClick = {
-                                showMenu = false
-                                it()
-                            }
-                        )
-                    }
-                    onDelete?.let {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.delete),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.Red
-                                )
-                            },
-                            onClick = {
-                                showMenu = false
-                                it()
-                            }
-                        )
-                    }
-                }
-            }
+    val actions = buildList {
+        onPreview?.let { add(InvMenuAction(stringResource(R.string.preview), onClick = it)) }
+        onEdit?.let { add(InvMenuAction(stringResource(R.string.edit), onClick = it)) }
+        onShare?.let { add(InvMenuAction(stringResource(R.string.share), onClick = it)) }
+        onDownloadPdf?.let {
+            add(InvMenuAction(stringResource(R.string.download_pdf), onClick = it))
+        }
+        onDelete?.let {
+            add(InvMenuAction(stringResource(R.string.delete), destructive = true, onClick = it))
         }
     }
+    val menuDescription = stringResource(R.string.menu)
+
+    InvListRow(
+        modifier = modifier,
+        title = "#${invoice.number}",
+        meta = formattedDate,
+        amount = "$currencySymbol${String.format("%.2f", invoice.totalAmount)}",
+        statusLabel = statusLabel,
+        statusColor = statusColor,
+        showStatusDot = true,
+        onClick = onClick,
+        trailing = { InvRowMenu(actions = actions, contentDescription = menuDescription) }
+    )
 }

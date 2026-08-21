@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet"><style>body{margin:0;background:#FCFBF8;font-family:'DM Sans',system-ui,sans-serif}a{color:#D2591F}a:hover{color:#A8420F}</style></helmet>
+
+<div style="width:1040px;margin:0 auto;padding:72px 64px 96px;color:#211E1A;box-sizing:border-box">
+
+<div style="display:flex;flex-direction:column;gap:14px;padding-bottom:28px;border-bottom:1px solid rgba(33,30,26,.9)">
+<span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">SuperInvoice · direção 6a</span>
+<span style="font-family:'Space Grotesk',sans-serif;font-size:52px;font-weight:400;line-height:1.02;letter-spacing:-1.8px">Guia de estilo</span>
+<span style="font-size:15px;font-weight:400;line-height:1.6;color:#6E6355;max-width:620px;text-wrap:pretty">Papel off-white, laranja terroso e tipografia leve. A hierarquia vem de tamanho, tracking e caixa alta — nunca de peso pesado. Nenhum peso passa de 500.</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px;padding:44px 0 0">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">01</span><span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:400;letter-spacing:-.7px">Cor</span></div>
+
+<span style="font-size:10.5px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:#8D8477">Base</span>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<sc-for list="{{ base }}" as="c" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="height:88px;border-radius:14px;border:1px solid {{ c.ring }};background:{{ c.hex }}"></div>
+<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:13.5px;font-weight:500">{{ c.name }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#8D8477">{{ c.hex }}</span><span style="font-size:11.5px;font-weight:400;color:#8D8477;line-height:1.45">{{ c.use }}</span></div>
+</div>
+</sc-for>
+</div>
+
+<span style="font-size:10.5px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:#8D8477;padding-top:12px">Marca e status</span>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<sc-for list="{{ accents }}" as="c" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="height:88px;border-radius:14px;display:flex;align-items:flex-end;padding:12px;background:{{ c.bg }}"><span style="font-size:11.5px;font-weight:500;color:{{ c.hex }}">Aa · {{ c.name }}</span></div>
+<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:13.5px;font-weight:500">{{ c.name }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#8D8477">{{ c.hex }} · {{ c.bg }}</span><span style="font-size:11.5px;font-weight:400;color:#8D8477;line-height:1.45">{{ c.use }}</span></div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:12px;padding:18px;border:1px solid rgba(33,30,26,.14);border-radius:16px;align-items:flex-start">
+<div style="width:5px;align-self:stretch;border-radius:3px;background:#D2591F;flex:none"></div>
+<span style="font-size:13px;font-weight:400;line-height:1.6;color:#6E6355;text-wrap:pretty">Regra: laranja é ação e "a pagar" ao mesmo tempo. Verde só confirma pagamento, vermelho só sinaliza atraso. Nunca use laranja em texto corrido nem verde em botões.</span>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px;padding:56px 0 0">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">02</span><span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:400;letter-spacing:-.7px">Tipografia</span></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px"><span style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:400;letter-spacing:-1.1px">Space Grotesk</span><span style="font-size:12.5px;font-weight:400;color:#8D8477;line-height:1.5">Regular 400 · Medium 500. Títulos de tela, nomes em destaque e todo valor monetário. Tracking sempre negativo: −.5 a −1.2px.</span></div>
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px"><span style="font-size:34px;font-weight:400;letter-spacing:-.8px">DM Sans</span><span style="font-size:12.5px;font-weight:400;color:#8D8477;line-height:1.5">Regular 400 · Medium 500. Corpo, rótulos, listas e botões. 500 apenas para nomes, ações e rótulos em caixa alta.</span></div>
+</div>
+
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;overflow:hidden">
+<sc-for list="{{ scale }}" as="t" hint-placeholder-count="8">
+<div style="display:flex;align-items:baseline;gap:24px;padding:16px 20px;border-bottom:1px solid rgba(33,30,26,.1)">
+<span style="width:200px;flex:none;font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">{{ t.role }}</span>
+<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:{{ t.family }};font-size:{{ t.size }};font-weight:{{ t.weight }};letter-spacing:{{ t.tracking }};text-transform:{{ t.transform }}">{{ t.sample }}</span>
+<span style="width:190px;flex:none;text-align:right;font-family:'Space Grotesk',sans-serif;font-size:11.5px;font-weight:400;color:#8D8477;white-space:nowrap">{{ t.spec }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px;padding:56px 0 0">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">03</span><span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:400;letter-spacing:-.7px">Filetes, raios e sombra</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Filetes</span>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div><div style="height:1px;background:rgba(33,30,26,.9)"></div><span style="display:block;padding-top:7px;font-size:11.5px;color:#8D8477">Régua · 1px @ 90% — abre e fecha seções</span></div>
+<div><div style="height:1px;background:rgba(33,30,26,.1)"></div><span style="display:block;padding-top:7px;font-size:11.5px;color:#8D8477">Divisor · 1px @ 10% — entre linhas de lista</span></div>
+</div>
+</div>
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Raios</span>
+<div style="display:flex;align-items:flex-end;gap:12px">
+<div style="display:flex;flex-direction:column;gap:7px;align-items:center"><div style="width:52px;height:34px;border-radius:999px;border:1px solid rgba(33,30,26,.2)"></div><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#8D8477">999</span></div>
+<div style="display:flex;flex-direction:column;gap:7px;align-items:center"><div style="width:52px;height:44px;border-radius:18px;border:1px solid rgba(33,30,26,.2)"></div><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#8D8477">18</span></div>
+<div style="display:flex;flex-direction:column;gap:7px;align-items:center"><div style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(33,30,26,.2)"></div><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#8D8477">12</span></div>
+</div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">Pílula em botões e chips, 18 em cartões, 12 em avatares.</span>
+</div>
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Elevação</span>
+<div style="height:44px;border-radius:999px;background:#D2591F;box-shadow:0 12px 26px -10px rgba(210,89,31,.55)"></div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">Uma só sombra, colorida, exclusiva do botão flutuante. Cartões usam borda, não sombra.</span>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px;padding:56px 0 0">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">04</span><span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:400;letter-spacing:-.7px">Ícones</span></div>
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;gap:34px;flex-wrap:wrap;color:#211E1A">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 13h6M9 17h4"></path></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"></circle><path d="M5 20a7 7 0 0 1 14 0"></path></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"></path></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L19 7"></path></svg>
+</div>
+<div style="display:flex;gap:40px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Traço</span><span style="font-family:'Space Grotesk',sans-serif;font-size:13.5px">1,5 – 1,6px</span></div>
+<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Tamanhos</span><span style="font-family:'Space Grotesk',sans-serif;font-size:13.5px">16 · 17 · 19 · 30px</span></div>
+<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Terminações</span><span style="font-family:'Space Grotesk',sans-serif;font-size:13.5px">round · round</span></div>
+<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Preenchimento</span><span style="font-family:'Space Grotesk',sans-serif;font-size:13.5px">nenhum · currentColor</span></div>
+</div>
+<span style="font-size:13px;font-weight:400;line-height:1.6;color:#6E6355;text-wrap:pretty">Somente contorno, jamais sólido. Um ícone nunca aparece sem rótulo na navegação, e o traço fino acompanha o peso leve do texto.</span>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px;padding:56px 0 0">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">05</span><span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:400;letter-spacing:-.7px">Componentes</span></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Botões</span>
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="height:52px;border-radius:999px;background:#D2591F;color:#FFFDF9;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500">Primário</div>
+<div style="height:52px;border-radius:999px;border:1px solid rgba(33,30,26,.9);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500">Secundário</div>
+<div style="height:52px;border-radius:999px;background:#F1EDE4;color:#A79E90;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500">Desabilitado</div>
+<div style="height:52px;padding:0 22px;width:fit-content;border-radius:999px;background:#D2591F;color:#FFFDF9;display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:500;box-shadow:0 12px 26px -10px rgba(210,89,31,.55)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Flutuante</div>
+</div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">Altura 52–54px. O desabilitado sempre vem com uma linha explicando o que falta.</span>
+</div>
+
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Filtros e etiquetas</span>
+<div style="display:flex;gap:20px">
+<span style="font-size:13px;font-weight:500;padding-bottom:5px;color:#D2591F;border-bottom:1.5px solid #D2591F">Todas</span>
+<span style="font-size:13px;font-weight:500;padding-bottom:5px;color:#8D8477;border-bottom:1.5px solid transparent">Pagas</span>
+<span style="font-size:13px;font-weight:500;padding-bottom:5px;color:#8D8477;border-bottom:1.5px solid transparent">A pagar</span>
+</div>
+<div style="display:flex;gap:9px;flex-wrap:wrap">
+<sc-for list="{{ statuses }}" as="s" hint-placeholder-count="3">
+<span style="font-size:10.5px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:7px;color:{{ s.hex }}"><span style="width:7px;height:7px;border-radius:50%;flex:none;background:{{ s.hex }}"></span>{{ s.label }}</span>
+</sc-for>
+</div>
+<div style="display:flex;gap:9px;flex-wrap:wrap">
+<span style="font-size:12px;font-weight:400;padding:8px 13px;border-radius:999px;border:1px solid rgba(33,30,26,.18)">+ Imposto</span>
+<span style="font-size:12px;font-weight:400;padding:8px 13px;border-radius:999px;border:1px solid rgba(33,30,26,.18)">+ Desconto</span>
+</div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">Filtro é sublinhado, nunca cápsula preenchida. Status é ponto + caixa alta, sem fundo.</span>
+</div>
+
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Linha de fatura</span>
+<div style="display:flex;flex-direction:column">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="2">
+<div style="padding:16px 0;border-bottom:1px solid rgba(33,30,26,.1);display:flex;align-items:center;gap:13px">
+<div style="width:7px;height:7px;border-radius:50%;flex:none;background:{{ r.hex }}"></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:16px;font-weight:500;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.client }}</span><span style="font-size:11.5px;color:#8D8477;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.meta }}</span></div>
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:400;letter-spacing:-.35px;white-space:nowrap">{{ r.amount }}</span><span style="font-size:10.5px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap;color:{{ r.hex }}">{{ r.label }}</span></div>
+</div>
+</sc-for>
+</div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">Valor sempre `nowrap`; o nome trunca com reticências. Nenhum cartão — só divisor.</span>
+</div>
+
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Campo de formulário</span>
+<div style="display:flex;flex-direction:column">
+<div style="padding:16px 0;border-top:1px solid rgba(33,30,26,.9);border-bottom:1px solid rgba(33,30,26,.1);display:flex;flex-direction:column;gap:6px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:#8D8477">Preenchido</span><span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:400;letter-spacing:-.5px">Padaria Rosa</span></div>
+<div style="padding:16px 0;border-bottom:1px solid rgba(33,30,26,.1);display:flex;align-items:center;gap:12px"><div style="flex:1;display:flex;flex-direction:column;gap:6px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:#8D8477">Vazio</span><span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:400;letter-spacing:-.5px;color:#B3AA9B">Escolher ou criar</span></div><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B3AA9B" stroke-width="1.6" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg></div>
+</div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">Rótulo fixo em caixa alta acima do valor — nunca placeholder dentro de caixa. Sem contorno de input.</span>
+</div>
+
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Resumo</span>
+<div style="border-top:1px solid rgba(33,30,26,.9);border-bottom:1px solid rgba(33,30,26,.9);padding:16px 0;display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">A receber</span><span style="font-family:'Space Grotesk',sans-serif;font-size:33px;font-weight:400;line-height:1;letter-spacing:-1.2px;white-space:nowrap">R$ 2.950,00</span></div>
+<div style="display:flex;flex-direction:column;align-items:flex-end;font-size:11.5px;color:#8D8477;line-height:1.4"><span style="white-space:nowrap">3 faturas</span><span style="white-space:nowrap">em aberto</span></div>
+</div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">O número mais importante da tela vive entre duas réguas, sem fundo colorido.</span>
+</div>
+
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px">
+<span style="font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#8D8477">Estado vazio</span>
+<div style="padding:8px 0 4px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+<div style="width:64px;height:64px;border-radius:50%;border:1px solid rgba(33,30,26,.2);display:flex;align-items:center;justify-content:center;color:#D2591F"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 13h6M9 17h4"></path></svg></div>
+<span style="font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:400;line-height:1.2;letter-spacing:-.6px">Nenhuma fatura ainda</span>
+<span style="font-size:13px;color:#8D8477;line-height:1.5;max-width:260px">Crie a primeira e acompanhe aqui tudo o que você já cobrou.</span>
+</div>
+<span style="font-size:11.5px;color:#8D8477;line-height:1.5">Ícone em círculo de contorno, título e uma frase — nunca emoji. O texto muda conforme o filtro ativo.</span>
+</div>
+
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px;padding:56px 0 0">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">06</span><span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:400;letter-spacing:-.7px">Voz e escrita</span></div>
+<div style="border:1px solid rgba(33,30,26,.14);border-radius:16px;overflow:hidden">
+<div style="display:flex;padding:14px 20px;border-bottom:1px solid rgba(33,30,26,.1);background:#F8F6F1"><span style="flex:1;font-size:10.5px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:#8D8477">Escreva</span><span style="flex:1;font-size:10.5px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:#8D8477">Evite</span></div>
+<sc-for list="{{ voice }}" as="v" hint-placeholder-count="4">
+<div style="display:flex;padding:14px 20px;border-bottom:1px solid rgba(33,30,26,.1);gap:20px"><span style="flex:1;font-size:13.5px;font-weight:400">{{ v.good }}</span><span style="flex:1;font-size:13.5px;font-weight:400;color:#B3AA9B;text-decoration:line-through">{{ v.bad }}</span></div>
+</sc-for>
+</div>
+<span style="font-size:13px;font-weight:400;line-height:1.6;color:#6E6355;max-width:640px;text-wrap:pretty">Segunda pessoa, verbo no infinitivo nos botões, valores sempre em BRL com duas casas. Nada de exclamação e nada de jargão contábil.</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px;padding:56px 0 0">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:10.5px;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:#8D8477">07</span><span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:400;letter-spacing:-.7px">Espaçamento</span></div>
+<div style="display:flex;gap:10px;align-items:flex-end">
+<sc-for list="{{ spacing }}" as="sp" hint-placeholder-count="6">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:center"><div style="width:{{ sp.px }};height:{{ sp.px }};background:#FBEDE4;border:1px solid #E7BFA5"></div><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#8D8477">{{ sp.px }}</span></div>
+</sc-for>
+</div>
+<span style="font-size:13px;font-weight:400;line-height:1.6;color:#6E6355;max-width:640px;text-wrap:pretty">Escala de 4. Margem lateral da tela 24px, respiro entre linhas de lista 16px, entre seções 22px. Layouts sempre com flex/grid e <code style="font-family:'Space Grotesk',sans-serif;font-size:12.5px">gap</code>.</span>
+</div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1040,&quot;height&quot;:1400}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      base: [
+        {name:'Papel', hex:'#FCFBF8', ring:'rgba(33,30,26,.14)', use:'Fundo de todas as telas'},
+        {name:'Tinta', hex:'#211E1A', ring:'#211E1A', use:'Texto principal e réguas'},
+        {name:'Neutro', hex:'#8D8477', ring:'rgba(33,30,26,.14)', use:'Rótulos e texto de apoio'},
+        {name:'Fantasma', hex:'#B3AA9B', ring:'rgba(33,30,26,.14)', use:'Campo vazio e valor zero'}
+      ],
+      accents: [
+        {name:'Laranja', hex:'#D2591F', bg:'#FBEDE4', use:'Ação, marca e "a pagar"'},
+        {name:'Verde', hex:'#3F7A4B', bg:'#EAF0E8', use:'Fatura paga'},
+        {name:'Vermelho', hex:'#B5341F', bg:'#F9E3DE', use:'Fatura vencida'},
+        {name:'Inerte', hex:'#A79E90', bg:'#F1EDE4', use:'Botão desabilitado'}
+      ],
+      scale: [
+        {role:'Título de tela', family:"'Space Grotesk',sans-serif", size:'30px', weight:400, tracking:'-.9px', transform:'none', sample:'Faturas', spec:'Grotesk 400 · 30/1 · −.9'},
+        {role:'Valor grande', family:"'Space Grotesk',sans-serif", size:'33px', weight:400, tracking:'-1.2px', transform:'none', sample:'R$ 2.950,00', spec:'Grotesk 400 · 33/1 · −1.2'},
+        {role:'Título de seção', family:"'Space Grotesk',sans-serif", size:'23px', weight:400, tracking:'-.7px', transform:'none', sample:'Nova fatura', spec:'Grotesk 400 · 23/1 · −.7'},
+        {role:'Valor em linha', family:"'Space Grotesk',sans-serif", size:'17px', weight:400, tracking:'-.35px', transform:'none', sample:'R$ 1.240,00', spec:'Grotesk 400 · 17 · −.35'},
+        {role:'Nome / item', family:"'DM Sans',sans-serif", size:'16px', weight:500, tracking:'-.2px', transform:'none', sample:'Padaria Rosa', spec:'DM Sans 500 · 16 · −.2'},
+        {role:'Corpo', family:"'DM Sans',sans-serif", size:'14px', weight:400, tracking:'0', transform:'none', sample:'Entrega semanal', spec:'DM Sans 400 · 14/1.5'},
+        {role:'Apoio', family:"'DM Sans',sans-serif", size:'11.5px', weight:400, tracking:'0', transform:'none', sample:'INV-002 · Vence em 3 dias', spec:'DM Sans 400 · 11.5'},
+        {role:'Rótulo', family:"'DM Sans',sans-serif", size:'10.5px', weight:500, tracking:'1.5px', transform:'uppercase', sample:'A receber', spec:'DM Sans 500 · 10.5 · +1.5'}
+      ],
+      statuses: [
+        {label:'Paga', hex:'#3F7A4B'}, {label:'A pagar', hex:'#D2591F'}, {label:'Vencida', hex:'#B5341F'}
+      ],
+      rows: [
+        {client:'Studio Vinte', meta:'INV-002 · Vence em 3 dias', amount:'R$ 480,00', label:'A pagar', hex:'#D2591F'},
+        {client:'Márcia Lopes', meta:'INV-003 · Venceu há 6 dias', amount:'R$ 2.150,00', label:'Vencida', hex:'#B5341F'}
+      ],
+      voice: [
+        {good:'Criar fatura', bad:'Nova fatura +'},
+        {good:'Adicione um cliente e um item para salvar', bad:'Formulário inválido'},
+        {good:'Tudo em dia por enquanto', bad:'Nenhum resultado encontrado 🎉'},
+        {good:'Venceu há 6 dias', bad:'Status: OVERDUE'}
+      ],
+      spacing: [{px:'4px'},{px:'8px'},{px:'12px'},{px:'16px'},{px:'24px'},{px:'32px'}]
+    };
+  }
+}
+
+</script>
+</body>
+</html>
