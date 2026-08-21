@@ -101,19 +101,53 @@ fun SignatureCanvas(
     }
 }
 
+/**
+ * Exporta a assinatura desenhada.
+ *
+ * Os traços são capturados em coordenadas de tela da área de desenho, que
+ * é bem maior que o bitmap de destino — antes eles eram copiados sem
+ * escalar, então tudo que passasse de [width] x [height] era simplesmente
+ * cortado. Aqui a caixa de tinta é medida e encaixada no destino,
+ * preservando a proporção.
+ *
+ * O fundo sai transparente: a assinatura é colada sobre a página branca do
+ * PDF, e um retângulo off-white por baixo dela aparecia como uma mancha.
+ */
 fun List<PathState>.toBitmap(width: Int, height: Int): Bitmap {
     val imageBitmap = androidx.compose.ui.graphics.ImageBitmap(width, height)
     val canvas = androidx.compose.ui.graphics.Canvas(imageBitmap)
 
-    // Draw white background
-    canvas.drawRect(
-        0f, 0f, width.toFloat(), height.toFloat(),
-        androidx.compose.ui.graphics.Paint().apply {
-            color = Color(0xFFF9FAFB)
-        }
-    )
+    if (isEmpty()) return imageBitmap.asAndroidBitmap()
 
-    // Draw all paths
+    // Caixa que envolve toda a tinta, folgada pela espessura do traço para
+    // as pontas arredondadas não encostarem na borda.
+    val pad = maxOf(1f, maxOf { it.strokeWidth } / 2f)
+    var left = Float.MAX_VALUE
+    var top = Float.MAX_VALUE
+    var right = -Float.MAX_VALUE
+    var bottom = -Float.MAX_VALUE
+    forEach { state ->
+        val b = state.path.getBounds()
+        if (b.left < left) left = b.left
+        if (b.top < top) top = b.top
+        if (b.right > right) right = b.right
+        if (b.bottom > bottom) bottom = b.bottom
+    }
+    left -= pad; top -= pad; right += pad; bottom += pad
+
+    val inkWidth = (right - left).coerceAtLeast(1f)
+    val inkHeight = (bottom - top).coerceAtLeast(1f)
+    val scale = minOf(width / inkWidth, height / inkHeight)
+
+    canvas.save()
+    // Centraliza o que sobrar depois de encaixar.
+    canvas.translate(
+        (width - inkWidth * scale) / 2f,
+        (height - inkHeight * scale) / 2f
+    )
+    canvas.scale(scale, scale)
+    canvas.translate(-left, -top)
+
     forEach { pathState ->
         canvas.drawPath(
             path = pathState.path,
@@ -123,9 +157,11 @@ fun List<PathState>.toBitmap(width: Int, height: Int): Bitmap {
                 strokeCap = StrokeCap.Round
                 strokeJoin = StrokeJoin.Round
                 style = androidx.compose.ui.graphics.PaintingStyle.Stroke
+                isAntiAlias = true
             }
         )
     }
+    canvas.restore()
 
     return imageBitmap.asAndroidBitmap()
 }

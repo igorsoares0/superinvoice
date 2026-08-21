@@ -106,7 +106,7 @@ fun SignatureScreen(
                 TextButton(
                     onClick = {
                         if (signaturePaths.isNotEmpty()) {
-                            val bitmap = signaturePaths.toBitmap(800, 300)
+                            val bitmap = signaturePaths.toBitmap(1600, 600)
                             viewModel.saveSignatureFromBitmap(
                                 bitmap = bitmap,
                                 onSuccess = {

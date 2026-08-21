@@ -17,6 +17,7 @@ import com.example.superinvoice.data.pdf.InvoiceFontChoice
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
 import com.example.superinvoice.data.pdf.InvoiceStyle
 import com.example.superinvoice.data.pdf.InvoiceTemplate
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -131,6 +132,54 @@ class InvoicePdfRenderTest {
         }
 
         assertTrue("nada foi renderizado", rendered > 0)
+    }
+
+    /**
+     * Um caminho de assinatura apontando para arquivo que sumiu tem de
+     * produzir a mesma fatura que não ter assinatura nenhuma — nos dois
+     * casos cai no nome do titular.
+     *
+     * Antes do conserto, o arquivo ausente não caía no `catch` nem no ramo
+     * nulo: não desenhava nada e o cursor nem avançava.
+     */
+    @Test
+    fun missingSignatureFallsBackToOwnerName() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val generator = InvoicePdfGenerator(context)
+        val data = datasets().first().second
+
+        fun render(signaturePath: String?): String {
+            val bitmap = generator.generateInvoicePreviewBitmap(
+                invoice = data.invoice,
+                client = data.client,
+                items = data.items,
+                businessInfo = data.businessInfo,
+                paymentInfo = data.paymentInfo,
+                currency = "USD",
+                dateFormat = "MM/dd/yyyy",
+                logoPath = null,
+                signaturePath = signaturePath,
+                paymentQrCodePath = null,
+                template = InvoiceTemplate.CLASSIC,
+                scale = 1,
+                isPremium = true
+            )
+            requireNotNull(bitmap)
+            val h = hash(bitmap)
+            bitmap.recycle()
+            return h
+        }
+
+        val withoutSignature = render(null)
+        val withGhostPath = render(
+            java.io.File(context.cacheDir, "assinatura-que-nao-existe.png").absolutePath
+        )
+        Log.i(TAG, "assinatura ausente: sem=$withoutSignature fantasma=$withGhostPath")
+        assertEquals(
+            "arquivo de assinatura ausente devia cair no nome do titular",
+            withoutSignature,
+            withGhostPath
+        )
     }
 
     /** SHA-256 dos pixels crus — a comparação antes/depois. */

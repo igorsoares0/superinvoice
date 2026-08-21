@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
@@ -43,6 +44,9 @@ class InvoicePdfGenerator @Inject constructor(
     private val pageHeight = 842 // A4 height in points
     private val margin = 60f
 
+    /** 4x os pontos ~= 288 DPI: o teto útil para impressão. */
+    private val PRINT_OVERSAMPLE = 4f
+
     /** Vinco entre páginas no preview empilhado, em pontos. */
     private val previewPageGap = 12
 
@@ -75,6 +79,104 @@ class InvoicePdfGenerator @Inject constructor(
      * "Cidade, UF CEP" — a mesma composição aparecia seis vezes, três para
      * o negócio e três para o cliente.
      */
+    /**
+     * Desenha a assinatura e devolve o novo `yPos`.
+     *
+     * Antes, se o caminho estivesse salvo mas o arquivo tivesse sumido, ou
+     * se a imagem não decodificasse, o código não caía nem no `catch` nem
+     * no ramo nulo: não desenhava nada, não avançava o cursor e ninguém
+     * ficava sabendo. Agora qualquer falha cai no nome do titular.
+     */
+    private fun drawSignature(
+        pager: InvoicePager,
+        paints: InvoicePaints,
+        signaturePath: String?,
+        ownerName: String,
+        yPos: Float,
+        maxHeight: Float,
+        fallbackTextSize: Float
+    ): Float {
+        val y = pager.flowTo(yPos, maxHeight + 20f)
+
+        val bitmap = signaturePath
+            ?.takeIf { it.isNotBlank() }
+            ?.let { path ->
+                runCatching {
+                    if (File(path).exists()) BitmapFactory.decodeFile(path) else null
+                }.getOrNull()
+            }
+
+        if (bitmap != null) {
+            val drawn = runCatching {
+                val aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
+                // Largura limitada como a do logo: uma assinatura muito
+                // alongada invadiria a coluna vizinha.
+                val maxWidth = (pageWidth - 2 * margin) / 2f
+                var height = maxHeight
+                var width = height * aspectRatio
+                if (width > maxWidth) {
+                    width = maxWidth
+                    height = width / aspectRatio
+                }
+                drawImageAt(pager.canvas, bitmap, margin, y, width, height)
+                height
+            }.getOrNull()
+            bitmap.recycle()
+            if (drawn != null) return y + drawn + 15f
+        }
+
+        if (ownerName.isEmpty()) return y
+        val signaturePaint = paints.text(fallbackTextSize)
+        pager.canvas.drawText(ownerName, margin, y, signaturePaint)
+        return y + paints.advance(signaturePaint, 20f)
+    }
+
+    /**
+     * Coloca uma imagem no PDF preservando a resolução original.
+     *
+     * Antes, cada imagem era reduzida com `createScaledBitmap` para o
+     * tamanho em PONTOS e só então desenhada — um QR de 80x80 pontos virava
+     * uma imagem de 80x80 pixels, ou seja 72 DPI, que borra ao imprimir e
+     * às vezes nem escaneia. Desenhando no retângulo de destino, o PDF
+     * guarda os pixels originais e o leitor escala na hora de exibir.
+     *
+     * Acima de ~288 DPI não há ganho visível, então uma foto de 12MP é
+     * reduzida a esse teto para o arquivo não explodir.
+     */
+    private fun drawImageAt(
+        canvas: Canvas,
+        bitmap: Bitmap,
+        left: Float,
+        top: Float,
+        width: Float,
+        height: Float
+    ) {
+        val paint = Paint().apply {
+            isFilterBitmap = true
+            isAntiAlias = true
+            isDither = true
+        }
+        val capPx = (width * PRINT_OVERSAMPLE).toInt().coerceAtLeast(1)
+        val source = if (bitmap.width > capPx) {
+            val ratio = bitmap.height.toFloat() / bitmap.width.toFloat()
+            Bitmap.createScaledBitmap(
+                bitmap,
+                capPx,
+                (capPx * ratio).toInt().coerceAtLeast(1),
+                true
+            )
+        } else {
+            bitmap
+        }
+        canvas.drawBitmap(
+            source,
+            null,
+            RectF(left, top, left + width, top + height),
+            paint
+        )
+        if (source !== bitmap) source.recycle()
+    }
+
     private fun cityStateZip(city: String, state: String, zipCode: String): String =
         buildString {
             if (city.isNotEmpty()) append(city)
@@ -373,15 +475,8 @@ class InvoicePdfGenerator @Inject constructor(
                         }
 
                         // Draw logo on the left
-                        val scaledBitmap = Bitmap.createScaledBitmap(
-                            it,
-                            logoWidth.toInt(),
-                            logoHeight.toInt(),
-                            true
-                        )
-                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        drawImageAt(pager.canvas, it, margin, yPos, logoWidth, logoHeight)
                         yPos += logoHeight + 20f
-                        scaledBitmap.recycle()
                         it.recycle()
                     }
                 }
@@ -557,17 +652,8 @@ class InvoicePdfGenerator @Inject constructor(
                         val qrBitmap = BitmapFactory.decodeFile(qrPath)
                         qrBitmap?.let {
                             val qrSize = 80f
-                            val scaledQr = Bitmap.createScaledBitmap(
-                                it,
-                                qrSize.toInt(),
-                                qrSize.toInt(),
-                                true
-                            )
-                            pager.canvas.drawText("Scan to Pay:", payRightX, rightYPos, sectionTitlePaint)
-                            rightYPos += paints.advance(sectionTitlePaint, 12f)
-                            pager.canvas.drawBitmap(scaledQr, payRightX, rightYPos, null)
+                            drawImageAt(pager.canvas, it, payRightX, rightYPos, qrSize, qrSize)
                             rightYPos += qrSize + 10f
-                            scaledQr.recycle()
                             it.recycle()
                         }
                     }
@@ -656,46 +742,7 @@ class InvoicePdfGenerator @Inject constructor(
         yPos += paints.advance(totalPaint, 40f)
 
         // Business signature
-        signaturePath?.let { path ->
-            try {
-                val signatureFile = File(path)
-                if (signatureFile.exists()) {
-                    val bitmap = BitmapFactory.decodeFile(path)
-                    bitmap?.let {
-                        // Calculate signature dimensions (max height 40, maintain aspect ratio)
-                        val maxSignatureHeight = 40f
-                        val aspectRatio = it.width.toFloat() / it.height.toFloat()
-                        val signatureHeight = maxSignatureHeight
-                        val signatureWidth = signatureHeight * aspectRatio
-
-                        // Draw signature on the left
-                        val scaledBitmap = Bitmap.createScaledBitmap(
-                            it,
-                            signatureWidth.toInt(),
-                            signatureHeight.toInt(),
-                            true
-                        )
-                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
-                        yPos += signatureHeight + 20f
-                        scaledBitmap.recycle()
-                        it.recycle()
-                    }
-                }
-            } catch (e: Exception) {
-                // Error handled silently
-                // Fallback to text signature if image fails
-                if (businessInfo.ownerName.isNotEmpty()) {
-                    val signaturePaint = paints.text(18f)
-                    pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
-                }
-            }
-        } ?: run {
-            // No signature image, use text signature if owner name exists
-            if (businessInfo.ownerName.isNotEmpty()) {
-                val signaturePaint = paints.text(18f)
-                pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
-            }
-        }
+        yPos = drawSignature(pager, paints, signaturePath, businessInfo.ownerName, yPos, maxHeight = 40f, fallbackTextSize = 18f)
     }
 
     private fun drawModernTemplate(
@@ -739,15 +786,8 @@ class InvoicePdfGenerator @Inject constructor(
                             logoWidth = maxLogoWidth
                         }
 
-                        val scaledBitmap = Bitmap.createScaledBitmap(
-                            it,
-                            logoWidth.toInt(),
-                            logoHeight.toInt(),
-                            true
-                        )
-                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        drawImageAt(pager.canvas, it, margin, yPos, logoWidth, logoHeight)
                         yPos += logoHeight + 20f
-                        scaledBitmap.recycle()
                         it.recycle()
                     }
                 }
@@ -993,17 +1033,8 @@ class InvoicePdfGenerator @Inject constructor(
                         val qrBitmap = BitmapFactory.decodeFile(qrPath)
                         qrBitmap?.let {
                             val qrSize = 80f
-                            val scaledQr = Bitmap.createScaledBitmap(
-                                it,
-                                qrSize.toInt(),
-                                qrSize.toInt(),
-                                true
-                            )
-                            pager.canvas.drawText("Scan to Pay:", margin, yPos, bodySmallPaint)
-                            yPos += paints.advance(bodySmallPaint, 12f)
-                            pager.canvas.drawBitmap(scaledQr, margin, yPos, null)
+                            drawImageAt(pager.canvas, it, margin, yPos, qrSize, qrSize)
                             yPos += qrSize + 10f
-                            scaledQr.recycle()
                             it.recycle()
                         }
                     }
@@ -1015,44 +1046,7 @@ class InvoicePdfGenerator @Inject constructor(
         }
 
         // Business signature
-        signaturePath?.let { path ->
-            try {
-                val signatureFile = File(path)
-                if (signatureFile.exists()) {
-                    val bitmap = BitmapFactory.decodeFile(path)
-                    bitmap?.let {
-                        val maxSignatureHeight = 35f
-                        val aspectRatio = it.width.toFloat() / it.height.toFloat()
-                        val signatureHeight = maxSignatureHeight
-                        val signatureWidth = signatureHeight * aspectRatio
-
-                        val scaledBitmap = Bitmap.createScaledBitmap(
-                            it,
-                            signatureWidth.toInt(),
-                            signatureHeight.toInt(),
-                            true
-                        )
-                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
-                        yPos += signatureHeight + 15f
-                        scaledBitmap.recycle()
-                        it.recycle()
-                    }
-                }
-            } catch (e: Exception) {
-                // Error handled silently
-                if (businessInfo.ownerName.isNotEmpty()) {
-                    val signaturePaint = paints.text(14f)
-                    pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
-                    yPos += paints.advance(signaturePaint, 20f)
-                }
-            }
-        } ?: run {
-            if (businessInfo.ownerName.isNotEmpty()) {
-                val signaturePaint = paints.text(14f)
-                pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
-                yPos += paints.advance(signaturePaint, 20f)
-            }
-        }
+        yPos = drawSignature(pager, paints, signaturePath, businessInfo.ownerName, yPos, maxHeight = 35f, fallbackTextSize = 14f)
 
         // Move to bottom section
         // Se o conteúdo já chegou aqui, abre página nova em vez de sobrescrever.
@@ -1127,15 +1121,8 @@ class InvoicePdfGenerator @Inject constructor(
                             logoWidth = maxLogoWidth
                         }
 
-                        val scaledBitmap = Bitmap.createScaledBitmap(
-                            it,
-                            logoWidth.toInt(),
-                            logoHeight.toInt(),
-                            true
-                        )
-                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
+                        drawImageAt(pager.canvas, it, margin, yPos, logoWidth, logoHeight)
                         yPos += logoHeight + 20f
-                        scaledBitmap.recycle()
                         it.recycle()
                     }
                 }
@@ -1347,18 +1334,8 @@ class InvoicePdfGenerator @Inject constructor(
                         val qrBitmap = BitmapFactory.decodeFile(qrPath)
                         qrBitmap?.let {
                             val qrSize = 80f
-                            val scaledQr = Bitmap.createScaledBitmap(
-                                it,
-                                qrSize.toInt(),
-                                qrSize.toInt(),
-                                true
-                            )
-                            leftYPos += 5f
-                            pager.canvas.drawText("Scan to Pay:", leftX, leftYPos, labelPaint)
-                            leftYPos += paints.advance(labelPaint, 12f)
-                            pager.canvas.drawBitmap(scaledQr, leftX, leftYPos, null)
+                            drawImageAt(pager.canvas, it, leftX, leftYPos, qrSize, qrSize)
                             leftYPos += qrSize + 10f
-                            scaledQr.recycle()
                             it.recycle()
                         }
                     }
@@ -1405,44 +1382,7 @@ class InvoicePdfGenerator @Inject constructor(
 
         // Signature
         yPos = maxOf(leftYPos, rightYPos) + 30f
-        signaturePath?.let { path ->
-            try {
-                val signatureFile = File(path)
-                if (signatureFile.exists()) {
-                    val bitmap = BitmapFactory.decodeFile(path)
-                    bitmap?.let {
-                        val maxSignatureHeight = 35f
-                        val aspectRatio = it.width.toFloat() / it.height.toFloat()
-                        val signatureHeight = maxSignatureHeight
-                        val signatureWidth = signatureHeight * aspectRatio
-
-                        val scaledBitmap = Bitmap.createScaledBitmap(
-                            it,
-                            signatureWidth.toInt(),
-                            signatureHeight.toInt(),
-                            true
-                        )
-                        pager.canvas.drawBitmap(scaledBitmap, margin, yPos, null)
-                        yPos += signatureHeight + 15f
-                        scaledBitmap.recycle()
-                        it.recycle()
-                    }
-                }
-            } catch (e: Exception) {
-                // Error handled silently
-                if (businessInfo.ownerName.isNotEmpty()) {
-                    val signaturePaint = paints.text(14f)
-                    pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
-                    yPos += paints.advance(signaturePaint, 20f)
-                }
-            }
-        } ?: run {
-            if (businessInfo.ownerName.isNotEmpty()) {
-                val signaturePaint = paints.text(14f)
-                pager.canvas.drawText(businessInfo.ownerName, margin, yPos, signaturePaint)
-                yPos += paints.advance(signaturePaint, 20f)
-            }
-        }
+        yPos = drawSignature(pager, paints, signaturePath, businessInfo.ownerName, yPos, maxHeight = 35f, fallbackTextSize = 14f)
 
         // Website at bottom center
         yPos = pager.reserveFooter(yPos, 20f)
