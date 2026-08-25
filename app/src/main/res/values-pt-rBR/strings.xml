@@ -70,6 +70,8 @@
     <string name="purchases_restored_successfully">Compras restauradas com sucesso!</string>
     <string name="settings_terms">Termos</string>
     <string name="settings_policy">Política</string>
+    <string name="settings_share_analytics">Compartilhar dados de uso</string>
+    <string name="settings_share_analytics_description">Ajuda a corrigir falhas e a ver quais recursos são usados. Nunca inclui suas faturas, clientes ou dados bancários.</string>
     <string name="settings_support">Suporte</string>
 
     <!-- Premium Card -->

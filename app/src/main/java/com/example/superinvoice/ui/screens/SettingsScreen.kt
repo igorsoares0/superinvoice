@@ -24,6 +24,7 @@ import com.example.superinvoice.ui.components.InvScreenHeader
 import com.example.superinvoice.ui.components.InvSectionRule
 import com.example.superinvoice.ui.components.PremiumCard
 import com.example.superinvoice.ui.components.SettingsOption
+import com.example.superinvoice.ui.components.SettingsToggleOption
 import com.example.superinvoice.ui.theme.InvType
 import com.example.superinvoice.ui.theme.Neutral
 import com.example.superinvoice.ui.theme.Space
@@ -50,7 +51,9 @@ fun SettingsScreen(
     onNavigateToTerms: () -> Unit = {},
     onNavigateToSupport: () -> Unit = {},
     onRestorePurchases: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit = { _, _ -> },
-    isPremium: Boolean = false
+    isPremium: Boolean = false,
+    analyticsEnabled: Boolean = true,
+    onAnalyticsEnabledChange: (Boolean) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -175,6 +178,14 @@ fun SettingsScreen(
                 SettingsOption(
                     text = stringResource(R.string.settings_support),
                     onClick = onNavigateToSupport
+                )
+                // No fim da lista: é o único controle com interruptor no meio de linhas
+                // com seta, então destoa menos aqui do que entre elas.
+                SettingsToggleOption(
+                    text = stringResource(R.string.settings_share_analytics),
+                    description = stringResource(R.string.settings_share_analytics_description),
+                    checked = analyticsEnabled,
+                    onCheckedChange = onAnalyticsEnabledChange
                 )
 
                 Spacer(modifier = Modifier.height(Space.xxl))

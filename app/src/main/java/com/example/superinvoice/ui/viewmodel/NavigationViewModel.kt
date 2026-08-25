@@ -41,6 +41,22 @@ class NavigationViewModel @Inject constructor(
         analyticsManager.logInvoiceStarted()
     }
 
+    /**
+     * Consentimento para telemetria. Quem aplica a mudança é o observador em
+     * [com.example.superinvoice.SuperInvoiceApplication], que já escuta esta mesma
+     * preferência — aqui só se grava, para não existirem dois donos do estado.
+     */
+    val analyticsEnabled: StateFlow<Boolean> = settingsRepository.analyticsEnabled
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
+
+    fun setAnalyticsEnabled(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setAnalyticsEnabled(enabled) }
+    }
+
     val isPremium: StateFlow<Boolean> = billingManager.isPremium
 
     val invoiceCount: StateFlow<Int> = settingsRepository.totalInvoicesCreated

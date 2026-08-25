@@ -13,6 +13,10 @@ room = "2.6.1"
 hilt = "2.51"
 hiltNavigationCompose = "1.2.0"
 lifecycleViewmodelCompose = "2.10.0"
+# Preso no 34.10.0 de proposito: a partir do 34.11.0 o firebase-analytics passa a ser
+# 23.2.0, compilado com metadata Kotlin 2.2, e o build quebra com "Module was compiled
+# with an incompatible version of Kotlin" contra o kotlin = "2.0.21" acima. Para subir o
+# Firebase e preciso subir o Kotlin junto (e com ele kotlin-compose e ksp).
 firebaseBom = "34.10.0"
 googleServices = "4.5.0"
 firebaseCrashlyticsPlugin = "3.0.8"

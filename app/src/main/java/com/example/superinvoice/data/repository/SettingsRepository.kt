@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.superinvoice.data.pdf.InvoiceAccent
 import com.example.superinvoice.data.pdf.InvoiceFontChoice
 import com.example.superinvoice.data.pdf.InvoiceStyle
+import com.example.superinvoice.data.analytics.ConsentRegion
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -22,7 +23,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 @Singleton
 class SettingsRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val consentRegion: ConsentRegion
 ) {
     // Business Information Keys
     private val BUSINESS_NAME = stringPreferencesKey("business_name")
@@ -96,12 +98,16 @@ class SettingsRepository @Inject constructor(
     val totalInvoicesCreated: Flow<Int> = context.dataStore.data.map { it[TOTAL_INVOICES_CREATED] ?: 0 }
 
     /**
-     * Consentimento para telemetria. O padrão é `true`, o que só é aceitável fora da UE
-     * e do Reino Unido — sob GDPR a coleta precisa começar desligada e ser ligada por
-     * escolha explícita. Enquanto não existir a tela de consentimento, é isto que dá ao
-     * usuário como desligar (e o que o [AnalyticsManager] respeita).
+     * Consentimento para telemetria.
+     *
+     * O padrão é regional (ver [ConsentRegion]): ligado onde o legítimo interesse basta,
+     * desligado na UE, Reino Unido e Suíça, onde é preciso ato afirmativo. A escolha
+     * explícita do usuário, uma vez feita, vence o padrão em qualquer região — o `?:` só
+     * decide enquanto a chave nunca foi gravada.
      */
-    val analyticsEnabled: Flow<Boolean> = context.dataStore.data.map { it[ANALYTICS_ENABLED] ?: true }
+    val analyticsEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[ANALYTICS_ENABLED] ?: !consentRegion.requiresOptIn()
+    }
 
     // Save Business Information
     suspend fun saveBusinessInformation(

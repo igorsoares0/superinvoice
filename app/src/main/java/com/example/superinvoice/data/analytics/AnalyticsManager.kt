@@ -76,10 +76,19 @@ class AnalyticsManager @Inject constructor(
     }
 
     /**
+     * Espelho do consentimento, usado **apenas** para o log de debug dizer a verdade.
+     * Quem realmente descarta o evento é o SDK; duplicar esse gate aqui criaria duas
+     * fontes de verdade que podem divergir.
+     */
+    @Volatile
+    private var collectionEnabled = true
+
+    /**
      * Liga ou desliga a coleta. O Firebase persiste esta escolha entre execuções, então
      * chamar uma vez basta — é o gancho para o consentimento (LGPD/GDPR).
      */
     fun setCollectionEnabled(enabled: Boolean) {
+        collectionEnabled = enabled
         analytics?.setAnalyticsCollectionEnabled(enabled)
     }
 
@@ -262,12 +271,20 @@ class AnalyticsManager @Inject constructor(
 
     private fun setProperty(name: String, value: String) {
         analytics?.setUserProperty(name, value)
-        if (BuildConfig.DEBUG) Log.d(TAG, "property $name = $value")
+        if (BuildConfig.DEBUG) Log.d(TAG, "${debugPrefix()}property $name = $value")
     }
 
     private fun logEvent(name: String, params: Bundle.() -> Unit = {}) {
         val bundle = Bundle().apply(params)
         analytics?.logEvent(name, bundle)
-        if (BuildConfig.DEBUG) Log.d(TAG, "event $name $bundle")
+        if (BuildConfig.DEBUG) Log.d(TAG, "${debugPrefix()}event $name $bundle")
     }
+
+    /**
+     * Sem isto o logcat fica idêntico com a coleta ligada ou desligada — o que torna
+     * impossível verificar o interruptor de consentimento pelo log, e faz parecer que
+     * o app continua enviando quando não está.
+     */
+    private fun debugPrefix(): String =
+        if (collectionEnabled) "" else "[DESCARTADO — coleta desligada] "
 }

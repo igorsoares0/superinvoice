@@ -70,6 +70,8 @@
     <string name="purchases_restored_successfully">Purchases restored successfully!</string>
     <string name="settings_terms">Terms</string>
     <string name="settings_policy">Policy</string>
+    <string name="settings_share_analytics">Share usage data</string>
+    <string name="settings_share_analytics_description">Helps us fix bugs and see which features get used. Never includes your invoices, clients, or bank details.</string>
     <string name="settings_support">Support</string>
 
     <!-- Premium Card -->

@@ -72,6 +72,7 @@ fun AppNavigation(
 ) {
     val isPremium by navigationViewModel.isPremium.collectAsStateWithLifecycle()
     val invoiceCount by navigationViewModel.invoiceCount.collectAsStateWithLifecycle()
+    val analyticsEnabled by navigationViewModel.analyticsEnabled.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     // O gate de criação virou assíncrono (espera o status premium resolver), então
     // precisa de trava: dois toques rápidos empilhariam duas navegações.
@@ -313,7 +314,9 @@ fun AppNavigation(
             onRestorePurchases = { onSuccess, onError ->
                 navigationViewModel.restorePurchases(onSuccess, onError)
             },
-            isPremium = isPremium
+            isPremium = isPremium,
+            analyticsEnabled = analyticsEnabled,
+            onAnalyticsEnabledChange = { navigationViewModel.setAnalyticsEnabled(it) }
         )
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
             invoiceId = selectedInvoiceId,
