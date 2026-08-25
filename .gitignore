@@ -19,3 +19,7 @@ app/andk
 
 # Saida de build do compilador Kotlin (erros, sessoes)
 .kotlin/
+
+# Dumps de crash da JVM (Gradle sem memoria) — gerados na raiz, nao versionar
+hs_err_pid*.log
+replay_pid*.log
