@@ -15,6 +15,18 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+/**
+ * Os plugins do Firebase abortam o build com "File google-services.json is missing" se o
+ * arquivo não existir, então eles só entram quando ele aparece. Enquanto não existir, o
+ * app compila e roda normalmente — Analytics e Crashlytics ficam inertes, ver
+ * [data.analytics.AnalyticsManager].
+ */
+val hasFirebaseConfig = file("google-services.json").exists()
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+}
+
 android {
     namespace = "online.isdevapps.superinvoice"
     compileSdk {
@@ -100,6 +112,11 @@ dependencies {
 
     // RevenueCat
     implementation("com.revenuecat.purchases:purchases:10.18.1")
+
+    // Firebase (BOM controla as versões dos artefatos abaixo)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

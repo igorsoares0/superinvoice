@@ -3,6 +3,7 @@ package com.example.superinvoice.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Client
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.ClientRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ClientsViewModel @Inject constructor(
-    private val clientRepository: ClientRepository
+    private val clientRepository: ClientRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     val clients: StateFlow<List<Client>> = clientRepository.getAllClients()
@@ -45,6 +47,9 @@ class ClientsViewModel @Inject constructor(
                 notes = notes
             )
             clientRepository.insertClient(client)
+            // Evento sem parâmetro nenhum: o que interessa é a contagem, e qualquer
+            // atributo do cliente aqui seria dado de terceiro.
+            analyticsManager.logClientCreated()
         }
     }
 

@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,12 +58,14 @@ import com.example.superinvoice.ui.theme.Red
 import com.example.superinvoice.ui.theme.Size
 import com.example.superinvoice.ui.theme.Space
 import com.example.superinvoice.ui.viewmodel.PaywallViewModel
+import com.example.superinvoice.data.analytics.PaywallSource
 import com.revenuecat.purchases.Package
 import online.isdevapps.superinvoice.R
 
 @Composable
 fun PaywallScreen(
     onClose: () -> Unit,
+    source: PaywallSource,
     viewModel: PaywallViewModel = hiltViewModel()
 ) {
     val monthlyPackage by viewModel.monthlyPackage.collectAsStateWithLifecycle()
@@ -75,8 +78,14 @@ fun PaywallScreen(
 
     val activity = LocalContext.current.findActivity()
 
-    LaunchedEffect(Unit) {
-        viewModel.onScreenShown()
+    LaunchedEffect(source) {
+        viewModel.onScreenShown(source)
+    }
+
+    // A saída é registrada no descarte para cobrir os três caminhos com um gancho só:
+    // botão de fechar, voltar do sistema e o fechamento automático após comprar.
+    DisposableEffect(Unit) {
+        onDispose { viewModel.onScreenDismissed() }
     }
 
     LaunchedEffect(purchaseSuccess) {

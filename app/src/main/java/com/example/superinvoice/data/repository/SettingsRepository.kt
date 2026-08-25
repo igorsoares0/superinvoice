@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -56,6 +57,7 @@ class SettingsRepository @Inject constructor(
     private val SIGNATURE_PATH = stringPreferencesKey("signature_path")
     private val PAYMENT_QR_CODE_PATH = stringPreferencesKey("payment_qr_code_path")
     private val TOTAL_INVOICES_CREATED = intPreferencesKey("total_invoices_created")
+    private val ANALYTICS_ENABLED = booleanPreferencesKey("analytics_enabled")
 
     // Business Information Flows
     val businessName: Flow<String> = context.dataStore.data.map { it[BUSINESS_NAME] ?: "" }
@@ -92,6 +94,14 @@ class SettingsRepository @Inject constructor(
     val signaturePath: Flow<String> = context.dataStore.data.map { it[SIGNATURE_PATH] ?: "" }
     val paymentQrCodePath: Flow<String> = context.dataStore.data.map { it[PAYMENT_QR_CODE_PATH] ?: "" }
     val totalInvoicesCreated: Flow<Int> = context.dataStore.data.map { it[TOTAL_INVOICES_CREATED] ?: 0 }
+
+    /**
+     * Consentimento para telemetria. O padrão é `true`, o que só é aceitável fora da UE
+     * e do Reino Unido — sob GDPR a coleta precisa começar desligada e ser ligada por
+     * escolha explícita. Enquanto não existir a tela de consentimento, é isto que dá ao
+     * usuário como desligar (e o que o [AnalyticsManager] respeita).
+     */
+    val analyticsEnabled: Flow<Boolean> = context.dataStore.data.map { it[ANALYTICS_ENABLED] ?: true }
 
     // Save Business Information
     suspend fun saveBusinessInformation(
@@ -201,6 +211,12 @@ class SettingsRepository @Inject constructor(
     suspend fun savePaymentQrCodePath(path: String) {
         context.dataStore.edit { preferences ->
             preferences[PAYMENT_QR_CODE_PATH] = path
+        }
+    }
+
+    suspend fun setAnalyticsEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[ANALYTICS_ENABLED] = enabled
         }
     }
 

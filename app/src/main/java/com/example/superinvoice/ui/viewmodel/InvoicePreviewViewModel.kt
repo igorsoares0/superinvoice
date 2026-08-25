@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.ProductService
+import com.example.superinvoice.data.analytics.AnalyticsManager
+import com.example.superinvoice.data.analytics.CrashReporter
 import com.example.superinvoice.data.billing.BillingManager
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
 import com.example.superinvoice.data.repository.ClientRepository
@@ -43,7 +45,9 @@ class InvoicePreviewViewModel @Inject constructor(
     private val productServiceRepository: ProductServiceRepository,
     private val settingsRepository: SettingsRepository,
     private val pdfGenerator: InvoicePdfGenerator,
-    private val billingManager: BillingManager
+    private val billingManager: BillingManager,
+    private val analyticsManager: AnalyticsManager,
+    private val crashReporter: CrashReporter
 ) : ViewModel() {
 
     private val _invoice = MutableStateFlow<Invoice?>(null)
@@ -298,12 +302,22 @@ class InvoicePreviewViewModel @Inject constructor(
                 )
 
                 if (file != null) {
+                    analyticsManager.logInvoicePdfDownloaded(
+                        template = selectedTemplate,
+                        hasLogo = logoPath.isNotEmpty(),
+                        hasSignature = signaturePath.isNotEmpty()
+                    )
                     onSuccess(file.absolutePath)
                 } else {
+                    // Gerador devolveu null sem lançar: não há exceção para reportar,
+                    // mas a falha precisa aparecer em algum lugar.
+                    analyticsManager.logInvoicePdfFailed("download_null_file")
+                    crashReporter.log("generateInvoicePdf devolveu null (download, template=$selectedTemplate)")
                     onError()
                 }
             } catch (e: Exception) {
-                // Error handled silently
+                analyticsManager.logInvoicePdfFailed("download_exception")
+                crashReporter.recordException(e, "downloadInvoicePdf falhou")
                 onError()
             }
         }
@@ -408,11 +422,22 @@ class InvoicePreviewViewModel @Inject constructor(
                     val chooser = Intent.createChooser(shareIntent, "Share Invoice")
                     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(chooser)
+
+                    // Registrado ao abrir o seletor, não ao entregar: o app não fica
+                    // sabendo se a pessoa concluiu o envio no outro aplicativo.
+                    analyticsManager.logInvoicePdfShared(
+                        template = selectedTemplate,
+                        hasLogo = logoPath.isNotEmpty(),
+                        hasSignature = signaturePath.isNotEmpty()
+                    )
                 } else {
+                    analyticsManager.logInvoicePdfFailed("share_null_file")
+                    crashReporter.log("generateInvoicePdf devolveu null (share, template=$selectedTemplate)")
                     onError()
                 }
             } catch (e: Exception) {
-                // Error handled silently
+                analyticsManager.logInvoicePdfFailed("share_exception")
+                crashReporter.recordException(e, "shareInvoicePdf falhou")
                 onError()
             }
         }

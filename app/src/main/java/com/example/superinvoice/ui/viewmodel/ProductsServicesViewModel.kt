@@ -3,6 +3,7 @@ package com.example.superinvoice.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.ProductService
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.ProductServiceRepository
 import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductsServicesViewModel @Inject constructor(
     private val productServiceRepository: ProductServiceRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     val productsServices: StateFlow<List<ProductService>> =
@@ -42,6 +44,8 @@ class ProductsServicesViewModel @Inject constructor(
                 pricePerUnit = pricePerUnit
             )
             productServiceRepository.insertProductService(productService)
+            // Sem nome nem preço: catálogo é dado do negócio do usuário.
+            analyticsManager.logProductCreated()
         }
     }
 

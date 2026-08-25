@@ -34,3 +34,13 @@
 # Keep app data models used by Room
 -keep class com.example.superinvoice.data.** { *; }
 -keep class com.example.superinvoice.data.database.** { *; }
+
+# Firebase Analytics / Crashlytics
+# O Crashlytics precisa dos atributos de origem para desobfuscar a stack trace; o
+# -keepattributes SourceFile,LineNumberTable acima já cobre isso.
+-keepattributes *Annotation*
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+
+# Nomes das classes de analytics preservados para os eventos ficarem legíveis no painel
+-keep class com.example.superinvoice.data.analytics.** { *; }

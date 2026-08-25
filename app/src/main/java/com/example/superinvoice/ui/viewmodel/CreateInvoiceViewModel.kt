@@ -7,6 +7,7 @@ import com.example.superinvoice.data.Invoice
 import com.example.superinvoice.data.InvoiceItem
 import com.example.superinvoice.data.ProductService
 import com.example.superinvoice.data.database.entities.InvoiceStatus
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
 import com.example.superinvoice.data.repository.ProductServiceRepository
@@ -36,7 +37,8 @@ class CreateInvoiceViewModel @Inject constructor(
     private val invoiceRepository: InvoiceRepository,
     private val clientRepository: ClientRepository,
     private val productServiceRepository: ProductServiceRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     private val _invoiceNumber = MutableStateFlow("")
@@ -222,6 +224,20 @@ class CreateInvoiceViewModel @Inject constructor(
             }
 
             invoiceRepository.insertInvoiceWithItems(invoice, items)
+
+            // Registrado antes do resetForm, que zera justamente os campos medidos.
+            // Nenhum valor monetário e nenhum dado do cliente entram no evento — só a
+            // forma da fatura, que é o que fecha o funil com invoice_started.
+            analyticsManager.logInvoiceSaved(
+                itemCount = items.size,
+                hasTax = invoice.tax > 0.0,
+                hasDiscount = invoice.discount > 0.0,
+                currency = invoice.currency
+            )
+            if (settingsRepository.totalInvoicesCreated.first() <= 1) {
+                analyticsManager.logFirstInvoiceCompleted()
+            }
+
             resetForm()
             onSuccess()
         }

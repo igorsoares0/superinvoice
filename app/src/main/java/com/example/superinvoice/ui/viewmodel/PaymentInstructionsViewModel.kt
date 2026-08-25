@@ -2,6 +2,7 @@ package com.example.superinvoice.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PaymentInstructionsViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     private val _bankName = MutableStateFlow("")
@@ -125,6 +127,16 @@ class PaymentInstructionsViewModel @Inject constructor(
                 paymentTerms = _paymentTerms.value,
                 additionalInstructions = _additionalInstructions.value
             )
+
+            // Contagem apenas. Esta tela guarda conta bancária, IBAN e SWIFT — o
+            // conteúdo destes campos não pode sair do aparelho por telemetria.
+            val fields = listOf(
+                _bankName.value, _accountHolderName.value, _accountNumber.value,
+                _routingNumber.value, _iban.value, _swiftCode.value,
+                _bankAddress.value, _paymentTerms.value, _additionalInstructions.value
+            )
+            analyticsManager.logPaymentInfoSaved(fields.count { it.isNotBlank() }, fields.size)
+
             onSuccess()
         }
     }

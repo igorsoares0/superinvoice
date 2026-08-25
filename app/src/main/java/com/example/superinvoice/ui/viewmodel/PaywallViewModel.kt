@@ -3,8 +3,13 @@ package com.example.superinvoice.ui.viewmodel
 import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.ViewModel
+import com.example.superinvoice.data.analytics.AnalyticsManager
+import com.example.superinvoice.data.analytics.CrashReporter
+import com.example.superinvoice.data.analytics.PaywallSource
+import com.example.superinvoice.data.analytics.PlanType
 import com.example.superinvoice.data.billing.BillingManager
 import com.revenuecat.purchases.Package
+import com.revenuecat.purchases.PackageType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +20,20 @@ import javax.inject.Inject
 @HiltViewModel
 class PaywallViewModel @Inject constructor(
     private val billingManager: BillingManager,
+    private val analyticsManager: AnalyticsManager,
+    private val crashReporter: CrashReporter,
     private val application: Application
 ) : ViewModel() {
+
+    /**
+     * De onde esta exibição do paywall veio. A tela vive no escopo da Activity e é
+     * reutilizada entre aberturas, então a origem é reinformada a cada [onScreenShown]
+     * em vez de ser fixada na construção.
+     */
+    private var currentSource: PaywallSource = PaywallSource.SETTINGS
+
+    /** Evita contar duas vezes o mesmo par exibição/fechamento. */
+    private var shownReported = false
 
     private val _monthlyPackage = MutableStateFlow<Package?>(null)
     val monthlyPackage: StateFlow<Package?> = _monthlyPackage.asStateFlow()
@@ -49,12 +66,27 @@ class PaywallViewModel @Inject constructor(
      * offerings no `init` significava que uma falha na primeira abertura (usuário sem
      * rede naquele instante) nunca era tentada de novo. Aqui a gente retenta.
      */
-    fun onScreenShown() {
+    fun onScreenShown(source: PaywallSource) {
+        currentSource = source
         _purchaseSuccess.value = false
         _errorMessage.value = null
+        if (!shownReported) {
+            shownReported = true
+            analyticsManager.logPaywallShown(source)
+        }
         if (!hasPlans && !offeringsInFlight) {
             loadOfferings()
         }
+    }
+
+    /**
+     * Fechar sem comprar é o dado que falta para saber qual gate só irrita. Chamado
+     * tanto no botão de fechar quanto no voltar do sistema.
+     */
+    fun onScreenDismissed() {
+        if (!shownReported) return
+        shownReported = false
+        analyticsManager.logPaywallDismissed(currentSource, purchased = _purchaseSuccess.value)
     }
 
     fun retry() {
@@ -94,12 +126,15 @@ class PaywallViewModel @Inject constructor(
     fun purchase(activity: Activity, pkg: Package) {
         _isLoading.value = true
         _errorMessage.value = null
+        val plan = planTypeOf(pkg)
+        analyticsManager.logPurchaseStarted(plan)
         billingManager.purchase(
             activity = activity,
             packageToPurchase = pkg,
             onSuccess = { _, _ ->
                 _isLoading.value = false
                 _purchaseSuccess.value = true
+                analyticsManager.logPurchaseCompleted(plan)
             },
             onError = { error, userCancelled ->
                 _isLoading.value = false
@@ -107,9 +142,27 @@ class PaywallViewModel @Inject constructor(
                 // para quem só desistiu é ruído.
                 if (!userCancelled) {
                     _errorMessage.value = error.message
+                    analyticsManager.logPurchaseFailed(
+                        plan,
+                        BillingManager.failureReasonOf(error)
+                    )
+                    crashReporter.recordException(
+                        IllegalStateException("Purchase failed: ${error.code}"),
+                        "purchase ${plan.id} falhou"
+                    )
                 }
             }
         )
+    }
+
+    /**
+     * O identifier do pacote é configurável no dashboard, então a classificação sai do
+     * [PackageType], que o RevenueCat normaliza.
+     */
+    private fun planTypeOf(pkg: Package): PlanType = when (pkg.packageType) {
+        PackageType.MONTHLY -> PlanType.MONTHLY
+        PackageType.ANNUAL -> PlanType.ANNUAL
+        else -> PlanType.UNKNOWN
     }
 
     fun restorePurchases() {
@@ -118,7 +171,9 @@ class PaywallViewModel @Inject constructor(
         billingManager.restorePurchases(
             onSuccess = { _ ->
                 _isLoading.value = false
-                if (billingManager.isPremium.value) {
+                val found = billingManager.isPremium.value
+                analyticsManager.logPurchaseRestored(found)
+                if (found) {
                     _purchaseSuccess.value = true
                 } else {
                     _errorMessage.value = application.getString(R.string.no_active_subscription_found)

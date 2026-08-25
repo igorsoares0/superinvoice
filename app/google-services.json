@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "744470019643",
+    "project_id": "super-invoice-f580e",
+    "storage_bucket": "super-invoice-f580e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:744470019643:android:80912a4a7a8733c9b4a61e",
+        "android_client_info": {
+          "package_name": "online.isdevapps.superinvoice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGriYlkqUALxzY3sh3Q6e6zCOmNysaJQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

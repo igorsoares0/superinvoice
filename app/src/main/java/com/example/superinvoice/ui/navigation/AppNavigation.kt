@@ -7,10 +7,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import com.example.superinvoice.data.analytics.PaywallSource
 import com.example.superinvoice.ui.viewmodel.NavigationViewModel
 import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
@@ -89,12 +91,26 @@ fun AppNavigation(
     var shouldResetCreateInvoice by remember { mutableStateOf(false) }
     var previewVersion by remember { mutableIntStateOf(0) }
 
+    // Qual gate mandou o usuário para o paywall. Sem NavHost não há argumento de rota,
+    // então a origem viaja neste estado, gravado no mesmo lugar que decide navegar.
+    var paywallSource by remember { mutableStateOf(PaywallSource.SETTINGS) }
+
     // Navigate to a screen and add to history
     fun navigateTo(screen: Screen) {
         if (currentScreen != screen) {
             navigationStack = navigationStack + currentScreen
             currentScreen = screen
         }
+    }
+
+    fun navigateToPaywall(source: PaywallSource) {
+        paywallSource = source
+        navigateTo(Screen.PAYWALL)
+    }
+
+    // Um screen_view por tela, derivado do enum — nunca de texto do usuário.
+    LaunchedEffect(currentScreen) {
+        navigationViewModel.onScreenShown(currentScreen.name)
     }
 
     // Navigate to edit invoice with ID
@@ -142,10 +158,11 @@ fun AppNavigation(
                     coroutineScope.launch {
                         try {
                             if (navigationViewModel.canCreateInvoice()) {
+                                navigationViewModel.onInvoiceCreationStarted()
                                 shouldResetCreateInvoice = true
                                 navigateTo(Screen.CREATE_INVOICE)
                             } else {
-                                navigateTo(Screen.PAYWALL)
+                                navigateToPaywall(PaywallSource.INVOICE_LIMIT)
                             }
                         } finally {
                             isCheckingInvoiceGate = false
@@ -270,13 +287,13 @@ fun AppNavigation(
             onNavigateToBusinessInfo = { navigateTo(Screen.BUSINESS_INFO) },
             onNavigateToPaymentInstructions = { navigateTo(Screen.PAYMENT_INSTRUCTIONS) },
             onNavigateToLogo = {
-                if (isPremium) navigateTo(Screen.LOGO) else navigateTo(Screen.PAYWALL)
+                if (isPremium) navigateTo(Screen.LOGO) else navigateToPaywall(PaywallSource.LOGO)
             },
             onNavigateToSignature = {
-                if (isPremium) navigateTo(Screen.SIGNATURE) else navigateTo(Screen.PAYWALL)
+                if (isPremium) navigateTo(Screen.SIGNATURE) else navigateToPaywall(PaywallSource.SIGNATURE)
             },
             onNavigateToInvoiceStyle = {
-                if (isPremium) navigateTo(Screen.INVOICE_STYLE) else navigateTo(Screen.PAYWALL)
+                if (isPremium) navigateTo(Screen.INVOICE_STYLE) else navigateToPaywall(PaywallSource.INVOICE_STYLE)
             },
             onNavigateToPaymentQrCode = { navigateTo(Screen.PAYMENT_QR_CODE) },
             onNavigateToCurrency = { navigateTo(Screen.CURRENCY) },
@@ -289,7 +306,7 @@ fun AppNavigation(
                 isSelectingForInvoice = false
                 navigateTo(Screen.PRODUCTS_SERVICES)
             },
-            onNavigateToPaywall = { navigateTo(Screen.PAYWALL) },
+            onNavigateToPaywall = { navigateToPaywall(PaywallSource.SETTINGS) },
             onNavigateToPolicy = { navigateTo(Screen.POLICY) },
             onNavigateToTerms = { navigateTo(Screen.TERMS) },
             onNavigateToSupport = { navigateTo(Screen.SUPPORT) },
@@ -327,7 +344,7 @@ fun AppNavigation(
         Screen.INVOICE_TEMPLATE -> InvoiceTemplateScreen(
             onClose = { navigateBack() },
             isPremium = isPremium,
-            onNavigateToPaywall = { navigateTo(Screen.PAYWALL) }
+            onNavigateToPaywall = { navigateToPaywall(PaywallSource.TEMPLATE) }
         )
         Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
             invoiceId = selectedInvoiceId,
@@ -367,7 +384,8 @@ fun AppNavigation(
             onSave = { navigateBack() }
         )
         Screen.PAYWALL -> PaywallScreen(
-            onClose = { navigateBack() }
+            onClose = { navigateBack() },
+            source = paywallSource
         )
         Screen.POLICY -> PolicyScreen(
             onClose = { navigateBack() }

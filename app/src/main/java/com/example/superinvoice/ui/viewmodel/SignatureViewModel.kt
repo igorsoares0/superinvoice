@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SignatureViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     private val _signaturePath = MutableStateFlow<String?>(null)
@@ -56,6 +58,7 @@ class SignatureViewModel @Inject constructor(
 
                 settingsRepository.saveSignaturePath(signatureFile.absolutePath)
                 _signaturePath.value = signatureFile.absolutePath
+                analyticsManager.logBrandingAssetAdded("signature")
                 onSuccess()
             } catch (e: Exception) {
                 // Error handled silently
@@ -81,6 +84,7 @@ class SignatureViewModel @Inject constructor(
 
                 settingsRepository.saveSignaturePath(signatureFile.absolutePath)
                 _signaturePath.value = signatureFile.absolutePath
+                analyticsManager.logBrandingAssetAdded("signature")
                 onSuccess()
             } catch (e: Exception) {
                 // Error handled silently

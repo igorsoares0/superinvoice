@@ -2,6 +2,7 @@ package com.example.superinvoice.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BusinessInformationViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     private val _businessName = MutableStateFlow("")
@@ -136,6 +138,20 @@ class BusinessInformationViewModel @Inject constructor(
                 zipCode = _zipCode.value,
                 taxId = _taxId.value
             )
+
+            // Só quantos campos ficaram preenchidos, nunca o que foi digitado neles:
+            // razão social, e-mail e CNPJ são dados do negócio do usuário, não métrica.
+            // Preenchimento parcial aqui gera PDF capenga, então a distribuição desse
+            // número é o que diz se o formulário está pedindo demais.
+            val fields = listOf(
+                _businessName.value, _ownerName.value, _email.value, _phone.value,
+                _website.value, _address.value, _city.value, _state.value,
+                _zipCode.value, _taxId.value
+            )
+            val filled = fields.count { it.isNotBlank() }
+            analyticsManager.logBusinessInfoSaved(filled, fields.size)
+            analyticsManager.setHasBusinessInfo(_businessName.value.isNotBlank())
+
             onSuccess()
         }
     }

@@ -8,7 +8,23 @@
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <!--
+        O app não veicula anúncios. O Firebase Analytics declara esta permissão sozinho no
+        manifesto dele, então ela é removida no merge: sem Advertising ID não há
+        identificador de publicidade para declarar no formulário de Data safety do Play,
+        e o resto do Analytics funciona igual. Para reverter, apague este bloco.
+    -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+    <!--
+        Mesma razão: o SDK de measurement declara as permissões de AdServices para
+        atribuição de campanha (Privacy Sandbox). Sem anúncios, elas só engordariam o
+        Data safety. O Analytics em si não depende delas.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
+        tools:node="remove" />
 
     <application
         android:name="com.example.superinvoice.SuperInvoiceApplication"
@@ -21,6 +37,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Superinvoice">
+
+        <!--
+            Sem sinais de publicidade: o app não faz remarketing e não tem campanha
+            paga, e cada um destes que fica ligado vira uma linha a mais para declarar
+            no Data safety.
+        -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_ssaid_collection_enabled"
+            android:value="false" />
+
         <activity
             android:name="com.example.superinvoice.MainActivity"
             android:exported="true"

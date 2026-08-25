@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PaymentQrCodeViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     private val _qrCodePath = MutableStateFlow<String?>(null)
@@ -59,6 +61,7 @@ class PaymentQrCodeViewModel @Inject constructor(
                 // Save path to preferences
                 settingsRepository.savePaymentQrCodePath(qrCodeFile.absolutePath)
                 _qrCodePath.value = qrCodeFile.absolutePath
+                analyticsManager.logBrandingAssetAdded("payment_qr_code")
                 onSuccess()
             } catch (e: Exception) {
                 // Error handled silently

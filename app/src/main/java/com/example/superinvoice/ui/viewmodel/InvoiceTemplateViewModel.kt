@@ -9,6 +9,7 @@ import com.example.superinvoice.data.InvoiceItem
 import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
 import com.example.superinvoice.data.pdf.InvoiceTemplate
+import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class InvoiceTemplateViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val pdfGenerator: InvoicePdfGenerator
+    private val pdfGenerator: InvoicePdfGenerator,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     companion object {
@@ -207,5 +209,8 @@ class InvoiceTemplateViewModel @Inject constructor(
 
     suspend fun saveSelectedTemplate(template: String) {
         settingsRepository.saveSelectedTemplate(template)
+        // "classic" é o único liberado no plano grátis; a tela só chega aqui com os
+        // outros dois quando o usuário já é assinante.
+        analyticsManager.logTemplateChanged(template, isPremiumTemplate = template != "classic")
     }
 }

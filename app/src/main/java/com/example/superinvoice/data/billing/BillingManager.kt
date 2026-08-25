@@ -8,7 +8,11 @@ import com.revenuecat.purchases.PackageType
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
 import com.revenuecat.purchases.PurchasesError
+import com.revenuecat.purchases.PurchasesErrorCode
 import com.revenuecat.purchases.LogLevel
+import com.example.superinvoice.data.analytics.AnalyticsManager
+import com.example.superinvoice.data.analytics.CrashReporter
+import com.example.superinvoice.data.analytics.PurchaseFailureReason
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
 import com.revenuecat.purchases.PurchaseParams
 import com.revenuecat.purchases.models.StoreTransaction
@@ -28,7 +32,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
+class BillingManager @Inject constructor(
+    private val analyticsManager: AnalyticsManager,
+    private val crashReporter: CrashReporter
+) : UpdatedCustomerInfoListener {
 
     companion object {
         private val REVENUECAT_API_KEY = BuildConfig.REVENUECAT_API_KEY
@@ -52,6 +59,29 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
          * para nenhuma tela ficar presa para sempre.
          */
         private const val AWAIT_TIMEOUT_MS = 15_000L
+
+        /**
+         * Agrupa o erro do RevenueCat numa das poucas categorias que mudam decisão.
+         * Só o grupo vai para o Analytics; a mensagem completa fica no Crashlytics.
+         */
+        fun failureReasonOf(error: PurchasesError): PurchaseFailureReason =
+            when (error.code) {
+                PurchasesErrorCode.NetworkError ->
+                    PurchaseFailureReason.NETWORK
+                PurchasesErrorCode.StoreProblemError,
+                PurchasesErrorCode.OperationAlreadyInProgressError ->
+                    PurchaseFailureReason.STORE_UNAVAILABLE
+                PurchasesErrorCode.ProductNotAvailableForPurchaseError,
+                PurchasesErrorCode.ConfigurationError ->
+                    PurchaseFailureReason.PRODUCT_UNAVAILABLE
+                PurchasesErrorCode.ProductAlreadyPurchasedError,
+                PurchasesErrorCode.ReceiptAlreadyInUseError ->
+                    PurchaseFailureReason.ALREADY_OWNED
+                PurchasesErrorCode.PurchaseNotAllowedError,
+                PurchasesErrorCode.InsufficientPermissionsError ->
+                    PurchaseFailureReason.NOT_ALLOWED
+                else -> PurchaseFailureReason.OTHER
+            }
     }
 
     private val _premiumStatus = MutableStateFlow(PremiumStatus.Unknown)
@@ -107,6 +137,15 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
     }
 
     /**
+     * Anexa o App Instance ID do Firebase ao usuário do RevenueCat, como subscriber
+     * attribute. É o que liga uma assinatura à sessão que a antecedeu no Analytics.
+     */
+    fun setFirebaseAppInstanceId(id: String) {
+        runCatching { Purchases.sharedInstance.setFirebaseAppInstanceID(id) }
+            .onFailure { crashReporter.recordException(it, "setFirebaseAppInstanceId") }
+    }
+
+    /**
      * Suspende até o status sair de [PremiumStatus.Unknown] e devolve se o usuário é
      * premium. Use antes de renderizar PDF ou liberar cota — nunca `isPremium.value`.
      */
@@ -158,6 +197,10 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
     private fun setStatus(status: PremiumStatus) {
         _premiumStatus.value = status
         _isPremium.value = status.isPremium
+        analyticsManager.setPremium(status.isPremium)
+        // Custom key para poder filtrar crash de assinante — o gate de premium muda o
+        // caminho de várias telas, então saber disso encurta a investigação.
+        crashReporter.setCustomKey("is_premium", status.isPremium)
     }
 
     override fun onReceived(customerInfo: CustomerInfo) {
@@ -183,6 +226,12 @@ class BillingManager @Inject constructor() : UpdatedCustomerInfoListener {
                         // CustomerInfo neste dispositivo, e portanto não pode ter
                         // comprado nada. O listener do SDK corrige quando a rede voltar.
                         Log.e(TAG, "Exhausted retries for premium status refresh; assuming free")
+                        // Assinante rebaixado a free por falha de rede é exatamente o
+                        // bug que gera reembolso, e hoje ele só aparecia no Logcat.
+                        crashReporter.recordException(
+                            IllegalStateException("Premium status unresolved: ${error.code}"),
+                            "refreshPremiumStatus esgotou $MAX_RETRY_ATTEMPTS tentativas"
+                        )
                         setStatus(PremiumStatus.Free)
                     }
                 }
