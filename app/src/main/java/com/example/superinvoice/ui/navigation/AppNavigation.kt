@@ -8,6 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +69,26 @@ enum class Screen {
     SUPPORT
 }
 
+/**
+ * Os enums viajam pelo Bundle como nome, nunca como ordinal: reordenar [Screen] não
+ * pode fazer um estado salvo por uma versão anterior do app reabrir noutra tela. Nome
+ * desconhecido cai na raiz em vez de derrubar a restauração.
+ */
+private val ScreenSaver = Saver<Screen, String>(
+    save = { it.name },
+    restore = { name -> runCatching { Screen.valueOf(name) }.getOrDefault(Screen.HOME) }
+)
+
+private val ScreenStackSaver = listSaver<List<Screen>, String>(
+    save = { stack -> stack.map { it.name } },
+    restore = { names -> names.mapNotNull { name -> runCatching { Screen.valueOf(name) }.getOrNull() } }
+)
+
+private val PaywallSourceSaver = Saver<PaywallSource, String>(
+    save = { it.name },
+    restore = { name -> runCatching { PaywallSource.valueOf(name) }.getOrDefault(PaywallSource.SETTINGS) }
+)
+
 @Composable
 fun AppNavigation(
     navigationViewModel: NavigationViewModel = hiltViewModel()
@@ -76,25 +99,42 @@ fun AppNavigation(
     val coroutineScope = rememberCoroutineScope()
     // O gate de criação virou assíncrono (espera o status premium resolver), então
     // precisa de trava: dois toques rápidos empilhariam duas navegações.
+    //
+    // Deliberadamente NÃO é salvo: a trava pertence a uma corrotina que morre junto com a
+    // composição. Restaurada como `true`, ninguém a soltaria e o botão de nova fatura
+    // ficaria travado para sempre.
     var isCheckingInvoiceGate by remember { mutableStateOf(false) }
 
-    var currentScreen by remember { mutableStateOf(Screen.HOME) }
-    var selectedBottomNavItem by remember { mutableIntStateOf(0) }
-    var navigationStack by remember { mutableStateOf(listOf<Screen>()) }
-    var selectedInvoiceId by remember { mutableIntStateOf(0) }
-    var selectedClientId by remember { mutableIntStateOf(0) }
-    var selectedProductId by remember { mutableIntStateOf(0) }
-    var isSelectingForInvoice by remember { mutableStateOf(false) }
+    // Onde o usuário está e como chegou lá sobrevive à recriação da Activity — girar a
+    // tela, mudar o tema ou o tamanho da fonte, ou o sistema recriar o processo. Antes
+    // disso qualquer uma dessas coisas jogava o usuário de volta na HOME sem aviso.
+    var currentScreen by rememberSaveable(stateSaver = ScreenSaver) { mutableStateOf(Screen.HOME) }
+    var selectedBottomNavItem by rememberSaveable { mutableIntStateOf(0) }
+    var navigationStack by rememberSaveable(stateSaver = ScreenStackSaver) { mutableStateOf(listOf<Screen>()) }
+    var selectedInvoiceId by rememberSaveable { mutableIntStateOf(0) }
+    var selectedClientId by rememberSaveable { mutableIntStateOf(0) }
+    var selectedProductId by rememberSaveable { mutableIntStateOf(0) }
+    // Sem isto, a tela de clientes reaberta depois de girar volta em modo "gerenciar" e
+    // perde o toque que devia devolver o cliente para a fatura.
+    var isSelectingForInvoice by rememberSaveable { mutableStateOf(false) }
+
+    // A entrega de uma seleção é um repasse de um quadro, e o par
+    // (pendente, versão) só age junto — ver o `version > 0 && pendente != null` nas telas
+    // de fatura. Salvar a versão sem a entidade (que não é Parcelable) quebraria esse par,
+    // então os dois ficam transitórios e a entrega simplesmente não sobrevive à recriação.
     var pendingClientSelection by remember { mutableStateOf<com.example.superinvoice.data.Client?>(null) }
     var pendingProductSelection by remember { mutableStateOf<com.example.superinvoice.data.ProductService?>(null) }
     var productSelectionVersion by remember { mutableIntStateOf(0) }
     var clientSelectionVersion by remember { mutableIntStateOf(0) }
+    // Também transitório, e por um motivo mais forte: restaurado como `true` ele
+    // dispararia o reset do formulário de novo e apagaria a fatura que o usuário estava
+    // digitando — justo o que a recriação de tela deveria preservar.
     var shouldResetCreateInvoice by remember { mutableStateOf(false) }
     var previewVersion by remember { mutableIntStateOf(0) }
 
     // Qual gate mandou o usuário para o paywall. Sem NavHost não há argumento de rota,
     // então a origem viaja neste estado, gravado no mesmo lugar que decide navegar.
-    var paywallSource by remember { mutableStateOf(PaywallSource.SETTINGS) }
+    var paywallSource by rememberSaveable(stateSaver = PaywallSourceSaver) { mutableStateOf(PaywallSource.SETTINGS) }
 
     // Navigate to a screen and add to history
     fun navigateTo(screen: Screen) {
