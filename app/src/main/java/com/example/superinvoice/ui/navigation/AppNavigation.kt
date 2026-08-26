@@ -140,9 +140,31 @@ fun AppNavigation(
         }
     }
 
-    // Handle back button - go to previous screen in stack
-    BackHandler(enabled = navigationStack.isNotEmpty()) {
-        navigateBack()
+    /**
+     * Troca de aba da barra inferior. A aba vira a raiz da vez: o histórico é
+     * descartado porque as abas são irmãs, não empilhadas uma sobre a outra.
+     */
+    fun selectBottomNavTab(index: Int) {
+        selectedBottomNavItem = index
+        navigationStack = emptyList()
+        currentScreen = if (index == 0) Screen.HOME else Screen.SETTINGS
+    }
+
+    /**
+     * O voltar só é interceptado quando existe para onde ir, e quando é
+     * interceptado sempre anda. Habilitar o handler numa situação em que
+     * [navigateBack] não faz nada engolia o toque em silêncio: a tela ficava
+     * parada e só o segundo toque saía do app.
+     *
+     * A HOME é a raiz do app. Estar numa outra raiz de aba (Configurações) com
+     * histórico vazio volta para a HOME em vez de fechar o app.
+     */
+    BackHandler(enabled = navigationStack.isNotEmpty() || currentScreen != Screen.HOME) {
+        if (navigationStack.isNotEmpty()) {
+            navigateBack()
+        } else {
+            currentScreen = Screen.HOME
+        }
         // Update bottom nav if returning to HOME or SETTINGS
         when (currentScreen) {
             Screen.HOME -> selectedBottomNavItem = 0
@@ -180,16 +202,7 @@ fun AppNavigation(
                 navigateTo(Screen.INVOICE_PREVIEW)
             },
             selectedBottomNavItem = selectedBottomNavItem,
-            onBottomNavItemSelected = { index ->
-                selectedBottomNavItem = index
-                when (index) {
-                    0 -> {
-                        navigationStack = emptyList()
-                        currentScreen = Screen.HOME
-                    }
-                    1 -> navigateTo(Screen.SETTINGS)
-                }
-            }
+            onBottomNavItemSelected = { index -> selectBottomNavTab(index) }
         )
         Screen.CREATE_INVOICE -> CreateInvoiceScreen(
             onClose = {
@@ -271,19 +284,7 @@ fun AppNavigation(
         )
         Screen.SETTINGS -> SettingsScreen(
             selectedBottomNavItem = selectedBottomNavItem,
-            onBottomNavItemSelected = { index ->
-                selectedBottomNavItem = index
-                when (index) {
-                    0 -> {
-                        navigationStack = emptyList()
-                        currentScreen = Screen.HOME
-                    }
-                    1 -> {
-                        navigationStack = emptyList()
-                        currentScreen = Screen.SETTINGS
-                    }
-                }
-            },
+            onBottomNavItemSelected = { index -> selectBottomNavTab(index) },
             onNavigateToTemplates = { navigateTo(Screen.INVOICE_TEMPLATE) },
             onNavigateToBusinessInfo = { navigateTo(Screen.BUSINESS_INFO) },
             onNavigateToPaymentInstructions = { navigateTo(Screen.PAYMENT_INSTRUCTIONS) },
