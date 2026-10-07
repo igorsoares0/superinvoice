@@ -36,6 +36,9 @@ interface InvoiceDao {
     @Query("SELECT COUNT(*) FROM invoices")
     suspend fun getCount(): Int
 
+    @Query("SELECT COUNT(*) FROM invoices WHERE clientId = :clientId")
+    suspend fun getCountByClientId(clientId: Int): Int
+
     @Query("SELECT COUNT(*) FROM invoices WHERE status = 'PAID'")
     suspend fun getPaidCount(): Int
 

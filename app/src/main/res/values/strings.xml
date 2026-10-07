@@ -363,4 +363,15 @@
     <string name="plans_unavailable">Couldn\'t load the subscription plans. Check your connection and try again.</string>
     <string name="try_again">Try again</string>
     <string name="checkout_unavailable">Couldn\'t open checkout. Please try again.</string>
+    <!-- Exclusão de cliente com faturas / produto em uso -->
+    <string name="delete_client_title">Delete client?</string>
+    <plurals name="delete_client_with_invoices_message">
+        <item quantity="one">%1$s has %2$d invoice. Deleting this client also deletes that invoice. This action cannot be undone.</item>
+        <item quantity="other">%1$s has %2$d invoices. Deleting this client also deletes all of them. This action cannot be undone.</item>
+    </plurals>
+    <string name="product_in_use_title">Can\'t delete this item</string>
+    <plurals name="product_in_use_message">
+        <item quantity="one">%1$s is used in %2$d invoice. Remove it from that invoice before deleting it.</item>
+        <item quantity="other">%1$s is used in %2$d invoices. Remove it from those invoices before deleting it.</item>
+    </plurals>
 </resources>

@@ -363,4 +363,17 @@
     <string name="plans_unavailable">No se pudieron cargar los planes de suscripción. Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="try_again">Intentar de nuevo</string>
     <string name="checkout_unavailable">No se pudo abrir el pago. Inténtalo de nuevo.</string>
+    <!-- Exclusão de cliente com faturas / produto em uso -->
+    <string name="delete_client_title">¿Eliminar cliente?</string>
+    <plurals name="delete_client_with_invoices_message">
+        <item quantity="one">%1$s tiene %2$d factura. Al eliminar este cliente también se elimina esa factura. Esta acción no se puede deshacer.</item>
+        <item quantity="many">%1$s tiene %2$d facturas. Al eliminar este cliente también se eliminan todas. Esta acción no se puede deshacer.</item>
+        <item quantity="other">%1$s tiene %2$d facturas. Al eliminar este cliente también se eliminan todas. Esta acción no se puede deshacer.</item>
+    </plurals>
+    <string name="product_in_use_title">No se puede eliminar</string>
+    <plurals name="product_in_use_message">
+        <item quantity="one">%1$s se usa en %2$d factura. Quítalo de esa factura antes de eliminarlo.</item>
+        <item quantity="many">%1$s se usa en %2$d facturas. Quítalo de esas facturas antes de eliminarlo.</item>
+        <item quantity="other">%1$s se usa en %2$d facturas. Quítalo de esas facturas antes de eliminarlo.</item>
+    </plurals>
 </resources>
