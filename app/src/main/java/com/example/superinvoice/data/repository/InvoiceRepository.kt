@@ -55,6 +55,12 @@ class InvoiceRepository @Inject constructor(
 
     suspend fun getInvoiceCount(): Int = invoiceDao.getCount()
 
+    suspend fun getInvoiceCountForClient(clientId: Int): Int =
+        invoiceDao.getCountByClientId(clientId)
+
+    suspend fun getInvoiceCountForProductService(productServiceId: Int): Int =
+        invoiceItemDao.getInvoiceCountByProductServiceId(productServiceId)
+
     suspend fun getPaidInvoiceCount(): Int = invoiceDao.getPaidCount()
 
     suspend fun getUnpaidInvoiceCount(): Int = invoiceDao.getUnpaidCount()

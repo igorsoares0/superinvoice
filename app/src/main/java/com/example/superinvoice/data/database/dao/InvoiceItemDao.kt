@@ -32,6 +32,10 @@ interface InvoiceItemDao {
     @Delete
     suspend fun delete(invoiceItem: InvoiceItem)
 
+    /** Em quantas faturas distintas o produto aparece. */
+    @Query("SELECT COUNT(DISTINCT invoiceId) FROM invoice_items WHERE productServiceId = :productServiceId")
+    suspend fun getInvoiceCountByProductServiceId(productServiceId: Int): Int
+
     @Query("DELETE FROM invoice_items WHERE invoiceId = :invoiceId")
     suspend fun deleteByInvoiceId(invoiceId: Int)
 }

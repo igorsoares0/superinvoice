@@ -14,11 +14,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.ProductService
 import com.example.superinvoice.ui.components.ClientSearchBar
+import com.example.superinvoice.ui.components.InvConfirmDialog
 import com.example.superinvoice.ui.components.InvEmptyState
 import com.example.superinvoice.ui.components.InvFab
 import com.example.superinvoice.ui.components.InvScaffold
@@ -41,6 +43,8 @@ fun ProductsServicesScreen(
     var searchQuery by remember { mutableStateOf("") }
     val productsServices by viewModel.productsServices.collectAsStateWithLifecycle()
     val currency by viewModel.currency.collectAsStateWithLifecycle()
+    val productInUse by viewModel.productInUse.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     val filteredProducts = productsServices.filter {
         it.name.contains(searchQuery, ignoreCase = true)
@@ -116,5 +120,20 @@ fun ProductsServicesScreen(
                 }
             }
         }
+    }
+
+    productInUse?.let { inUse ->
+        InvConfirmDialog(
+            title = stringResource(R.string.product_in_use_title),
+            message = context.resources.getQuantityString(
+                R.plurals.product_in_use_message,
+                inUse.invoiceCount,
+                inUse.productService.name,
+                inUse.invoiceCount
+            ),
+            confirmText = stringResource(R.string.ok),
+            onConfirm = viewModel::dismissProductInUse,
+            onDismiss = viewModel::dismissProductInUse
+        )
     }
 }

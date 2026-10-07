@@ -14,12 +14,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.ui.components.ClientCard
 import com.example.superinvoice.ui.components.ClientSearchBar
+import com.example.superinvoice.ui.components.InvConfirmDialog
 import com.example.superinvoice.ui.components.InvEmptyState
 import com.example.superinvoice.ui.components.InvFab
 import com.example.superinvoice.ui.components.InvScaffold
@@ -40,6 +42,8 @@ fun ClientsScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val clients by viewModel.clients.collectAsStateWithLifecycle()
+    val pendingDeletion by viewModel.pendingDeletion.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     val filteredClients = clients.filter {
         it.name.contains(searchQuery, ignoreCase = true) ||
@@ -106,7 +110,7 @@ fun ClientsScreen(
                                 null
                             },
                             onDelete = if (!isSelectionMode) {
-                                { viewModel.deleteClient(client) }
+                                { viewModel.requestDeleteClient(client) }
                             } else {
                                 null
                             }
@@ -115,5 +119,22 @@ fun ClientsScreen(
                 }
             }
         }
+    }
+
+    pendingDeletion?.let { pending ->
+        InvConfirmDialog(
+            title = stringResource(R.string.delete_client_title),
+            message = context.resources.getQuantityString(
+                R.plurals.delete_client_with_invoices_message,
+                pending.invoiceCount,
+                pending.client.name,
+                pending.invoiceCount
+            ),
+            confirmText = stringResource(R.string.delete),
+            dismissText = stringResource(R.string.cancel),
+            destructive = true,
+            onConfirm = viewModel::confirmDeleteClient,
+            onDismiss = viewModel::cancelDeleteClient
+        )
     }
 }
