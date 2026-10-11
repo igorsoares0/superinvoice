@@ -6,10 +6,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -68,12 +70,16 @@ fun InvUnderlineTab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Largura do texto: sem isso o sublinhado (fillMaxWidth) fazia a primeira aba ocupar a
+    // linha inteira e as outras ficavam fora da tela.
     Column(
-        modifier = modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onClick
-        )
+        modifier = modifier
+            .width(IntrinsicSize.Max)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
     ) {
         Text(
             text = text,

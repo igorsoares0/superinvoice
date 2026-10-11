@@ -28,6 +28,16 @@ object InvIcons {
         )
     }
 
+    /** Prancheta: orçamento, para não confundir com o [Document] das faturas. */
+    val Clipboard: ImageVector by lazy {
+        invIcon(
+            "M9 4.5H7a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6.5a2 2 0 0 0-2-2h-2",
+            "M10 3h4a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z",
+            "M9 12h6",
+            "M9 16h4"
+        )
+    }
+
     val Person: ImageVector by lazy {
         invIcon(
             circle(12f, 8f, 3.4f),

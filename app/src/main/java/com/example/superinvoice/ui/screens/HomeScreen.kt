@@ -1,8 +1,6 @@
 package com.example.superinvoice.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +17,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.billing.BillingManager
@@ -30,12 +25,11 @@ import com.example.superinvoice.ui.components.BottomNavigationBar
 import com.example.superinvoice.ui.components.InvEmptyState
 import com.example.superinvoice.ui.components.InvFab
 import com.example.superinvoice.ui.components.InvScaffold
+import com.example.superinvoice.ui.components.InvScreenHeader
 import com.example.superinvoice.ui.components.InvSectionRule
 import com.example.superinvoice.ui.components.InvoiceCard
 import com.example.superinvoice.ui.components.InvoiceFilterTabs
 import com.example.superinvoice.ui.icons.InvIcons
-import com.example.superinvoice.ui.theme.Ghost
-import com.example.superinvoice.ui.theme.Ink
 import com.example.superinvoice.ui.theme.InvType
 import com.example.superinvoice.ui.theme.Neutral
 import com.example.superinvoice.ui.theme.Red
@@ -46,6 +40,7 @@ import online.isdevapps.superinvoice.R
 
 @Composable
 fun HomeScreen(
+    documentType: DocumentType = DocumentType.INVOICE,
     onNavigateToCreateInvoice: (DocumentType) -> Unit = {},
     onNavigateToEditInvoice: (Int) -> Unit = {},
     onNavigateToPreview: (Int) -> Unit = {},
@@ -55,10 +50,14 @@ fun HomeScreen(
     invoiceCount: Int = 0,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val documentType by viewModel.documentType.collectAsStateWithLifecycle()
     val isEstimates = documentType == DocumentType.ESTIMATE
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
-    val filteredInvoices by viewModel.filteredInvoices.collectAsStateWithLifecycle()
+    val allDocuments by viewModel.filteredInvoices.collectAsStateWithLifecycle()
+    // Filtrado aqui, não no ViewModel: ele é o mesmo nas duas abas, e trocar o tipo lá
+    // mostraria por um quadro a lista da aba anterior.
+    val filteredInvoices = remember(allDocuments, documentType) {
+        allDocuments.filter { it.type == documentType }
+    }
     val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -81,9 +80,9 @@ fun HomeScreen(
             )
         }
     ) {
-        DocumentTypeHeader(
-            selected = documentType,
-            onSelected = { viewModel.setDocumentType(it) }
+        InvScreenHeader(
+            title = stringResource(if (isEstimates) R.string.title_estimates else R.string.title_invoices),
+            titleStyle = InvType.screenTitle
         )
 
         Column(modifier = Modifier.padding(horizontal = Space.screen)) {
@@ -184,38 +183,3 @@ fun HomeScreen(
     }
 }
 
-/**
- * O título da Home é o seletor: "Faturas" e "Orçamentos" lado a lado, o escolhido em tinta e o
- * outro apagado. Mesmo espaçamento do [com.example.superinvoice.ui.components.InvScreenHeader].
- */
-@Composable
-private fun DocumentTypeHeader(
-    selected: DocumentType,
-    onSelected: (DocumentType) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Space.screen)
-            .padding(top = Space.sm, bottom = Space.section)
-            .selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(Space.xl)
-    ) {
-        listOf(
-            DocumentType.INVOICE to R.string.title_invoices,
-            DocumentType.ESTIMATE to R.string.title_estimates
-        ).forEach { (type, label) ->
-            Text(
-                text = stringResource(label),
-                style = InvType.screenTitle,
-                color = if (type == selected) Ink else Ghost,
-                maxLines = 1,
-                modifier = Modifier.selectable(
-                    selected = type == selected,
-                    role = Role.Tab,
-                    onClick = { onSelected(type) }
-                )
-            )
-        }
-    }
-}

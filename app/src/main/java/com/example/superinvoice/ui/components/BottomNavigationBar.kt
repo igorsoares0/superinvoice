@@ -33,6 +33,7 @@ sealed class BottomNavItem(
     val icon: ImageVector
 ) {
     data object Invoices : BottomNavItem(R.string.nav_invoices, InvIcons.Document)
+    data object Estimates : BottomNavItem(R.string.title_estimates, InvIcons.Clipboard)
     data object Settings : BottomNavItem(R.string.nav_settings, InvIcons.Gear)
 }
 
@@ -45,7 +46,8 @@ fun BottomNavigationBar(
     selectedItem: Int,
     onItemSelected: (Int) -> Unit
 ) {
-    val items = listOf(BottomNavItem.Invoices, BottomNavItem.Settings)
+    // A posição é o índice que AppNavigation usa: 0 faturas, 1 orçamentos, 2 configurações.
+    val items = listOf(BottomNavItem.Invoices, BottomNavItem.Estimates, BottomNavItem.Settings)
 
     Column(modifier = Modifier.background(Paper)) {
         InvDivider()

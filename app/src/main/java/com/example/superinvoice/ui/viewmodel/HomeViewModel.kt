@@ -37,10 +37,6 @@ class HomeViewModel @Inject constructor(
     private val billingManager: BillingManager
 ) : ViewModel() {
 
-    /** Faturas ou orçamentos: o seletor do topo da Home decide a lista e o botão de criar. */
-    private val _documentType = MutableStateFlow(DocumentType.INVOICE)
-    val documentType: StateFlow<DocumentType> = _documentType.asStateFlow()
-
     private val _selectedFilter = MutableStateFlow(InvoiceFilter.ALL)
     val selectedFilter: StateFlow<InvoiceFilter> = _selectedFilter.asStateFlow()
 
@@ -53,28 +49,26 @@ class HomeViewModel @Inject constructor(
 
     private val allInvoices = invoiceRepository.getAllInvoices()
 
+    /**
+     * Faturas e orçamentos juntos; cada aba da barra inferior separa o seu tipo na tela. O
+     * filtro pago/pendente só existe para fatura, então orçamento passa sempre.
+     */
     val filteredInvoices: StateFlow<List<Invoice>> = combine(
         allInvoices,
-        documentType,
         selectedFilter
-    ) { invoices, type, filter ->
-        val ofType = invoices.filter { it.type == type }
-        // Pago/pendente só existe para fatura; orçamentos aparecem todos.
-        if (type == DocumentType.ESTIMATE) return@combine ofType
-        when (filter) {
-            InvoiceFilter.ALL -> ofType
-            InvoiceFilter.PAID -> ofType.filter { it.status == InvoiceStatus.PAID }
-            InvoiceFilter.UNPAID -> ofType.filter { it.status != InvoiceStatus.PAID }
+    ) { invoices, filter ->
+        invoices.filter { invoice ->
+            invoice.type == DocumentType.ESTIMATE || when (filter) {
+                InvoiceFilter.ALL -> true
+                InvoiceFilter.PAID -> invoice.status == InvoiceStatus.PAID
+                InvoiceFilter.UNPAID -> invoice.status != InvoiceStatus.PAID
+            }
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
-
-    fun setDocumentType(type: DocumentType) {
-        _documentType.value = type
-    }
 
     fun setFilter(filter: InvoiceFilter) {
         _selectedFilter.value = filter

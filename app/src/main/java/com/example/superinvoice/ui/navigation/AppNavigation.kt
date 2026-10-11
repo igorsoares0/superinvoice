@@ -45,6 +45,7 @@ import com.example.superinvoice.ui.screens.SignatureScreen
 
 enum class Screen {
     HOME,
+    ESTIMATES,
     CREATE_INVOICE,
     CLIENTS,
     ADD_CLIENT,
@@ -190,6 +191,13 @@ fun AppNavigation(
         }
     }
 
+    /** Tela raiz de cada aba da barra inferior: faturas, orçamentos, configurações. */
+    fun tabRoot(index: Int): Screen = when (index) {
+        0 -> Screen.HOME
+        1 -> Screen.ESTIMATES
+        else -> Screen.SETTINGS
+    }
+
     /**
      * Troca de aba da barra inferior. A aba vira a raiz da vez: o histórico é
      * descartado porque as abas são irmãs, não empilhadas uma sobre a outra.
@@ -197,7 +205,13 @@ fun AppNavigation(
     fun selectBottomNavTab(index: Int) {
         selectedBottomNavItem = index
         navigationStack = emptyList()
-        currentScreen = if (index == 0) Screen.HOME else Screen.SETTINGS
+        currentScreen = tabRoot(index)
+    }
+
+    /** Depois de salvar um documento, volta para a lista da aba de onde ele foi aberto. */
+    fun returnToTabRoot() {
+        navigationStack = emptyList()
+        currentScreen = tabRoot(selectedBottomNavItem)
     }
 
     /**
@@ -206,7 +220,7 @@ fun AppNavigation(
      * [navigateBack] não faz nada engolia o toque em silêncio: a tela ficava
      * parada e só o segundo toque saía do app.
      *
-     * A HOME é a raiz do app. Estar numa outra raiz de aba (Configurações) com
+     * A HOME é a raiz do app. Estar numa outra raiz de aba (Orçamentos, Configurações) com
      * histórico vazio volta para a HOME em vez de fechar o app.
      */
     BackHandler(enabled = navigationStack.isNotEmpty() || currentScreen != Screen.HOME) {
@@ -218,13 +232,16 @@ fun AppNavigation(
         // Update bottom nav if returning to HOME or SETTINGS
         when (currentScreen) {
             Screen.HOME -> selectedBottomNavItem = 0
-            Screen.SETTINGS -> selectedBottomNavItem = 1
+            Screen.ESTIMATES -> selectedBottomNavItem = 1
+            Screen.SETTINGS -> selectedBottomNavItem = 2
             else -> {}
         }
     }
 
     when (currentScreen) {
-        Screen.HOME -> HomeScreen(
+        // Faturas e orçamentos são a mesma lista com tipos diferentes, uma aba cada.
+        Screen.HOME, Screen.ESTIMATES -> HomeScreen(
+            documentType = if (currentScreen == Screen.ESTIMATES) DocumentType.ESTIMATE else DocumentType.INVOICE,
             onNavigateToCreateInvoice = { type ->
                 if (!isCheckingInvoiceGate) {
                     isCheckingInvoiceGate = true
@@ -263,8 +280,7 @@ fun AppNavigation(
             },
             onSave = {
                 shouldResetCreateInvoice = false
-                navigationStack = emptyList()
-                currentScreen = Screen.HOME
+                returnToTabRoot()
             },
             onNavigateToSelectClient = {
                 shouldResetCreateInvoice = false
@@ -375,10 +391,7 @@ fun AppNavigation(
         Screen.EDIT_INVOICE -> EditInvoiceScreen(
             invoiceId = selectedInvoiceId,
             onClose = { navigateBack() },
-            onSave = {
-                navigationStack = emptyList()
-                currentScreen = Screen.HOME
-            },
+            onSave = { returnToTabRoot() },
             onNavigateToSelectClient = {
                 isSelectingForInvoice = true
                 navigateTo(Screen.CLIENTS)
@@ -407,12 +420,12 @@ fun AppNavigation(
             invoiceId = selectedInvoiceId,
             previewVersion = previewVersion,
             onClose = { navigateBack() },
-            // Fatura vinda de um orçamento abre em edição com a Home por baixo: a navegação
-            // tem um só `selectedInvoiceId`, e voltar para a prévia mostraria a fatura nova
-            // no lugar do orçamento.
+            // Fatura vinda de um orçamento abre em edição com a lista da aba por baixo: a
+            // navegação tem um só `selectedInvoiceId`, e voltar para a prévia mostraria a fatura
+            // nova no lugar do orçamento.
             onOpenInvoice = { invoiceId ->
                 selectedInvoiceId = invoiceId
-                navigationStack = listOf(Screen.HOME)
+                navigationStack = listOf(tabRoot(selectedBottomNavItem))
                 currentScreen = Screen.EDIT_INVOICE
             }
         )
