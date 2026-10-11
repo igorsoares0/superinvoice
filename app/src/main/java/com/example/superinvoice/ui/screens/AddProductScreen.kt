@@ -19,6 +19,7 @@ import com.example.superinvoice.ui.theme.InvType
 import com.example.superinvoice.ui.theme.Neutral
 import com.example.superinvoice.ui.theme.Space
 import com.example.superinvoice.ui.viewmodel.ProductsServicesViewModel
+import com.example.superinvoice.util.parseDecimalInput
 import online.isdevapps.superinvoice.R
 
 @Composable
@@ -30,20 +31,22 @@ fun AddProductScreen(
     var productName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
+    var unit by remember { mutableStateOf("") }
 
     InvSettingsSubScreen(
         title = stringResource(R.string.title_add_product),
         onClose = onClose,
         closeContentDescription = stringResource(R.string.close),
         saveText = stringResource(R.string.save),
-        saveEnabled = productName.isNotBlank() && price.toDoubleOrNull() != null,
+        saveEnabled = productName.isNotBlank() && parseDecimalInput(price) != null,
         onSave = {
-            val priceValue = price.toDoubleOrNull()
+            val priceValue = parseDecimalInput(price)
             if (productName.isNotBlank() && priceValue != null && priceValue > 0) {
                 viewModel.addProductService(
                     name = productName,
                     pricePerUnit = priceValue,
-                    description = description
+                    description = description,
+                    unit = unit
                 )
                 onSave()
             }
@@ -67,11 +70,17 @@ fun AddProductScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             trailing = {
                 Text(
-                    text = stringResource(R.string.unit_abbreviation).uppercase(),
+                    text = unit.trim().ifEmpty { stringResource(R.string.unit_abbreviation) }.uppercase(),
                     style = InvType.label,
                     color = Neutral
                 )
             }
+        )
+        InvField(
+            label = stringResource(R.string.unit_optional),
+            value = unit,
+            onValueChange = { unit = it },
+            placeholder = stringResource(R.string.unit_hint)
         )
         Spacer(modifier = Modifier.height(Space.xl))
     }

@@ -12,11 +12,15 @@ fun ClientCard(
     onMenuClick: () -> Unit = {},
     onEdit: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
+    onArchive: (() -> Unit)? = null,
+    onUnarchive: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
     val actions = buildList {
         onEdit?.let { add(InvMenuAction(stringResource(R.string.edit), onClick = it)) }
+        onArchive?.let { add(InvMenuAction(stringResource(R.string.archive), onClick = it)) }
+        onUnarchive?.let { add(InvMenuAction(stringResource(R.string.unarchive), onClick = it)) }
         onDelete?.let {
             add(InvMenuAction(stringResource(R.string.delete), destructive = true, onClick = it))
         }

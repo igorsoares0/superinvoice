@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,25 +28,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.data.ProductService
+import com.example.superinvoice.data.calc.InvoiceCalculator
+import com.example.superinvoice.data.database.entities.DocumentType
 import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.ui.components.DatePickerField
-import com.example.superinvoice.ui.components.InvAmountDialog
 import com.example.superinvoice.ui.components.InvButton
 import com.example.superinvoice.ui.components.InvButtonVariant
-import com.example.superinvoice.ui.components.InvChip
 import com.example.superinvoice.ui.components.InvDivider
 import com.example.superinvoice.ui.components.InvField
-import com.example.superinvoice.ui.components.InvLineItemRow
 import com.example.superinvoice.ui.components.InvScaffold
 import com.example.superinvoice.ui.components.InvScreenHeader
 import com.example.superinvoice.ui.components.InvSectionRule
 import com.example.superinvoice.ui.components.InvStatusLabel
-import com.example.superinvoice.ui.components.InvTotalSummary
 import com.example.superinvoice.ui.components.InvoiceNotesField
 import com.example.superinvoice.ui.components.SettingsOption
+import com.example.superinvoice.ui.components.documentStatusLabel
 import com.example.superinvoice.ui.icons.InvIcons
-import com.example.superinvoice.ui.theme.Green
-import com.example.superinvoice.ui.theme.Inert
 import com.example.superinvoice.ui.theme.Ink
 import com.example.superinvoice.ui.theme.InvShape
 import com.example.superinvoice.ui.theme.InvType
@@ -84,24 +79,22 @@ fun EditInvoiceScreen(
     val invoiceNumber by viewModel.invoiceNumber.collectAsStateWithLifecycle()
     val dueDate by viewModel.dueDate.collectAsStateWithLifecycle()
     val notes by viewModel.notes.collectAsStateWithLifecycle()
-    val tax by viewModel.tax.collectAsStateWithLifecycle()
-    val discount by viewModel.discount.collectAsStateWithLifecycle()
     val currency by viewModel.currency.collectAsStateWithLifecycle()
     val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle()
     val selectedClient by viewModel.selectedClient.collectAsStateWithLifecycle()
-    val lineItems by viewModel.lineItems.collectAsStateWithLifecycle()
-    val totalAmount by viewModel.totalAmount.collectAsStateWithLifecycle()
+    val lineItems by viewModel.form.lineItems.collectAsStateWithLifecycle()
     val invoice by viewModel.invoice.collectAsStateWithLifecycle()
 
     val currencySymbol = getCurrencySymbol(currency)
 
-    var showTaxDialog by remember { mutableStateOf(false) }
-    var showDiscountDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var taxInput by remember { mutableStateOf("") }
-    var discountInput by remember { mutableStateOf("") }
 
-    val isPaid = invoice?.status == InvoiceStatus.PAID
+    val isEstimate = invoice?.type == DocumentType.ESTIMATE
+    val (statusLabel, statusColor) = documentStatusLabel(
+        invoice?.type ?: DocumentType.INVOICE,
+        invoice?.status ?: InvoiceStatus.DRAFT
+    )
+    val balance = invoice?.let { InvoiceCalculator.balanceDue(it.totalAmount, it.amountPaid) } ?: 0.0
 
     LaunchedEffect(clientSelectionVersion) {
         if (clientSelectionVersion > 0 && pendingClientSelection != null) {
@@ -112,41 +105,9 @@ fun EditInvoiceScreen(
 
     LaunchedEffect(productSelectionVersion) {
         if (productSelectionVersion > 0 && pendingProductSelection != null) {
-            viewModel.addLineItem(pendingProductSelection, 1)
+            viewModel.form.addLineItem(pendingProductSelection)
             onProductSelectionProcessed()
         }
-    }
-
-    if (showTaxDialog) {
-        InvAmountDialog(
-            title = stringResource(R.string.tax_amount),
-            label = stringResource(R.string.enter_tax_amount),
-            value = taxInput,
-            onValueChange = { taxInput = it },
-            onConfirm = {
-                viewModel.setTax(taxInput)
-                showTaxDialog = false
-            },
-            onDismiss = { showTaxDialog = false },
-            confirmText = stringResource(R.string.ok),
-            dismissText = stringResource(R.string.cancel)
-        )
-    }
-
-    if (showDiscountDialog) {
-        InvAmountDialog(
-            title = stringResource(R.string.discount_amount),
-            label = stringResource(R.string.enter_discount_amount),
-            value = discountInput,
-            onValueChange = { discountInput = it },
-            onConfirm = {
-                viewModel.setDiscount(discountInput)
-                showDiscountDialog = false
-            },
-            onDismiss = { showDiscountDialog = false },
-            confirmText = stringResource(R.string.ok),
-            dismissText = stringResource(R.string.cancel)
-        )
     }
 
     if (showDeleteDialog) {
@@ -156,14 +117,16 @@ fun EditInvoiceScreen(
             shape = InvShape.card,
             title = {
                 Text(
-                    text = stringResource(R.string.delete_invoice_title),
+                    text = stringResource(if (isEstimate) R.string.delete_estimate_title else R.string.delete_invoice_title),
                     style = InvType.sectionTitle,
                     color = Ink
                 )
             },
             text = {
                 Text(
-                    text = stringResource(R.string.delete_invoice_confirmation),
+                    text = stringResource(
+                        if (isEstimate) R.string.delete_estimate_confirmation else R.string.delete_invoice_confirmation
+                    ),
                     style = InvType.body,
                     color = Neutral
                 )
@@ -198,7 +161,7 @@ fun EditInvoiceScreen(
 
     InvScaffold(modifier = Modifier.imePadding()) {
         InvScreenHeader(
-            title = stringResource(R.string.title_edit_invoice),
+            title = stringResource(if (isEstimate) R.string.title_edit_estimate else R.string.title_edit_invoice),
             onClose = onClose,
             closeContentDescription = stringResource(R.string.close)
         )
@@ -211,14 +174,14 @@ fun EditInvoiceScreen(
                 .padding(horizontal = Space.screen)
         ) {
             InvField(
-                label = stringResource(R.string.invoice_name_label),
+                label = stringResource(if (isEstimate) R.string.estimate_name_label else R.string.invoice_name_label),
                 value = invoiceNumber,
                 onValueChange = { viewModel.setInvoiceNumber(it) },
                 opensSection = true
             )
 
             DatePickerField(
-                label = stringResource(R.string.due_date),
+                label = stringResource(if (isEstimate) R.string.valid_until else R.string.due_date),
                 value = dueDate,
                 onValueChange = { viewModel.setDueDate(it) },
                 dateFormatPattern = dateFormat
@@ -236,64 +199,11 @@ fun EditInvoiceScreen(
                 onClick = onNavigateToSelectProduct
             )
 
-            if (lineItems.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(Space.section))
-                Text(
-                    text = stringResource(R.string.items).uppercase(),
-                    style = InvType.label,
-                    color = Neutral,
-                    modifier = Modifier.padding(bottom = Space.md)
-                )
-                InvSectionRule()
-                lineItems.forEachIndexed { index, item ->
-                    InvLineItemRow(
-                        name = item.productService.name,
-                        unitPrice = stringResource(
-                            R.string.price_per_unit,
-                            "$currencySymbol${
-                                String.format("%.2f", item.productService.pricePerUnit)
-                            }"
-                        ),
-                        quantity = item.quantity,
-                        lineTotal = "$currencySymbol${String.format("%.2f", item.lineTotal)}",
-                        onDecrease = {
-                            viewModel.updateLineItemQuantity(index, item.quantity - 1)
-                        },
-                        onIncrease = {
-                            viewModel.updateLineItemQuantity(index, item.quantity + 1)
-                        },
-                        onRemove = { viewModel.removeLineItem(index) },
-                        removeContentDescription = stringResource(R.string.remove)
-                    )
-                }
-            }
+            InvoiceLineItemsSection(form = viewModel.form, currencySymbol = currencySymbol)
 
             Spacer(modifier = Modifier.height(Space.section))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(Space.sm)) {
-                InvChip(
-                    text = if (tax.isNotEmpty() && (tax.toDoubleOrNull() ?: 0.0) > 0) {
-                        stringResource(R.string.tax_with_amount, "$currencySymbol$tax")
-                    } else {
-                        stringResource(R.string.tax)
-                    },
-                    onClick = {
-                        taxInput = tax
-                        showTaxDialog = true
-                    }
-                )
-                InvChip(
-                    text = if (discount.isNotEmpty() && (discount.toDoubleOrNull() ?: 0.0) > 0) {
-                        stringResource(R.string.discount_with_amount, "$currencySymbol$discount")
-                    } else {
-                        stringResource(R.string.discount)
-                    },
-                    onClick = {
-                        discountInput = discount
-                        showDiscountDialog = true
-                    }
-                )
-            }
+            InvoiceAdjustmentChips(form = viewModel.form, currencySymbol = currencySymbol)
 
             Spacer(modifier = Modifier.height(Space.section))
 
@@ -301,31 +211,25 @@ fun EditInvoiceScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = Space.sm),
+                    .padding(vertical = Space.lg),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Space.md)
             ) {
                 InvStatusLabel(
-                    label = if (isPaid) {
-                        stringResource(R.string.paid)
-                    } else {
-                        stringResource(R.string.unpaid)
-                    },
-                    color = if (isPaid) Green else Orange,
+                    label = statusLabel,
+                    color = statusColor,
                     modifier = Modifier.weight(1f)
                 )
-                Switch(
-                    checked = isPaid,
-                    onCheckedChange = { viewModel.togglePaidStatus() },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Paper,
-                        checkedTrackColor = Green,
-                        checkedBorderColor = Green,
-                        uncheckedThumbColor = Paper,
-                        uncheckedTrackColor = Inert,
-                        uncheckedBorderColor = Inert
+                // Pago e parcial vêm dos pagamentos; aqui só o atalho de quitar o saldo.
+                // Orçamento não recebe pagamento: a resposta do cliente fica na pré-visualização.
+                if (!isEstimate && balance > 0.0) {
+                    Text(
+                        text = stringResource(R.string.mark_as_paid),
+                        style = InvType.action,
+                        color = Orange,
+                        modifier = Modifier.clickable { viewModel.markAsPaid() }
                     )
-                )
+                }
             }
             InvDivider()
 
@@ -340,14 +244,10 @@ fun EditInvoiceScreen(
 
             Spacer(modifier = Modifier.height(Space.section))
 
-            InvTotalSummary(
-                label = stringResource(R.string.total),
-                amount = "$currencySymbol${String.format("%.2f", totalAmount)}",
-                meta = currency
-            )
+            InvoiceTotalsSection(form = viewModel.form, currencySymbol = currencySymbol, currency = currency)
 
             Text(
-                text = stringResource(R.string.delete_invoice),
+                text = stringResource(if (isEstimate) R.string.delete_estimate else R.string.delete_invoice),
                 style = InvType.action,
                 color = Red,
                 textAlign = TextAlign.Center,

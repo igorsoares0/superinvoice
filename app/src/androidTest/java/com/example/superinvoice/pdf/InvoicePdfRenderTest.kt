@@ -289,11 +289,11 @@ class InvoicePdfRenderTest {
         number = "042",
         clientId = 1,
         createdDate = FIXED_DATE,
-        dueDate = "12/31/2024",
+        dueDate = 1735603200000L, // 2024-12-31 UTC
         notes = "Pagamento em até 15 dias corridos após o recebimento.",
         subtotal = subtotal,
-        tax = tax,
-        discount = 0.0,
+        taxValue = tax,
+        taxAmount = tax,
         totalAmount = total,
         status = InvoiceStatus.DRAFT,
         currency = "USD"
@@ -306,7 +306,7 @@ class InvoicePdfRenderTest {
         productServiceName = name,
         productServiceDescription = "Descrição do item $id",
         pricePerUnit = price,
-        quantity = quantity,
+        quantity = quantity.toDouble(),
         lineTotal = price * quantity
     )
 

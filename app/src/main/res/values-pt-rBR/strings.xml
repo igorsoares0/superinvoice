@@ -31,7 +31,7 @@
     <!-- Home Screen -->
     <string name="title_invoices">Faturas</string>
     <string name="add_invoice">Adicionar Fatura</string>
-    <string name="invoices_used">%1$d/%2$d faturas gratuitas criadas</string>
+    <string name="invoices_used">%1$d/%2$d faturas e orçamentos gratuitos criados</string>
     <string name="invoice_record">Registro de Faturas</string>
     <string name="invoice_record_description">Aqui você terá acesso a todas as suas faturas e poderá gerenciá-las da melhor forma.</string>
     <string name="no_invoices_yet">Nenhuma fatura ainda</string>
@@ -48,6 +48,7 @@
     <!-- Invoice Card -->
     <string name="status_paid">PAGO</string>
     <string name="status_unpaid">PENDENTE</string>
+    <string name="status_partially_paid">PARCIAL</string>
     <string name="download_pdf">Baixar PDF</string>
 
     <!-- Settings Screen -->
@@ -90,10 +91,77 @@
     <string name="tax_with_amount">Imposto: %1$s</string>
     <string name="discount">Desconto</string>
     <string name="discount_with_amount">Desconto: %1$s</string>
-    <string name="tax_amount">Valor do Imposto</string>
     <string name="enter_tax_amount">Insira o valor do imposto</string>
-    <string name="discount_amount">Valor do Desconto</string>
     <string name="enter_discount_amount">Insira o valor do desconto</string>
+    <string name="adjustment_percent">Percentual</string>
+    <string name="adjustment_fixed">Valor fixo</string>
+    <string name="enter_tax_rate">Insira a alíquota do imposto</string>
+    <string name="enter_discount_rate">Insira o percentual de desconto</string>
+    <string name="shipping">Frete</string>
+    <string name="shipping_with_amount">Frete: %1$s</string>
+    <string name="enter_shipping_amount">Insira o valor do frete</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="quantity">Quantidade</string>
+    <string name="edit_quantity">Editar quantidade</string>
+    <string name="unit_optional">Unidade (opcional)</string>
+    <string name="unit_hint">ex.: h, kg, un</string>
+    <string name="price_per_named_unit">%1$s por %2$s</string>
+
+    <!-- Pagamentos -->
+    <string name="record_payment">Registrar pagamento</string>
+    <string name="payments_count">Pagamentos (%1$d)</string>
+    <string name="payments_title">Pagamentos</string>
+    <string name="payment_amount">Valor</string>
+    <string name="payment_date">Data do pagamento</string>
+    <string name="payment_method">Forma de pagamento</string>
+    <string name="payment_note">Observação (opcional)</string>
+    <string name="payment_above_balance">Valor acima do saldo de %1$s</string>
+    <string name="payment_recorded">Pagamento registrado</string>
+    <string name="generate_receipt">Gerar recibo</string>
+    <string name="delete_payment_title">Apagar pagamento?</string>
+    <string name="delete_payment_message">O saldo e o status da fatura serão recalculados.</string>
+    <string name="paid_of_total">Pago %1$s de %2$s</string>
+    <string name="balance_due_amount">Saldo devedor: %1$s</string>
+    <string name="mark_as_paid">Marcar como pago</string>
+    <string name="share_receipt">Compartilhar recibo</string>
+    <string name="receipt_share_subject">Recibo %1$s</string>
+    <string name="payment_method_cash">Dinheiro</string>
+    <string name="payment_method_bank_transfer">Transferência</string>
+    <string name="payment_method_card">Cartão</string>
+    <string name="payment_method_pix">Pix</string>
+    <string name="payment_method_paypal">PayPal</string>
+    <string name="payment_method_check">Cheque</string>
+    <string name="payment_method_other">Outro</string>
+
+    <!-- Orçamentos -->
+    <string name="title_estimates">Orçamentos</string>
+    <string name="add_estimate">Adicionar Orçamento</string>
+    <string name="title_new_estimate">Novo Orçamento</string>
+    <string name="title_edit_estimate">Editar Orçamento</string>
+    <string name="estimate_name_label">Nome do orçamento #</string>
+    <string name="valid_until">Válido até</string>
+    <string name="title_estimate_preview">Prévia do orçamento</string>
+    <string name="estimate_record">Registro de Orçamentos</string>
+    <string name="estimate_record_description">Envie orçamentos aos seus clientes e transforme os aceitos em faturas com um toque.</string>
+    <string name="no_estimates_yet">Nenhum orçamento ainda</string>
+    <string name="no_estimates_message">Toque no botão + para criar seu primeiro orçamento.</string>
+    <string name="status_open">EM ABERTO</string>
+    <string name="status_accepted">ACEITO</string>
+    <string name="status_declined">RECUSADO</string>
+    <string name="status_converted">CONVERTIDO</string>
+    <string name="mark_as_accepted">Marcar como aceito</string>
+    <string name="mark_as_declined">Marcar como recusado</string>
+    <string name="convert_to_invoice">Converter em fatura</string>
+    <string name="view_converted_invoice">Ver fatura %1$s</string>
+    <string name="delete_estimate">Excluir orçamento</string>
+    <string name="delete_estimate_title">Excluir Orçamento</string>
+    <string name="delete_estimate_confirmation">Tem certeza que deseja excluir este orçamento? Esta ação não pode ser desfeita.</string>
+    <string name="share_invoice_subject">Fatura %1$s</string>
+    <string name="share_estimate_subject">Orçamento %1$s</string>
+    <string name="share_invoice_text">Segue em anexo a fatura %1$s</string>
+    <string name="share_estimate_text">Segue em anexo o orçamento %1$s</string>
+    <string name="share_invoice_chooser">Compartilhar Fatura</string>
+    <string name="share_estimate_chooser">Compartilhar Orçamento</string>
 
     <!-- Edit Invoice Screen -->
     <string name="title_edit_invoice">Editar Fatura</string>
@@ -317,6 +385,39 @@
     <string name="tax_colon">Imposto:</string>
     <string name="discount_colon">Desconto:</string>
     <string name="total_colon">TOTAL:</string>
+    <string name="tax_rate_label">IMPOSTO (%1$s)</string>
+    <string name="discount_rate_label">DESCONTO (%1$s)</string>
+    <string name="vat_rate_label">IMPOSTO (%1$s)</string>
+    <string name="tax_rate_colon">Imposto (%1$s):</string>
+    <string name="discount_rate_colon">Desconto (%1$s):</string>
+    <string name="shipping_label">FRETE</string>
+    <string name="shipping_colon">Frete:</string>
+    <string name="paid_label">PAGO</string>
+    <string name="paid_colon">Pago:</string>
+    <string name="balance_due_label">SALDO DEVEDOR</string>
+    <string name="balance_due_colon">Saldo devedor:</string>
+    <string name="bank_address_label">Endereço do Banco: %1$s</string>
+    <string name="payment_terms_label">Condições de Pagamento: %1$s</string>
+    <string name="additional_instructions_label">Instruções Adicionais: %1$s</string>
+
+    <!-- Recibo (PDF) -->
+    <string name="receipt_title">RECIBO</string>
+    <string name="receipt_no_label">RECIBO Nº:</string>
+    <string name="received_from_label">RECEBIDO DE:</string>
+    <string name="amount_received_label">VALOR RECEBIDO</string>
+    <string name="payment_method_label">FORMA DE PAGAMENTO:</string>
+    <string name="invoice_reference_label">FATURA:</string>
+    <string name="invoice_total_label">TOTAL DA FATURA:</string>
+    <string name="paid_to_date_label">PAGO ATÉ AGORA:</string>
+    <string name="remaining_balance_label">SALDO RESTANTE:</string>
+
+    <!-- Orçamento (PDF) -->
+    <string name="estimate_label">ORÇAMENTO</string>
+    <string name="estimate_no_label">ORÇAMENTO Nº:</string>
+    <string name="valid_until_label">VÁLIDO ATÉ:</string>
+    <string name="estimate_number_format">ORÇAMENTO #%1$s</string>
+    <string name="estimate_no_professional">Orçamento Nº:</string>
+    <string name="valid_until_professional">Válido até:</string>
 
     <!-- Policy Screen -->
     <string name="title_privacy_policy">Política de Privacidade</string>
@@ -364,16 +465,23 @@
     <string name="try_again">Tentar novamente</string>
     <string name="checkout_unavailable">Não foi possível abrir o pagamento. Tente novamente.</string>
     <!-- Exclusão de cliente com faturas / produto em uso -->
-    <string name="delete_client_title">Excluir cliente?</string>
-    <plurals name="delete_client_with_invoices_message">
-        <item quantity="one">%1$s tem %2$d fatura. Ao excluir este cliente, essa fatura também será excluída. Esta ação não pode ser desfeita.</item>
-        <item quantity="many">%1$s tem %2$d faturas. Ao excluir este cliente, todas elas também serão excluídas. Esta ação não pode ser desfeita.</item>
-        <item quantity="other">%1$s tem %2$d faturas. Ao excluir este cliente, todas elas também serão excluídas. Esta ação não pode ser desfeita.</item>
+    <!-- Clientes arquivados -->
+    <string name="clients_active">Ativos</string>
+    <string name="clients_archived">Arquivados</string>
+    <string name="archive">Arquivar</string>
+    <string name="unarchive">Desarquivar</string>
+    <string name="archive_client_title">Arquivar cliente?</string>
+    <string name="cannot_delete_client_title">Não é possível excluir o cliente</string>
+    <string name="no_archived_clients">Nenhum cliente arquivado</string>
+    <string name="no_archived_clients_message">Os clientes que você arquivar aparecem aqui. As faturas e orçamentos deles continuam salvos.</string>
+    <plurals name="archive_client_message">
+        <item quantity="one">%1$s aparece em %2$d fatura ou orçamento e não pode ser excluído. Arquive o cliente para escondê-lo das listas; o documento continua salvo.</item>
+        <item quantity="many">%1$s aparece em %2$d faturas ou orçamentos e não pode ser excluído. Arquive o cliente para escondê-lo das listas; os documentos continuam salvos.</item>
+        <item quantity="other">%1$s aparece em %2$d faturas ou orçamentos e não pode ser excluído. Arquive o cliente para escondê-lo das listas; os documentos continuam salvos.</item>
     </plurals>
-    <string name="product_in_use_title">Não é possível excluir</string>
-    <plurals name="product_in_use_message">
-        <item quantity="one">%1$s está em %2$d fatura. Remova-o dessa fatura antes de excluir.</item>
-        <item quantity="many">%1$s está em %2$d faturas. Remova-o dessas faturas antes de excluir.</item>
-        <item quantity="other">%1$s está em %2$d faturas. Remova-o dessas faturas antes de excluir.</item>
+    <plurals name="cannot_delete_client_message">
+        <item quantity="one">%1$s aparece em %2$d fatura ou orçamento, por isso fica arquivado em vez de ser excluído.</item>
+        <item quantity="many">%1$s aparece em %2$d faturas ou orçamentos, por isso fica arquivado em vez de ser excluído.</item>
+        <item quantity="other">%1$s aparece em %2$d faturas ou orçamentos, por isso fica arquivado em vez de ser excluído.</item>
     </plurals>
 </resources>

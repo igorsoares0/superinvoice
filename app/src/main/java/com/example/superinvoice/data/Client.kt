@@ -1,5 +1,6 @@
 package com.example.superinvoice.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -15,5 +16,8 @@ data class Client(
     val state: String = "",
     val zipCode: String = "",
     val notes: String = "",
+    /** Cliente com documentos não é apagado, é arquivado: some das listas e as faturas ficam. */
+    @ColumnInfo(defaultValue = "0")
+    val archived: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )

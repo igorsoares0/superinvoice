@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -17,11 +19,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.superinvoice.data.database.entities.AdjustmentType
 import com.example.superinvoice.ui.icons.InvIcons
 import com.example.superinvoice.ui.theme.Ghost
 import com.example.superinvoice.ui.theme.Hairline
@@ -35,6 +43,7 @@ import com.example.superinvoice.ui.theme.Paper
 import com.example.superinvoice.ui.theme.Red
 import com.example.superinvoice.ui.theme.Size
 import com.example.superinvoice.ui.theme.Space
+import com.example.superinvoice.util.parseDecimalInput
 
 /**
  * O número mais importante da tela vive entre duas réguas, sem fundo
@@ -82,15 +91,21 @@ fun InvTotalSummary(
     }
 }
 
-/** Item da fatura, com o passo de quantidade e o total da linha. */
+/**
+ * Item da fatura, com o passo de quantidade e o total da linha. O passo soma e subtrai 1; tocar
+ * na quantidade abre [InvLineItemDialog] para digitar decimal ("2,5") e trocar a unidade.
+ */
 @Composable
 fun InvLineItemRow(
     name: String,
     unitPrice: String,
-    quantity: Int,
+    quantity: String,
+    canDecrease: Boolean,
     lineTotal: String,
     onDecrease: () -> Unit,
     onIncrease: () -> Unit,
+    onQuantityClick: () -> Unit,
+    quantityClickLabel: String,
     onRemove: () -> Unit,
     removeContentDescription: String,
     modifier: Modifier = Modifier
@@ -122,13 +137,17 @@ fun InvLineItemRow(
                 ) {
                     StepperButton(
                         icon = InvIcons.Minus,
-                        enabled = quantity > 1,
+                        enabled = canDecrease,
                         onClick = onDecrease
                     )
                     Text(
-                        text = "$quantity",
-                        style = InvType.amountRow,
-                        color = Ink
+                        text = quantity,
+                        style = InvType.amountRow.copy(textDecoration = TextDecoration.Underline),
+                        color = Ink,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .clickable(onClickLabel = quantityClickLabel, onClick = onQuantityClick)
+                            .padding(vertical = Space.xs)
                     )
                     StepperButton(
                         icon = InvIcons.Plus,
@@ -221,4 +240,186 @@ fun InvAmountDialog(
             }
         }
     )
+}
+
+/**
+ * Desconto ou imposto: o usuário escolhe entre percentual e valor fixo nas abas acima do campo.
+ * O texto volta como foi digitado (vírgula ou ponto); quem lê é o `parseDecimalInput`.
+ */
+@Composable
+fun InvAdjustmentDialog(
+    title: String,
+    initialType: AdjustmentType,
+    initialValue: String,
+    percentTabText: String,
+    fixedTabText: String,
+    percentLabel: String,
+    fixedLabel: String,
+    currencySymbol: String,
+    onConfirm: (AdjustmentType, String) -> Unit,
+    onDismiss: () -> Unit,
+    confirmText: String,
+    dismissText: String
+) {
+    var type by remember { mutableStateOf(initialType) }
+    var value by remember { mutableStateOf(initialValue) }
+    val isPercent = type == AdjustmentType.PERCENT
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Paper,
+        shape = InvShape.card,
+        title = {
+            Text(text = title, style = InvType.sectionTitle, color = Ink)
+        },
+        text = {
+            Column {
+                Row(horizontalArrangement = Arrangement.spacedBy(Space.xl)) {
+                    InvUnderlineTab(
+                        text = percentTabText,
+                        isSelected = isPercent,
+                        onClick = { type = AdjustmentType.PERCENT }
+                    )
+                    InvUnderlineTab(
+                        text = fixedTabText,
+                        isSelected = !isPercent,
+                        onClick = { type = AdjustmentType.FIXED }
+                    )
+                }
+                Spacer(modifier = Modifier.height(Space.lg))
+                InvField(
+                    label = if (isPercent) percentLabel else fixedLabel,
+                    value = value,
+                    onValueChange = { value = it },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    opensSection = true,
+                    trailing = {
+                        Text(
+                            text = if (isPercent) "%" else currencySymbol,
+                            style = InvType.label,
+                            color = Neutral
+                        )
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(type, value) }) {
+                Text(text = confirmText, style = InvType.action, color = Orange)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = dismissText, style = InvType.action, color = Ink)
+            }
+        }
+    )
+}
+
+/**
+ * Quantidade decimal e unidade de um item. A unidade vem do produto e pode ser trocada só nesta
+ * fatura; vazia, o PDF mostra só o número.
+ */
+@Composable
+fun InvLineItemDialog(
+    title: String,
+    initialQuantity: String,
+    initialUnit: String,
+    quantityLabel: String,
+    unitLabel: String,
+    unitPlaceholder: String,
+    onConfirm: (quantity: Double, unit: String) -> Unit,
+    onDismiss: () -> Unit,
+    confirmText: String,
+    dismissText: String
+) {
+    var quantity by remember { mutableStateOf(initialQuantity) }
+    var unit by remember { mutableStateOf(initialUnit) }
+    val parsed = parseDecimalInput(quantity)?.takeIf { it > 0.0 }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Paper,
+        shape = InvShape.card,
+        title = {
+            Text(
+                text = title,
+                style = InvType.sectionTitle,
+                color = Ink,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        text = {
+            Column {
+                InvField(
+                    label = quantityLabel,
+                    value = quantity,
+                    onValueChange = { quantity = it },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    opensSection = true
+                )
+                InvField(
+                    label = unitLabel,
+                    value = unit,
+                    onValueChange = { unit = it },
+                    placeholder = unitPlaceholder
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { parsed?.let { onConfirm(it, unit) } },
+                enabled = parsed != null
+            ) {
+                Text(
+                    text = confirmText,
+                    style = InvType.action,
+                    color = if (parsed != null) Orange else Ghost
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = dismissText, style = InvType.action, color = Ink)
+            }
+        }
+    )
+}
+
+/** Linhas entre os itens e o total: subtotal, desconto, imposto e frete, rótulo à esquerda. */
+@Composable
+fun InvTotalsBreakdown(
+    rows: List<Pair<String, String>>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = Space.md),
+        verticalArrangement = Arrangement.spacedBy(Space.sm)
+    ) {
+        rows.forEach { (label, value) ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Space.md)
+            ) {
+                Text(
+                    text = label,
+                    style = InvType.support,
+                    color = Neutral,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = value,
+                    style = InvType.support,
+                    color = Ink,
+                    maxLines = 1,
+                    softWrap = false
+                )
+            }
+        }
+    }
 }

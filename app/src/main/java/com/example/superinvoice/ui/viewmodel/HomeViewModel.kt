@@ -6,6 +6,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Invoice
+import com.example.superinvoice.data.database.entities.DocumentType
 import com.example.superinvoice.data.database.entities.InvoiceStatus
 import com.example.superinvoice.data.billing.BillingManager
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
@@ -13,6 +14,7 @@ import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
 import com.example.superinvoice.data.repository.SettingsRepository
 import com.example.superinvoice.ui.components.InvoiceFilter
+import com.example.superinvoice.util.shareTextsFor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +37,10 @@ class HomeViewModel @Inject constructor(
     private val billingManager: BillingManager
 ) : ViewModel() {
 
+    /** Faturas ou orçamentos: o seletor do topo da Home decide a lista e o botão de criar. */
+    private val _documentType = MutableStateFlow(DocumentType.INVOICE)
+    val documentType: StateFlow<DocumentType> = _documentType.asStateFlow()
+
     private val _selectedFilter = MutableStateFlow(InvoiceFilter.ALL)
     val selectedFilter: StateFlow<InvoiceFilter> = _selectedFilter.asStateFlow()
 
@@ -49,18 +55,26 @@ class HomeViewModel @Inject constructor(
 
     val filteredInvoices: StateFlow<List<Invoice>> = combine(
         allInvoices,
+        documentType,
         selectedFilter
-    ) { invoices, filter ->
+    ) { invoices, type, filter ->
+        val ofType = invoices.filter { it.type == type }
+        // Pago/pendente só existe para fatura; orçamentos aparecem todos.
+        if (type == DocumentType.ESTIMATE) return@combine ofType
         when (filter) {
-            InvoiceFilter.ALL -> invoices
-            InvoiceFilter.PAID -> invoices.filter { it.status == InvoiceStatus.PAID }
-            InvoiceFilter.UNPAID -> invoices.filter { it.status != InvoiceStatus.PAID }
+            InvoiceFilter.ALL -> ofType
+            InvoiceFilter.PAID -> ofType.filter { it.status == InvoiceStatus.PAID }
+            InvoiceFilter.UNPAID -> ofType.filter { it.status != InvoiceStatus.PAID }
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    fun setDocumentType(type: DocumentType) {
+        _documentType.value = type
+    }
 
     fun setFilter(filter: InvoiceFilter) {
         _selectedFilter.value = filter
@@ -248,16 +262,17 @@ class HomeViewModel @Inject constructor(
                         file
                     )
 
+                    val shareTexts = shareTextsFor(context, invoice)
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "application/pdf"
                         putExtra(Intent.EXTRA_STREAM, uri)
-                        putExtra(Intent.EXTRA_SUBJECT, "Invoice ${invoice.number}")
-                        putExtra(Intent.EXTRA_TEXT, "Please find attached Invoice ${invoice.number}")
+                        putExtra(Intent.EXTRA_SUBJECT, shareTexts.subject)
+                        putExtra(Intent.EXTRA_TEXT, shareTexts.text)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
 
-                    val chooser = Intent.createChooser(shareIntent, "Share Invoice")
+                    val chooser = Intent.createChooser(shareIntent, shareTexts.chooserTitle)
                     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(chooser)
                 } else {

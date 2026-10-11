@@ -20,28 +20,28 @@ import com.example.superinvoice.ui.theme.OnOrange
 import com.example.superinvoice.ui.theme.Orange
 import com.example.superinvoice.ui.theme.OrangeWash
 import com.example.superinvoice.ui.theme.Paper
+import com.example.superinvoice.util.InvoiceDates
 import online.isdevapps.superinvoice.R
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+/**
+ * [value] e o retorno de [onValueChange] são a meia-noite UTC do dia (convenção de
+ * [InvoiceDates]), que é exatamente o que o `DatePicker` usa; o texto só existe na exibição.
+ */
 fun DatePickerField(
     label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
+    value: Long,
+    onValueChange: (Long) -> Unit,
     dateFormatPattern: String = "MM/dd/yyyy",
     modifier: Modifier = Modifier,
     opensSection: Boolean = false
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
 
     InvSelectField(
         label = label,
-        value = value,
+        value = InvoiceDates.format(value, dateFormatPattern),
         placeholder = label,
         onClick = { showDatePicker = true },
         modifier = modifier,
@@ -49,23 +49,14 @@ fun DatePickerField(
     )
 
     if (showDatePicker) {
+        // Criado a cada abertura: na edição a data chega depois da primeira composição.
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = value)
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                                timeInMillis = millis
-                            }
-                            val dateFormat = SimpleDateFormat(
-                                dateFormatPattern,
-                                Locale.getDefault()
-                            ).apply {
-                                timeZone = TimeZone.getTimeZone("UTC")
-                            }
-                            onValueChange(dateFormat.format(calendar.time))
-                        }
+                        datePickerState.selectedDateMillis?.let(onValueChange)
                         showDatePicker = false
                     }
                 ) {

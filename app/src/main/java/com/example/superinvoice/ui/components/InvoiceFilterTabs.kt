@@ -42,17 +42,17 @@ fun InvoiceFilterTabs(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(Space.xl)
     ) {
-        FilterTab(
+        InvUnderlineTab(
             text = stringResource(R.string.filter_all),
             isSelected = selectedFilter == InvoiceFilter.ALL,
             onClick = { onFilterSelected(InvoiceFilter.ALL) }
         )
-        FilterTab(
+        InvUnderlineTab(
             text = stringResource(R.string.filter_paid),
             isSelected = selectedFilter == InvoiceFilter.PAID,
             onClick = { onFilterSelected(InvoiceFilter.PAID) }
         )
-        FilterTab(
+        InvUnderlineTab(
             text = stringResource(R.string.filter_unpaid),
             isSelected = selectedFilter == InvoiceFilter.UNPAID,
             onClick = { onFilterSelected(InvoiceFilter.UNPAID) }
@@ -60,8 +60,9 @@ fun InvoiceFilterTabs(
     }
 }
 
+/** Aba sublinhada; também serve de seletor de duas opções, como % ou valor fixo. */
 @Composable
-private fun FilterTab(
+fun InvUnderlineTab(
     text: String,
     isSelected: Boolean,
     onClick: () -> Unit,

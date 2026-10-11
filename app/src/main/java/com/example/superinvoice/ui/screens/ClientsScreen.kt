@@ -1,7 +1,9 @@
 package com.example.superinvoice.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +30,7 @@ import com.example.superinvoice.ui.components.InvFab
 import com.example.superinvoice.ui.components.InvScaffold
 import com.example.superinvoice.ui.components.InvScreenHeader
 import com.example.superinvoice.ui.components.InvSectionRule
+import com.example.superinvoice.ui.components.InvUnderlineTab
 import com.example.superinvoice.ui.icons.InvIcons
 import com.example.superinvoice.ui.theme.Space
 import com.example.superinvoice.ui.viewmodel.ClientsViewModel
@@ -42,7 +46,8 @@ fun ClientsScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val clients by viewModel.clients.collectAsStateWithLifecycle()
-    val pendingDeletion by viewModel.pendingDeletion.collectAsStateWithLifecycle()
+    val clientWithDocuments by viewModel.clientWithDocuments.collectAsStateWithLifecycle()
+    val showArchived by viewModel.showArchived.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val filteredClients = clients.filter {
@@ -52,6 +57,12 @@ fun ClientsScreen(
     }
 
     val isSelectionMode = onClientSelected != null
+
+    // Escolher cliente para a fatura nunca mostra arquivados; o ViewModel é da Activity e pode
+    // ter ficado no filtro "Arquivados" da última visita.
+    LaunchedEffect(isSelectionMode) {
+        if (isSelectionMode) viewModel.setShowArchived(false)
+    }
 
     InvScaffold(
         floatingActionButton = {
@@ -74,19 +85,37 @@ fun ClientsScreen(
                 onValueChange = { searchQuery = it }
             )
 
+            if (!isSelectionMode) {
+                Row(
+                    modifier = Modifier.padding(top = Space.lg),
+                    horizontalArrangement = Arrangement.spacedBy(Space.xl)
+                ) {
+                    InvUnderlineTab(
+                        text = stringResource(R.string.clients_active),
+                        isSelected = !showArchived,
+                        onClick = { viewModel.setShowArchived(false) }
+                    )
+                    InvUnderlineTab(
+                        text = stringResource(R.string.clients_archived),
+                        isSelected = showArchived,
+                        onClick = { viewModel.setShowArchived(true) }
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(Space.sm))
 
             if (filteredClients.isEmpty()) {
                 InvEmptyState(
-                    title = if (searchQuery.isEmpty()) {
-                        stringResource(R.string.no_clients_yet)
-                    } else {
-                        stringResource(R.string.no_clients_found)
+                    title = when {
+                        searchQuery.isNotEmpty() -> stringResource(R.string.no_clients_found)
+                        showArchived -> stringResource(R.string.no_archived_clients)
+                        else -> stringResource(R.string.no_clients_yet)
                     },
-                    message = if (searchQuery.isEmpty()) {
-                        stringResource(R.string.no_clients_message)
-                    } else {
-                        stringResource(R.string.no_clients_search_message)
+                    message = when {
+                        searchQuery.isNotEmpty() -> stringResource(R.string.no_clients_search_message)
+                        showArchived -> stringResource(R.string.no_archived_clients_message)
+                        else -> stringResource(R.string.no_clients_message)
                     },
                     icon = InvIcons.Person
                 )
@@ -113,6 +142,16 @@ fun ClientsScreen(
                                 { viewModel.requestDeleteClient(client) }
                             } else {
                                 null
+                            },
+                            onArchive = if (!isSelectionMode && !client.archived) {
+                                { viewModel.setArchived(client, true) }
+                            } else {
+                                null
+                            },
+                            onUnarchive = if (!isSelectionMode && client.archived) {
+                                { viewModel.setArchived(client, false) }
+                            } else {
+                                null
                             }
                         )
                     }
@@ -121,20 +160,34 @@ fun ClientsScreen(
         }
     }
 
-    pendingDeletion?.let { pending ->
-        InvConfirmDialog(
-            title = stringResource(R.string.delete_client_title),
-            message = context.resources.getQuantityString(
-                R.plurals.delete_client_with_invoices_message,
-                pending.invoiceCount,
-                pending.client.name,
-                pending.invoiceCount
-            ),
-            confirmText = stringResource(R.string.delete),
-            dismissText = stringResource(R.string.cancel),
-            destructive = true,
-            onConfirm = viewModel::confirmDeleteClient,
-            onDismiss = viewModel::cancelDeleteClient
-        )
+    clientWithDocuments?.let { pending ->
+        if (pending.client.archived) {
+            InvConfirmDialog(
+                title = stringResource(R.string.cannot_delete_client_title),
+                message = context.resources.getQuantityString(
+                    R.plurals.cannot_delete_client_message,
+                    pending.documentCount,
+                    pending.client.name,
+                    pending.documentCount
+                ),
+                confirmText = stringResource(R.string.ok),
+                onConfirm = viewModel::dismissClientWithDocuments,
+                onDismiss = viewModel::dismissClientWithDocuments
+            )
+        } else {
+            InvConfirmDialog(
+                title = stringResource(R.string.archive_client_title),
+                message = context.resources.getQuantityString(
+                    R.plurals.archive_client_message,
+                    pending.documentCount,
+                    pending.client.name,
+                    pending.documentCount
+                ),
+                confirmText = stringResource(R.string.archive),
+                dismissText = stringResource(R.string.cancel),
+                onConfirm = viewModel::confirmArchiveClient,
+                onDismiss = viewModel::dismissClientWithDocuments
+            )
+        }
     }
 }

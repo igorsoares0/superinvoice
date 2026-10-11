@@ -31,7 +31,7 @@
     <!-- Home Screen -->
     <string name="title_invoices">Facturas</string>
     <string name="add_invoice">Agregar Factura</string>
-    <string name="invoices_used">%1$d/%2$d facturas gratuitas creadas</string>
+    <string name="invoices_used">%1$d/%2$d facturas y presupuestos gratuitos creados</string>
     <string name="invoice_record">Registro de Facturas</string>
     <string name="invoice_record_description">Aquí tendrás acceso a todas tus facturas y podrás gestionarlas de la mejor manera.</string>
     <string name="no_invoices_yet">Aún no hay facturas</string>
@@ -48,6 +48,7 @@
     <!-- Invoice Card -->
     <string name="status_paid">PAGADO</string>
     <string name="status_unpaid">PENDIENTE</string>
+    <string name="status_partially_paid">PARCIAL</string>
     <string name="download_pdf">Descargar PDF</string>
 
     <!-- Settings Screen -->
@@ -90,10 +91,77 @@
     <string name="tax_with_amount">Impuesto: %1$s</string>
     <string name="discount">Descuento</string>
     <string name="discount_with_amount">Descuento: %1$s</string>
-    <string name="tax_amount">Monto del Impuesto</string>
     <string name="enter_tax_amount">Ingrese el monto del impuesto</string>
-    <string name="discount_amount">Monto del Descuento</string>
     <string name="enter_discount_amount">Ingrese el monto del descuento</string>
+    <string name="adjustment_percent">Porcentaje</string>
+    <string name="adjustment_fixed">Monto fijo</string>
+    <string name="enter_tax_rate">Ingrese la tasa del impuesto</string>
+    <string name="enter_discount_rate">Ingrese el porcentaje de descuento</string>
+    <string name="shipping">Envío</string>
+    <string name="shipping_with_amount">Envío: %1$s</string>
+    <string name="enter_shipping_amount">Ingrese el monto del envío</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="quantity">Cantidad</string>
+    <string name="edit_quantity">Editar cantidad</string>
+    <string name="unit_optional">Unidad (opcional)</string>
+    <string name="unit_hint">p. ej.: h, kg, ud</string>
+    <string name="price_per_named_unit">%1$s por %2$s</string>
+
+    <!-- Pagamentos -->
+    <string name="record_payment">Registrar pago</string>
+    <string name="payments_count">Pagos (%1$d)</string>
+    <string name="payments_title">Pagos</string>
+    <string name="payment_amount">Monto</string>
+    <string name="payment_date">Fecha de pago</string>
+    <string name="payment_method">Método de pago</string>
+    <string name="payment_note">Nota (opcional)</string>
+    <string name="payment_above_balance">Monto superior al saldo de %1$s</string>
+    <string name="payment_recorded">Pago registrado</string>
+    <string name="generate_receipt">Generar recibo</string>
+    <string name="delete_payment_title">¿Eliminar pago?</string>
+    <string name="delete_payment_message">El saldo y el estado de la factura se recalcularán.</string>
+    <string name="paid_of_total">Pagado %1$s de %2$s</string>
+    <string name="balance_due_amount">Saldo pendiente: %1$s</string>
+    <string name="mark_as_paid">Marcar como pagado</string>
+    <string name="share_receipt">Compartir recibo</string>
+    <string name="receipt_share_subject">Recibo %1$s</string>
+    <string name="payment_method_cash">Efectivo</string>
+    <string name="payment_method_bank_transfer">Transferencia</string>
+    <string name="payment_method_card">Tarjeta</string>
+    <string name="payment_method_pix">Pix</string>
+    <string name="payment_method_paypal">PayPal</string>
+    <string name="payment_method_check">Cheque</string>
+    <string name="payment_method_other">Otro</string>
+
+    <!-- Orçamentos -->
+    <string name="title_estimates">Presupuestos</string>
+    <string name="add_estimate">Agregar Presupuesto</string>
+    <string name="title_new_estimate">Nuevo Presupuesto</string>
+    <string name="title_edit_estimate">Editar Presupuesto</string>
+    <string name="estimate_name_label">Nombre del presupuesto #</string>
+    <string name="valid_until">Válido hasta</string>
+    <string name="title_estimate_preview">Vista previa del presupuesto</string>
+    <string name="estimate_record">Registro de Presupuestos</string>
+    <string name="estimate_record_description">Envía presupuestos a tus clientes y convierte los aceptados en facturas con un toque.</string>
+    <string name="no_estimates_yet">Aún no hay presupuestos</string>
+    <string name="no_estimates_message">Toca el botón + para crear tu primer presupuesto.</string>
+    <string name="status_open">ABIERTO</string>
+    <string name="status_accepted">ACEPTADO</string>
+    <string name="status_declined">RECHAZADO</string>
+    <string name="status_converted">CONVERTIDO</string>
+    <string name="mark_as_accepted">Marcar como aceptado</string>
+    <string name="mark_as_declined">Marcar como rechazado</string>
+    <string name="convert_to_invoice">Convertir en factura</string>
+    <string name="view_converted_invoice">Ver factura %1$s</string>
+    <string name="delete_estimate">Eliminar presupuesto</string>
+    <string name="delete_estimate_title">Eliminar Presupuesto</string>
+    <string name="delete_estimate_confirmation">¿Estás seguro de que deseas eliminar este presupuesto? Esta acción no se puede deshacer.</string>
+    <string name="share_invoice_subject">Factura %1$s</string>
+    <string name="share_estimate_subject">Presupuesto %1$s</string>
+    <string name="share_invoice_text">Adjunto encontrarás la factura %1$s</string>
+    <string name="share_estimate_text">Adjunto encontrarás el presupuesto %1$s</string>
+    <string name="share_invoice_chooser">Compartir Factura</string>
+    <string name="share_estimate_chooser">Compartir Presupuesto</string>
 
     <!-- Edit Invoice Screen -->
     <string name="title_edit_invoice">Editar Factura</string>
@@ -317,6 +385,39 @@
     <string name="tax_colon">Impuesto:</string>
     <string name="discount_colon">Descuento:</string>
     <string name="total_colon">TOTAL:</string>
+    <string name="tax_rate_label">IMPUESTO (%1$s)</string>
+    <string name="discount_rate_label">DESCUENTO (%1$s)</string>
+    <string name="vat_rate_label">IVA (%1$s)</string>
+    <string name="tax_rate_colon">Impuesto (%1$s):</string>
+    <string name="discount_rate_colon">Descuento (%1$s):</string>
+    <string name="shipping_label">ENVÍO</string>
+    <string name="shipping_colon">Envío:</string>
+    <string name="paid_label">PAGADO</string>
+    <string name="paid_colon">Pagado:</string>
+    <string name="balance_due_label">SALDO PENDIENTE</string>
+    <string name="balance_due_colon">Saldo pendiente:</string>
+    <string name="bank_address_label">Dirección del Banco: %1$s</string>
+    <string name="payment_terms_label">Condiciones de Pago: %1$s</string>
+    <string name="additional_instructions_label">Instrucciones Adicionales: %1$s</string>
+
+    <!-- Recibo (PDF) -->
+    <string name="receipt_title">RECIBO</string>
+    <string name="receipt_no_label">RECIBO Nº:</string>
+    <string name="received_from_label">RECIBIDO DE:</string>
+    <string name="amount_received_label">MONTO RECIBIDO</string>
+    <string name="payment_method_label">MÉTODO DE PAGO:</string>
+    <string name="invoice_reference_label">FACTURA:</string>
+    <string name="invoice_total_label">TOTAL DE LA FACTURA:</string>
+    <string name="paid_to_date_label">PAGADO HASTA LA FECHA:</string>
+    <string name="remaining_balance_label">SALDO RESTANTE:</string>
+
+    <!-- Orçamento (PDF) -->
+    <string name="estimate_label">PRESUPUESTO</string>
+    <string name="estimate_no_label">PRESUPUESTO Nº:</string>
+    <string name="valid_until_label">VÁLIDO HASTA:</string>
+    <string name="estimate_number_format">PRESUPUESTO #%1$s</string>
+    <string name="estimate_no_professional">Presupuesto Nº:</string>
+    <string name="valid_until_professional">Válido hasta:</string>
 
     <!-- Policy Screen -->
     <string name="title_privacy_policy">Política de Privacidad</string>
@@ -364,16 +465,23 @@
     <string name="try_again">Intentar de nuevo</string>
     <string name="checkout_unavailable">No se pudo abrir el pago. Inténtalo de nuevo.</string>
     <!-- Exclusão de cliente com faturas / produto em uso -->
-    <string name="delete_client_title">¿Eliminar cliente?</string>
-    <plurals name="delete_client_with_invoices_message">
-        <item quantity="one">%1$s tiene %2$d factura. Al eliminar este cliente también se elimina esa factura. Esta acción no se puede deshacer.</item>
-        <item quantity="many">%1$s tiene %2$d facturas. Al eliminar este cliente también se eliminan todas. Esta acción no se puede deshacer.</item>
-        <item quantity="other">%1$s tiene %2$d facturas. Al eliminar este cliente también se eliminan todas. Esta acción no se puede deshacer.</item>
+    <!-- Clientes arquivados -->
+    <string name="clients_active">Activos</string>
+    <string name="clients_archived">Archivados</string>
+    <string name="archive">Archivar</string>
+    <string name="unarchive">Desarchivar</string>
+    <string name="archive_client_title">¿Archivar cliente?</string>
+    <string name="cannot_delete_client_title">No se puede eliminar el cliente</string>
+    <string name="no_archived_clients">No hay clientes archivados</string>
+    <string name="no_archived_clients_message">Los clientes que archives aparecen aquí. Sus facturas y presupuestos se conservan.</string>
+    <plurals name="archive_client_message">
+        <item quantity="one">%1$s aparece en %2$d factura o presupuesto y no se puede eliminar. Archiva el cliente para ocultarlo de tus listas; el documento se conserva.</item>
+        <item quantity="many">%1$s aparece en %2$d facturas o presupuestos y no se puede eliminar. Archiva el cliente para ocultarlo de tus listas; los documentos se conservan.</item>
+        <item quantity="other">%1$s aparece en %2$d facturas o presupuestos y no se puede eliminar. Archiva el cliente para ocultarlo de tus listas; los documentos se conservan.</item>
     </plurals>
-    <string name="product_in_use_title">No se puede eliminar</string>
-    <plurals name="product_in_use_message">
-        <item quantity="one">%1$s se usa en %2$d factura. Quítalo de esa factura antes de eliminarlo.</item>
-        <item quantity="many">%1$s se usa en %2$d facturas. Quítalo de esas facturas antes de eliminarlo.</item>
-        <item quantity="other">%1$s se usa en %2$d facturas. Quítalo de esas facturas antes de eliminarlo.</item>
+    <plurals name="cannot_delete_client_message">
+        <item quantity="one">%1$s aparece en %2$d factura o presupuesto, por eso queda archivado en lugar de eliminarse.</item>
+        <item quantity="many">%1$s aparece en %2$d facturas o presupuestos, por eso queda archivado en lugar de eliminarse.</item>
+        <item quantity="other">%1$s aparece en %2$d facturas o presupuestos, por eso queda archivado en lugar de eliminarse.</item>
     </plurals>
 </resources>

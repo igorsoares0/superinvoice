@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Client
 import com.example.superinvoice.data.Invoice
-import com.example.superinvoice.data.InvoiceItem
 import com.example.superinvoice.data.ProductService
+import com.example.superinvoice.data.analytics.AnalyticsManager
+import com.example.superinvoice.data.calc.InvoiceCalculator
 import com.example.superinvoice.data.database.entities.InvoiceStatus
+import com.example.superinvoice.data.database.entities.PaymentMethod
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
 import com.example.superinvoice.data.repository.ProductServiceRepository
 import com.example.superinvoice.data.repository.SettingsRepository
+import com.example.superinvoice.util.InvoiceDates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,10 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +29,8 @@ class EditInvoiceViewModel @Inject constructor(
     private val invoiceRepository: InvoiceRepository,
     private val clientRepository: ClientRepository,
     private val productServiceRepository: ProductServiceRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     private val _invoice = MutableStateFlow<Invoice?>(null)
@@ -38,17 +39,14 @@ class EditInvoiceViewModel @Inject constructor(
     private val _invoiceNumber = MutableStateFlow("")
     val invoiceNumber: StateFlow<String> = _invoiceNumber.asStateFlow()
 
-    private val _dueDate = MutableStateFlow("")
-    val dueDate: StateFlow<String> = _dueDate.asStateFlow()
+    private val _dueDate = MutableStateFlow(InvoiceDates.today())
+    val dueDate: StateFlow<Long> = _dueDate.asStateFlow()
 
     private val _notes = MutableStateFlow("")
     val notes: StateFlow<String> = _notes.asStateFlow()
 
-    private val _tax = MutableStateFlow("")
-    val tax: StateFlow<String> = _tax.asStateFlow()
-
-    private val _discount = MutableStateFlow("")
-    val discount: StateFlow<String> = _discount.asStateFlow()
+    /** Itens, desconto, imposto, frete e totais; a tela fala direto com ele. */
+    val form = InvoiceForm()
 
     private val _currency = MutableStateFlow("USD")
     val currency: StateFlow<String> = _currency.asStateFlow()
@@ -62,10 +60,7 @@ class EditInvoiceViewModel @Inject constructor(
     private val _selectedClient = MutableStateFlow<Client?>(null)
     val selectedClient: StateFlow<Client?> = _selectedClient.asStateFlow()
 
-    private val _lineItems = MutableStateFlow<List<LineItem>>(emptyList())
-    val lineItems: StateFlow<List<LineItem>> = _lineItems.asStateFlow()
-
-    val clients: StateFlow<List<Client>> = clientRepository.getAllClients()
+    val clients: StateFlow<List<Client>> = clientRepository.getActiveClients()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -79,12 +74,6 @@ class EditInvoiceViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
-
-    private val _subtotal = MutableStateFlow(0.0)
-    val subtotal: StateFlow<Double> = _subtotal.asStateFlow()
-
-    private val _totalAmount = MutableStateFlow(0.0)
-    val totalAmount: StateFlow<Double> = _totalAmount.asStateFlow()
 
     private var loadedInvoiceId: Int? = null
 
@@ -102,44 +91,6 @@ class EditInvoiceViewModel @Inject constructor(
         }
     }
 
-    private fun reformatDateIfNeeded(dateString: String): String {
-        if (dateString.isEmpty()) return dateString
-
-        // Lista de formatos conhecidos para tentar parsear
-        val knownFormats = listOf(
-            "MM/dd/yyyy",
-            "dd/MM/yyyy",
-            "yyyy-MM-dd",
-            "dd.MM.yyyy",
-            "dd-MM-yyyy",
-            "MMMM dd, yyyy",
-            "dd MMMM yyyy",
-            "MMM dd, yyyy",
-            "MMM, dd"  // Formato antigo
-        )
-
-        // Tentar parsear com cada formato conhecido
-        for (format in knownFormats) {
-            try {
-                val parser = SimpleDateFormat(format, Locale.getDefault())
-                parser.isLenient = false
-                val date = parser.parse(dateString)
-
-                // Se conseguiu parsear, reformatar com o formato atual
-                if (date != null) {
-                    val formatter = SimpleDateFormat(_dateFormat.value, Locale.getDefault())
-                    return formatter.format(date)
-                }
-            } catch (e: Exception) {
-                // Continuar tentando outros formatos
-                continue
-            }
-        }
-
-        // Se não conseguiu parsear com nenhum formato, retornar a string original
-        return dateString
-    }
-
     fun loadInvoice(invoiceId: Int) {
         if (loadedInvoiceId == invoiceId) return
 
@@ -149,30 +100,16 @@ class EditInvoiceViewModel @Inject constructor(
                 _invoice.value = loadedInvoice
                 _invoiceNumber.value = loadedInvoice.number
 
-                // Reformatar due date para o formato atual
-                _dueDate.value = reformatDateIfNeeded(loadedInvoice.dueDate)
+                _dueDate.value = loadedInvoice.dueDate
 
                 _notes.value = loadedInvoice.notes
-                _tax.value = loadedInvoice.tax.toString()
-                _discount.value = loadedInvoice.discount.toString()
                 _currency.value = loadedInvoice.currency
                 _status.value = loadedInvoice.status
 
                 val client = clientRepository.getClientById(loadedInvoice.clientId)
                 _selectedClient.value = client
 
-                val items = invoiceRepository.getInvoiceItemsSync(invoiceId)
-                _lineItems.value = items.map { item ->
-                    productServiceRepository.getProductServiceById(item.productServiceId)?.let { ps ->
-                        LineItem(
-                            productService = ps,
-                            quantity = item.quantity,
-                            lineTotal = item.lineTotal
-                        )
-                    }
-                }.filterNotNull()
-
-                calculateSubtotal()
+                form.load(loadedInvoice, invoiceRepository.getInvoiceItemsSync(invoiceId))
                 loadedInvoiceId = invoiceId
             }
         }
@@ -182,22 +119,12 @@ class EditInvoiceViewModel @Inject constructor(
         _invoiceNumber.value = value
     }
 
-    fun setDueDate(value: String) {
+    fun setDueDate(value: Long) {
         _dueDate.value = value
     }
 
     fun setNotes(value: String) {
         _notes.value = value
-    }
-
-    fun setTax(value: String) {
-        _tax.value = value
-        calculateTotal()
-    }
-
-    fun setDiscount(value: String) {
-        _discount.value = value
-        calculateTotal()
     }
 
     fun setCurrency(value: String) {
@@ -208,17 +135,22 @@ class EditInvoiceViewModel @Inject constructor(
         _status.value = status
     }
 
-    fun togglePaidStatus() {
-        val newStatus = if (_status.value == InvoiceStatus.PAID) {
-            InvoiceStatus.DRAFT
-        } else {
-            InvoiceStatus.PAID
-        }
-        _status.value = newStatus
-
-        // Also update the invoice object
-        _invoice.value?.let { currentInvoice ->
-            _invoice.value = currentInvoice.copy(status = newStatus)
+    /**
+     * Atalho da edição: registra um pagamento do saldo da fatura gravada, com a data de hoje e
+     * método "outro". Itens alterados e ainda não salvos não entram: ao salvar, o repositório
+     * recalcula o status com o total novo.
+     */
+    fun markAsPaid() {
+        viewModelScope.launch {
+            val invoice = _invoice.value ?: return@launch
+            val balance = InvoiceCalculator.balanceDue(invoice.totalAmount, invoice.amountPaid)
+            if (balance <= 0.0) return@launch
+            invoiceRepository.addPayment(invoice.id, balance, InvoiceDates.today(), PaymentMethod.OTHER, "")
+            analyticsManager.logPaymentRecorded(PaymentMethod.OTHER, isPartial = false)
+            invoiceRepository.getInvoiceById(invoice.id)?.let {
+                _invoice.value = it
+                _status.value = it.status
+            }
         }
     }
 
@@ -226,80 +158,23 @@ class EditInvoiceViewModel @Inject constructor(
         _selectedClient.value = client
     }
 
-    fun addLineItem(productService: ProductService, quantity: Int) {
-        val lineTotal = productService.pricePerUnit * quantity
-        val lineItem = LineItem(
-            productService = productService,
-            quantity = quantity,
-            lineTotal = lineTotal
-        )
-        _lineItems.update { it + lineItem }
-        calculateSubtotal()
-    }
-
-    fun updateLineItemQuantity(index: Int, quantity: Int) {
-        _lineItems.update { items ->
-            items.mapIndexed { i, item ->
-                if (i == index) {
-                    item.copy(
-                        quantity = quantity,
-                        lineTotal = item.productService.pricePerUnit * quantity
-                    )
-                } else {
-                    item
-                }
-            }
-        }
-        calculateSubtotal()
-    }
-
-    fun removeLineItem(index: Int) {
-        _lineItems.update { items ->
-            items.filterIndexed { i, _ -> i != index }
-        }
-        calculateSubtotal()
-    }
-
-    private fun calculateSubtotal() {
-        _subtotal.value = _lineItems.value.sumOf { it.lineTotal }
-        calculateTotal()
-    }
-
-    private fun calculateTotal() {
-        val taxValue = _tax.value.toDoubleOrNull() ?: 0.0
-        val discountValue = _discount.value.toDoubleOrNull() ?: 0.0
-        _totalAmount.value = _subtotal.value + taxValue - discountValue
-    }
-
     fun updateInvoice(onSuccess: () -> Unit) {
         viewModelScope.launch {
             val originalInvoice = _invoice.value ?: return@launch
             val client = _selectedClient.value ?: return@launch
 
-            val updatedInvoice = originalInvoice.copy(
-                number = _invoiceNumber.value,
-                clientId = client.id,
-                dueDate = _dueDate.value,
-                notes = _notes.value,
-                tax = _tax.value.toDoubleOrNull() ?: 0.0,
-                discount = _discount.value.toDoubleOrNull() ?: 0.0,
-                subtotal = _subtotal.value,
-                totalAmount = _totalAmount.value,
-                status = _status.value,
-                currency = _currency.value
+            val updatedInvoice = form.applyTo(
+                originalInvoice.copy(
+                    number = _invoiceNumber.value,
+                    clientId = client.id,
+                    dueDate = _dueDate.value,
+                    notes = _notes.value,
+                    status = _status.value,
+                    currency = _currency.value
+                )
             )
 
-            val items = _lineItems.value.map { lineItem ->
-                InvoiceItem(
-                    invoiceId = originalInvoice.id,
-                    productServiceId = lineItem.productService.id,
-                    productServiceName = lineItem.productService.name,
-                    productServiceDescription = lineItem.productService.description,
-                    pricePerUnit = lineItem.productService.pricePerUnit,
-                    quantity = lineItem.quantity,
-                    lineTotal = lineItem.lineTotal
-                )
-            }
+            val items = form.toInvoiceItems(invoiceId = originalInvoice.id)
 
             invoiceRepository.updateInvoiceWithItems(updatedInvoice, items)
             onSuccess()

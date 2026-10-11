@@ -31,7 +31,7 @@
     <!-- Home Screen -->
     <string name="title_invoices">Invoices</string>
     <string name="add_invoice">Add Invoice</string>
-    <string name="invoices_used">%1$d/%2$d free invoices created</string>
+    <string name="invoices_used">%1$d/%2$d free invoices and estimates created</string>
     <string name="invoice_record">Invoice Record</string>
     <string name="invoice_record_description">Here you will have access to all your invoices and be able to manage them in the best way.</string>
     <string name="no_invoices_yet">No invoices yet</string>
@@ -48,6 +48,7 @@
     <!-- Invoice Card -->
     <string name="status_paid">PAID</string>
     <string name="status_unpaid">UNPAID</string>
+    <string name="status_partially_paid">PARTIAL</string>
     <string name="download_pdf">Download PDF</string>
 
     <!-- Settings Screen -->
@@ -90,10 +91,77 @@
     <string name="tax_with_amount">Tax: %1$s</string>
     <string name="discount">Discount</string>
     <string name="discount_with_amount">Discount: %1$s</string>
-    <string name="tax_amount">Tax Amount</string>
     <string name="enter_tax_amount">Enter tax amount</string>
-    <string name="discount_amount">Discount Amount</string>
     <string name="enter_discount_amount">Enter discount amount</string>
+    <string name="adjustment_percent">Percentage</string>
+    <string name="adjustment_fixed">Fixed amount</string>
+    <string name="enter_tax_rate">Enter tax rate</string>
+    <string name="enter_discount_rate">Enter discount rate</string>
+    <string name="shipping">Shipping</string>
+    <string name="shipping_with_amount">Shipping: %1$s</string>
+    <string name="enter_shipping_amount">Enter shipping amount</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="quantity">Quantity</string>
+    <string name="edit_quantity">Edit quantity</string>
+    <string name="unit_optional">Unit (optional)</string>
+    <string name="unit_hint">e.g. h, kg, pcs</string>
+    <string name="price_per_named_unit">%1$s per %2$s</string>
+
+    <!-- Pagamentos -->
+    <string name="record_payment">Record payment</string>
+    <string name="payments_count">Payments (%1$d)</string>
+    <string name="payments_title">Payments</string>
+    <string name="payment_amount">Amount</string>
+    <string name="payment_date">Payment date</string>
+    <string name="payment_method">Method</string>
+    <string name="payment_note">Note (optional)</string>
+    <string name="payment_above_balance">Amount above the balance of %1$s</string>
+    <string name="payment_recorded">Payment recorded</string>
+    <string name="generate_receipt">Generate receipt</string>
+    <string name="delete_payment_title">Delete payment?</string>
+    <string name="delete_payment_message">The invoice balance and status will be recalculated.</string>
+    <string name="paid_of_total">Paid %1$s of %2$s</string>
+    <string name="balance_due_amount">Balance due: %1$s</string>
+    <string name="mark_as_paid">Mark as paid</string>
+    <string name="share_receipt">Share receipt</string>
+    <string name="receipt_share_subject">Receipt %1$s</string>
+    <string name="payment_method_cash">Cash</string>
+    <string name="payment_method_bank_transfer">Bank transfer</string>
+    <string name="payment_method_card">Card</string>
+    <string name="payment_method_pix">Pix</string>
+    <string name="payment_method_paypal">PayPal</string>
+    <string name="payment_method_check">Check</string>
+    <string name="payment_method_other">Other</string>
+
+    <!-- Orçamentos -->
+    <string name="title_estimates">Estimates</string>
+    <string name="add_estimate">Add Estimate</string>
+    <string name="title_new_estimate">New Estimate</string>
+    <string name="title_edit_estimate">Edit Estimate</string>
+    <string name="estimate_name_label">Estimate name #</string>
+    <string name="valid_until">Valid Until</string>
+    <string name="title_estimate_preview">Estimate preview</string>
+    <string name="estimate_record">Estimate Record</string>
+    <string name="estimate_record_description">Send estimates to your clients and turn the accepted ones into invoices with one tap.</string>
+    <string name="no_estimates_yet">No estimates yet</string>
+    <string name="no_estimates_message">Tap the + button to create your first estimate.</string>
+    <string name="status_open">OPEN</string>
+    <string name="status_accepted">ACCEPTED</string>
+    <string name="status_declined">DECLINED</string>
+    <string name="status_converted">CONVERTED</string>
+    <string name="mark_as_accepted">Mark as accepted</string>
+    <string name="mark_as_declined">Mark as declined</string>
+    <string name="convert_to_invoice">Convert to invoice</string>
+    <string name="view_converted_invoice">View invoice %1$s</string>
+    <string name="delete_estimate">Delete estimate</string>
+    <string name="delete_estimate_title">Delete Estimate</string>
+    <string name="delete_estimate_confirmation">Are you sure you want to delete this estimate? This action cannot be undone.</string>
+    <string name="share_invoice_subject">Invoice %1$s</string>
+    <string name="share_estimate_subject">Estimate %1$s</string>
+    <string name="share_invoice_text">Please find attached Invoice %1$s</string>
+    <string name="share_estimate_text">Please find attached Estimate %1$s</string>
+    <string name="share_invoice_chooser">Share Invoice</string>
+    <string name="share_estimate_chooser">Share Estimate</string>
 
     <!-- Edit Invoice Screen -->
     <string name="title_edit_invoice">Edit Invoice</string>
@@ -317,6 +385,39 @@
     <string name="tax_colon">Tax:</string>
     <string name="discount_colon">Discount:</string>
     <string name="total_colon">TOTAL:</string>
+    <string name="tax_rate_label">TAX (%1$s)</string>
+    <string name="discount_rate_label">DISCOUNT (%1$s)</string>
+    <string name="vat_rate_label">VAT (%1$s)</string>
+    <string name="tax_rate_colon">Tax (%1$s):</string>
+    <string name="discount_rate_colon">Discount (%1$s):</string>
+    <string name="shipping_label">SHIPPING</string>
+    <string name="shipping_colon">Shipping:</string>
+    <string name="paid_label">PAID</string>
+    <string name="paid_colon">Paid:</string>
+    <string name="balance_due_label">BALANCE DUE</string>
+    <string name="balance_due_colon">Balance due:</string>
+    <string name="bank_address_label">Bank Address: %1$s</string>
+    <string name="payment_terms_label">Payment Terms: %1$s</string>
+    <string name="additional_instructions_label">Additional Instructions: %1$s</string>
+
+    <!-- Recibo (PDF) -->
+    <string name="receipt_title">RECEIPT</string>
+    <string name="receipt_no_label">RECEIPT NO:</string>
+    <string name="received_from_label">RECEIVED FROM:</string>
+    <string name="amount_received_label">AMOUNT RECEIVED</string>
+    <string name="payment_method_label">PAYMENT METHOD:</string>
+    <string name="invoice_reference_label">INVOICE:</string>
+    <string name="invoice_total_label">INVOICE TOTAL:</string>
+    <string name="paid_to_date_label">PAID TO DATE:</string>
+    <string name="remaining_balance_label">REMAINING BALANCE:</string>
+
+    <!-- Orçamento (PDF) -->
+    <string name="estimate_label">ESTIMATE</string>
+    <string name="estimate_no_label">ESTIMATE NO:</string>
+    <string name="valid_until_label">VALID UNTIL:</string>
+    <string name="estimate_number_format">ESTIMATE #%1$s</string>
+    <string name="estimate_no_professional">Estimate No:</string>
+    <string name="valid_until_professional">Valid Until:</string>
 
     <!-- Policy Screen -->
     <string name="title_privacy_policy">Privacy Policy</string>
@@ -364,14 +465,21 @@
     <string name="try_again">Try again</string>
     <string name="checkout_unavailable">Couldn\'t open checkout. Please try again.</string>
     <!-- Exclusão de cliente com faturas / produto em uso -->
-    <string name="delete_client_title">Delete client?</string>
-    <plurals name="delete_client_with_invoices_message">
-        <item quantity="one">%1$s has %2$d invoice. Deleting this client also deletes that invoice. This action cannot be undone.</item>
-        <item quantity="other">%1$s has %2$d invoices. Deleting this client also deletes all of them. This action cannot be undone.</item>
+    <!-- Clientes arquivados -->
+    <string name="clients_active">Active</string>
+    <string name="clients_archived">Archived</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Unarchive</string>
+    <string name="archive_client_title">Archive client?</string>
+    <string name="cannot_delete_client_title">Can\'t delete client</string>
+    <string name="no_archived_clients">No archived clients</string>
+    <string name="no_archived_clients_message">Clients you archive appear here. Their invoices and estimates are kept.</string>
+    <plurals name="archive_client_message">
+        <item quantity="one">%1$s appears in %2$d invoice or estimate and can\'t be deleted. Archive the client to hide it from your lists; the document is kept.</item>
+        <item quantity="other">%1$s appears in %2$d invoices or estimates and can\'t be deleted. Archive the client to hide it from your lists; the documents are kept.</item>
     </plurals>
-    <string name="product_in_use_title">Can\'t delete this item</string>
-    <plurals name="product_in_use_message">
-        <item quantity="one">%1$s is used in %2$d invoice. Remove it from that invoice before deleting it.</item>
-        <item quantity="other">%1$s is used in %2$d invoices. Remove it from those invoices before deleting it.</item>
+    <plurals name="cannot_delete_client_message">
+        <item quantity="one">%1$s appears in %2$d invoice or estimate, so it stays archived instead of being deleted.</item>
+        <item quantity="other">%1$s appears in %2$d invoices or estimates, so it stays archived instead of being deleted.</item>
     </plurals>
 </resources>

@@ -3,6 +3,8 @@ package com.example.superinvoice.data.analytics
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import com.example.superinvoice.data.database.entities.AdjustmentType
+import com.example.superinvoice.data.database.entities.PaymentMethod
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -54,6 +56,10 @@ class AnalyticsManager @Inject constructor(
         private const val EVENT_TEMPLATE_CHANGED = "template_changed"
         private const val EVENT_CLIENT_CREATED = "client_created"
         private const val EVENT_PRODUCT_CREATED = "product_created"
+        private const val EVENT_PAYMENT_RECORDED = "payment_recorded"
+        private const val EVENT_RECEIPT_SHARED = "receipt_shared"
+        private const val EVENT_ESTIMATE_CREATED = "estimate_created"
+        private const val EVENT_ESTIMATE_CONVERTED = "estimate_converted"
 
         // User properties: nome até 24 caracteres.
         private const val PROP_INVOICE_COUNT_BUCKET = "invoice_count_bucket"
@@ -150,12 +156,29 @@ class AnalyticsManager @Inject constructor(
      * app: quem abre a tela de nova fatura e não salva. Note que nem valor nem nome de
      * cliente entram — só a forma da fatura.
      */
-    fun logInvoiceSaved(itemCount: Int, hasTax: Boolean, hasDiscount: Boolean, currency: String) {
+    /**
+     * Só a forma da fatura: os tipos de ajuste saem como "percent"/"fixed" ("none" sem ajuste),
+     * nunca o valor.
+     */
+    fun logInvoiceSaved(
+        itemCount: Int,
+        hasTax: Boolean,
+        hasDiscount: Boolean,
+        currency: String,
+        discountType: AdjustmentType?,
+        taxType: AdjustmentType?,
+        hasShipping: Boolean,
+        hasDecimalQuantity: Boolean
+    ) {
         logEvent(EVENT_INVOICE_SAVED) {
             putLong("item_count", itemCount.toLong())
             putBoolean("has_tax", hasTax)
             putBoolean("has_discount", hasDiscount)
             putString("currency", currency)
+            putString("discount_type", discountType?.name?.lowercase() ?: "none")
+            putString("tax_type", taxType?.name?.lowercase() ?: "none")
+            putBoolean("has_shipping", hasShipping)
+            putBoolean("has_decimal_qty", hasDecimalQuantity)
         }
     }
 
@@ -266,6 +289,24 @@ class AnalyticsManager @Inject constructor(
     fun logClientCreated() = logEvent(EVENT_CLIENT_CREATED)
 
     fun logProductCreated() = logEvent(EVENT_PRODUCT_CREATED)
+
+    /** Método e se foi parcial; nunca o valor. */
+    fun logPaymentRecorded(method: PaymentMethod, isPartial: Boolean) {
+        logEvent(EVENT_PAYMENT_RECORDED) {
+            putString("method", method.name.lowercase())
+            putBoolean("is_partial", isPartial)
+        }
+    }
+
+    fun logReceiptShared() = logEvent(EVENT_RECEIPT_SHARED)
+
+    fun logEstimateCreated(itemCount: Int) {
+        logEvent(EVENT_ESTIMATE_CREATED) {
+            putLong("item_count", itemCount.toLong())
+        }
+    }
+
+    fun logEstimateConverted() = logEvent(EVENT_ESTIMATE_CONVERTED)
 
     // -------------------------------------------------------------------- interno
 

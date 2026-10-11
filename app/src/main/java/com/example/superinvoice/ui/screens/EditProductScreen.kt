@@ -21,6 +21,8 @@ import com.example.superinvoice.ui.theme.InvType
 import com.example.superinvoice.ui.theme.Neutral
 import com.example.superinvoice.ui.theme.Space
 import com.example.superinvoice.ui.viewmodel.ProductsServicesViewModel
+import com.example.superinvoice.util.formatDecimalInput
+import com.example.superinvoice.util.parseDecimalInput
 import online.isdevapps.superinvoice.R
 
 @Composable
@@ -36,12 +38,14 @@ fun EditProductScreen(
     var productName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
+    var unit by remember { mutableStateOf("") }
 
     LaunchedEffect(product) {
         product?.let {
             productName = it.name
             description = it.description
-            price = it.pricePerUnit.toString()
+            price = formatDecimalInput(it.pricePerUnit)
+            unit = it.unit
         }
     }
 
@@ -50,16 +54,17 @@ fun EditProductScreen(
         onClose = onClose,
         closeContentDescription = stringResource(R.string.close),
         saveText = stringResource(R.string.save),
-        saveEnabled = productName.isNotBlank() && price.toDoubleOrNull() != null,
+        saveEnabled = productName.isNotBlank() && parseDecimalInput(price) != null,
         onSave = {
             product?.let {
-                val priceValue = price.toDoubleOrNull()
+                val priceValue = parseDecimalInput(price)
                 if (productName.isNotBlank() && priceValue != null && priceValue > 0) {
                     viewModel.updateProductService(
                         it.copy(
                             name = productName,
                             description = description,
-                            pricePerUnit = priceValue
+                            pricePerUnit = priceValue,
+                            unit = unit.trim()
                         )
                     )
                     onSave()
@@ -85,11 +90,17 @@ fun EditProductScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             trailing = {
                 Text(
-                    text = stringResource(R.string.unit_abbreviation).uppercase(),
+                    text = unit.trim().ifEmpty { stringResource(R.string.unit_abbreviation) }.uppercase(),
                     style = InvType.label,
                     color = Neutral
                 )
             }
+        )
+        InvField(
+            label = stringResource(R.string.unit_optional),
+            value = unit,
+            onValueChange = { unit = it },
+            placeholder = stringResource(R.string.unit_hint)
         )
         Spacer(modifier = Modifier.height(Space.xl))
     }

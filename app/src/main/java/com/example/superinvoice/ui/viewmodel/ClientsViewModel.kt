@@ -1,5 +1,6 @@
 package com.example.superinvoice.ui.viewmodel
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.superinvoice.data.Client
@@ -7,10 +8,12 @@ import com.example.superinvoice.data.analytics.AnalyticsManager
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,24 +26,33 @@ class ClientsViewModel @Inject constructor(
 ) : ViewModel() {
 
     /**
-     * Cliente que tem faturas e está esperando confirmação para ser excluído.
-     *
-     * A FK `invoices.clientId` é `ON DELETE CASCADE`: excluir o cliente leva junto todas as
-     * faturas dele. Antes isso acontecia direto pelo menu, sem aviso nenhum. Até a Onda 1
-     * trocar o CASCADE por "arquivar" (docs/spec-onda-1.md), o mínimo é dizer quantas
-     * faturas vão junto e pedir confirmação.
+     * Cliente com faturas ou orçamentos que o usuário tentou excluir. A FK `invoices.clientId`
+     * é `RESTRICT`: cliente com documentos não é apagado, é arquivado (decisão D2 da spec). Se
+     * já está arquivado, o diálogo só explica por que não dá para excluir.
      */
-    data class PendingClientDeletion(val client: Client, val invoiceCount: Int)
+    data class ClientWithDocuments(val client: Client, val documentCount: Int)
 
-    private val _pendingDeletion = MutableStateFlow<PendingClientDeletion?>(null)
-    val pendingDeletion: StateFlow<PendingClientDeletion?> = _pendingDeletion.asStateFlow()
+    private val _clientWithDocuments = MutableStateFlow<ClientWithDocuments?>(null)
+    val clientWithDocuments: StateFlow<ClientWithDocuments?> = _clientWithDocuments.asStateFlow()
 
-    val clients: StateFlow<List<Client>> = clientRepository.getAllClients()
+    /** Filtro "Arquivados" da tela de clientes; a seleção para fatura sempre usa os ativos. */
+    private val _showArchived = MutableStateFlow(false)
+    val showArchived: StateFlow<Boolean> = _showArchived.asStateFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val clients: StateFlow<List<Client>> = _showArchived
+        .flatMapLatest { archived ->
+            if (archived) clientRepository.getArchivedClients() else clientRepository.getActiveClients()
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    fun setShowArchived(archived: Boolean) {
+        _showArchived.value = archived
+    }
 
     fun addClient(
         name: String,
@@ -76,27 +88,39 @@ class ClientsViewModel @Inject constructor(
         }
     }
 
-    /** Exclui na hora se o cliente não tem faturas; se tem, pede confirmação. */
+    /** Exclui na hora se o cliente não tem documentos; se tem, oferece arquivar. */
     fun requestDeleteClient(client: Client) {
         viewModelScope.launch {
-            val invoiceCount = invoiceRepository.getInvoiceCountForClient(client.id)
-            if (invoiceCount == 0) {
+            val documentCount = invoiceRepository.getInvoiceCountForClient(client.id)
+            if (documentCount > 0) {
+                _clientWithDocuments.value = ClientWithDocuments(client, documentCount)
+                return@launch
+            }
+            try {
                 clientRepository.deleteClient(client)
-            } else {
-                _pendingDeletion.value = PendingClientDeletion(client, invoiceCount)
+            } catch (e: SQLiteConstraintException) {
+                // Corrida rara: um documento usou o cliente entre a contagem e o delete.
+                _clientWithDocuments.value = ClientWithDocuments(
+                    client,
+                    invoiceRepository.getInvoiceCountForClient(client.id).coerceAtLeast(1)
+                )
             }
         }
     }
 
-    fun confirmDeleteClient() {
-        val pending = _pendingDeletion.value ?: return
-        _pendingDeletion.value = null
+    fun setArchived(client: Client, archived: Boolean) {
         viewModelScope.launch {
-            clientRepository.deleteClient(pending.client)
+            clientRepository.setArchived(client, archived)
         }
     }
 
-    fun cancelDeleteClient() {
-        _pendingDeletion.value = null
+    fun confirmArchiveClient() {
+        val pending = _clientWithDocuments.value ?: return
+        _clientWithDocuments.value = null
+        setArchived(pending.client, true)
+    }
+
+    fun dismissClientWithDocuments() {
+        _clientWithDocuments.value = null
     }
 }

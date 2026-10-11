@@ -154,9 +154,10 @@ class InvoiceTemplateViewModel @Inject constructor(
         number = "001",
         clientId = 1,
         createdDate = System.currentTimeMillis(),
-        dueDate = "12/31/2024",
+        dueDate = 1735603200000L, // 2024-12-31 UTC
         subtotal = 1000.0,
-        tax = 100.0,
+        taxValue = 100.0,
+        taxAmount = 100.0,
         totalAmount = 1100.0,
         status = InvoiceStatus.DRAFT,
         currency = "USD"
@@ -177,7 +178,7 @@ class InvoiceTemplateViewModel @Inject constructor(
             productServiceName = "Design Services",
             productServiceDescription = "Professional design and branding",
             pricePerUnit = 500.0,
-            quantity = 2,
+            quantity = 2.0,
             lineTotal = 1000.0
         )
     )

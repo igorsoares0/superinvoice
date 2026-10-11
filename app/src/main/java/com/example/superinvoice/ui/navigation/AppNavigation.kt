@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import com.example.superinvoice.data.analytics.PaywallSource
+import com.example.superinvoice.data.database.entities.DocumentType
 import com.example.superinvoice.ui.viewmodel.NavigationViewModel
 import com.example.superinvoice.ui.screens.AddClientScreen
 import com.example.superinvoice.ui.screens.AddProductScreen
@@ -84,6 +85,11 @@ private val ScreenStackSaver = listSaver<List<Screen>, String>(
     restore = { names -> names.mapNotNull { name -> runCatching { Screen.valueOf(name) }.getOrNull() } }
 )
 
+private val DocumentTypeSaver = Saver<DocumentType, String>(
+    save = { it.name },
+    restore = { name -> runCatching { DocumentType.valueOf(name) }.getOrDefault(DocumentType.INVOICE) }
+)
+
 private val PaywallSourceSaver = Saver<PaywallSource, String>(
     save = { it.name },
     restore = { name -> runCatching { PaywallSource.valueOf(name) }.getOrDefault(PaywallSource.SETTINGS) }
@@ -130,6 +136,10 @@ fun AppNavigation(
     // dispararia o reset do formulário de novo e apagaria a fatura que o usuário estava
     // digitando — justo o que a recriação de tela deveria preservar.
     var shouldResetCreateInvoice by remember { mutableStateOf(false) }
+    // Fatura ou orçamento na tela de criação. Salvo pelo nome, como o Screen.
+    var createDocumentType by rememberSaveable(stateSaver = DocumentTypeSaver) {
+        mutableStateOf(DocumentType.INVOICE)
+    }
     var previewVersion by remember { mutableIntStateOf(0) }
 
     // Qual gate mandou o usuário para o paywall. Sem NavHost não há argumento de rota,
@@ -215,13 +225,15 @@ fun AppNavigation(
 
     when (currentScreen) {
         Screen.HOME -> HomeScreen(
-            onNavigateToCreateInvoice = {
+            onNavigateToCreateInvoice = { type ->
                 if (!isCheckingInvoiceGate) {
                     isCheckingInvoiceGate = true
                     coroutineScope.launch {
                         try {
+                            // Orçamento conta no limite do plano grátis como fatura (decisão D1).
                             if (navigationViewModel.canCreateInvoice()) {
-                                navigationViewModel.onInvoiceCreationStarted()
+                                if (type == DocumentType.INVOICE) navigationViewModel.onInvoiceCreationStarted()
+                                createDocumentType = type
                                 shouldResetCreateInvoice = true
                                 navigateTo(Screen.CREATE_INVOICE)
                             } else {
@@ -270,7 +282,8 @@ fun AppNavigation(
             productSelectionVersion = productSelectionVersion,
             onClientSelectionProcessed = { pendingClientSelection = null },
             onProductSelectionProcessed = { pendingProductSelection = null },
-            shouldReset = shouldResetCreateInvoice
+            shouldReset = shouldResetCreateInvoice,
+            documentType = createDocumentType
         )
         Screen.CLIENTS -> ClientsScreen(
             onClose = {
@@ -393,7 +406,15 @@ fun AppNavigation(
         Screen.INVOICE_PREVIEW -> InvoicePreviewScreen(
             invoiceId = selectedInvoiceId,
             previewVersion = previewVersion,
-            onClose = { navigateBack() }
+            onClose = { navigateBack() },
+            // Fatura vinda de um orçamento abre em edição com a Home por baixo: a navegação
+            // tem um só `selectedInvoiceId`, e voltar para a prévia mostraria a fatura nova
+            // no lugar do orçamento.
+            onOpenInvoice = { invoiceId ->
+                selectedInvoiceId = invoiceId
+                navigationStack = listOf(Screen.HOME)
+                currentScreen = Screen.EDIT_INVOICE
+            }
         )
         Screen.INVOICE_STYLE -> InvoiceStyleScreen(
             onClose = { navigateBack() },

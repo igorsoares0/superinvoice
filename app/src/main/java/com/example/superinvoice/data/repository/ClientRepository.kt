@@ -10,7 +10,9 @@ import javax.inject.Singleton
 class ClientRepository @Inject constructor(
     private val clientDao: ClientDao
 ) {
-    fun getAllClients(): Flow<List<Client>> = clientDao.getAll()
+    fun getActiveClients(): Flow<List<Client>> = clientDao.getActive()
+
+    fun getArchivedClients(): Flow<List<Client>> = clientDao.getArchived()
 
     suspend fun getClientById(id: Int): Client? = clientDao.getById(id)
 
@@ -18,7 +20,14 @@ class ClientRepository @Inject constructor(
 
     suspend fun updateClient(client: Client) = clientDao.update(client)
 
+    /**
+     * Só funciona para cliente sem faturas nem orçamentos: a FK `invoices.clientId` é
+     * `RESTRICT` e o banco lança `SQLiteConstraintException`. Cliente com documentos é
+     * arquivado (decisão D2), nunca apagado junto com eles.
+     */
     suspend fun deleteClient(client: Client) = clientDao.delete(client)
+
+    suspend fun setArchived(client: Client, archived: Boolean) = clientDao.setArchived(client.id, archived)
 
     suspend fun getClientCount(): Int = clientDao.getCount()
 }

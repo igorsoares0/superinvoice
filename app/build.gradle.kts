@@ -74,6 +74,10 @@ android {
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
+    // O MigrationTestHelper lê os JSON exportados pelo Room para montar o banco de cada versão.
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -120,6 +124,7 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

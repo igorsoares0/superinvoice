@@ -11,8 +11,15 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ClientDao {
-    @Query("SELECT * FROM clients ORDER BY name ASC")
-    fun getAll(): Flow<List<Client>>
+    /** Clientes arquivados não aparecem na lista nem na seleção de cliente da fatura. */
+    @Query("SELECT * FROM clients WHERE archived = 0 ORDER BY name ASC")
+    fun getActive(): Flow<List<Client>>
+
+    @Query("SELECT * FROM clients WHERE archived = 1 ORDER BY name ASC")
+    fun getArchived(): Flow<List<Client>>
+
+    @Query("UPDATE clients SET archived = :archived WHERE id = :id")
+    suspend fun setArchived(id: Int, archived: Boolean)
 
     @Query("SELECT * FROM clients WHERE id = :id")
     suspend fun getById(id: Int): Client?

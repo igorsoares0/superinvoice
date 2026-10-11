@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -40,7 +43,10 @@ import com.example.superinvoice.ui.components.InvScreenHeader
 import com.example.superinvoice.ui.theme.InvShape
 import com.example.superinvoice.ui.theme.Orange
 import com.example.superinvoice.ui.theme.Space
+import com.example.superinvoice.data.calc.InvoiceCalculator
+import com.example.superinvoice.data.database.entities.DocumentType
 import com.example.superinvoice.ui.viewmodel.InvoicePreviewViewModel
+import com.example.superinvoice.util.getCurrencySymbol
 import kotlinx.coroutines.launch
 import online.isdevapps.superinvoice.R
 
@@ -53,6 +59,7 @@ fun InvoicePreviewScreen(
     invoiceId: Int,
     previewVersion: Int,
     onClose: () -> Unit,
+    onOpenInvoice: (Int) -> Unit = {},
     viewModel: InvoicePreviewViewModel = hiltViewModel()
 ) {
     LaunchedEffect(invoiceId, previewVersion) {
@@ -60,6 +67,14 @@ fun InvoicePreviewScreen(
     }
 
     val previewBitmap by viewModel.previewBitmap.collectAsStateWithLifecycle()
+    val invoice by viewModel.invoice.collectAsStateWithLifecycle()
+    val payments by viewModel.payments.collectAsStateWithLifecycle()
+    val convertedInvoice by viewModel.convertedInvoice.collectAsStateWithLifecycle()
+    val isEstimate = invoice?.type == DocumentType.ESTIMATE
+    val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle()
+
+    var showRecordPayment by remember { mutableStateOf(false) }
+    var showPayments by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -79,9 +94,56 @@ fun InvoicePreviewScreen(
         offsetY = (offsetY + offsetChange.y).coerceIn(-maxY, maxY)
     }
 
+    val onReceiptError: () -> Unit = {
+        scope.launch {
+            snackbarHostState.showSnackbar(context.getString(R.string.error_sharing_pdf))
+        }
+    }
+
+    invoice?.let { current ->
+        val currencySymbol = getCurrencySymbol(current.currency)
+        if (showRecordPayment) {
+            RecordPaymentSheet(
+                balance = InvoiceCalculator.balanceDue(current.totalAmount, current.amountPaid),
+                currencySymbol = currencySymbol,
+                dateFormat = dateFormat,
+                onConfirm = { amount, paidAt, method, note ->
+                    showRecordPayment = false
+                    viewModel.recordPayment(amount, paidAt, method, note) { payment ->
+                        // Logo depois de salvar, o recibo fica a um toque (spec, seção 5.2).
+                        scope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = context.getString(R.string.payment_recorded),
+                                actionLabel = context.getString(R.string.generate_receipt),
+                                duration = SnackbarDuration.Long
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                viewModel.shareReceipt(payment, onReceiptError)
+                            }
+                        }
+                    }
+                },
+                onDismiss = { showRecordPayment = false }
+            )
+        }
+        if (showPayments && payments.isNotEmpty()) {
+            PaymentsSheet(
+                payments = payments,
+                currencySymbol = currencySymbol,
+                dateFormat = dateFormat,
+                onShareReceipt = { viewModel.shareReceipt(it, onReceiptError) },
+                onDelete = {
+                    if (payments.size == 1) showPayments = false
+                    viewModel.deletePayment(it)
+                },
+                onDismiss = { showPayments = false }
+            )
+        }
+    }
+
     InvScaffold(snackbarHostState = snackbarHostState) {
         InvScreenHeader(
-            title = stringResource(R.string.title_invoice_preview),
+            title = stringResource(if (isEstimate) R.string.title_estimate_preview else R.string.title_invoice_preview),
             onClose = onClose,
             closeContentDescription = stringResource(R.string.close)
         )
@@ -132,6 +194,33 @@ fun InvoicePreviewScreen(
                     )
                 }
             }
+        }
+
+        invoice?.takeIf { it.type == DocumentType.ESTIMATE }?.let { estimate ->
+            EstimateSummary(
+                estimate = estimate,
+                currencySymbol = getCurrencySymbol(estimate.currency),
+                convertedInvoice = convertedInvoice,
+                onSetStatus = { viewModel.setEstimateStatus(it) },
+                onConvert = { viewModel.convertToInvoice(onOpenInvoice) },
+                onOpenInvoice = onOpenInvoice,
+                modifier = Modifier
+                    .padding(horizontal = Space.screen)
+                    .padding(top = Space.lg)
+            )
+        }
+
+        invoice?.takeIf { it.type == DocumentType.INVOICE }?.let { current ->
+            InvoicePaymentSummary(
+                invoice = current,
+                currencySymbol = getCurrencySymbol(current.currency),
+                paymentCount = payments.size,
+                onRecordPayment = { showRecordPayment = true },
+                onShowPayments = { showPayments = true },
+                modifier = Modifier
+                    .padding(horizontal = Space.screen)
+                    .padding(top = Space.lg)
+            )
         }
 
         Row(

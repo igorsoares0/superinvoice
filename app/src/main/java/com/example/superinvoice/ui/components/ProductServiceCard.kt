@@ -18,6 +18,7 @@ fun ProductServiceCard(
     onClick: (() -> Unit)? = null
 ) {
     val currencySymbol = getCurrencySymbol(currency)
+    val price = "$currencySymbol${String.format("%.2f", productService.pricePerUnit)}"
     val actions = buildList {
         onEdit?.let { add(InvMenuAction(stringResource(R.string.edit), onClick = it)) }
         onDelete?.let {
@@ -30,10 +31,11 @@ fun ProductServiceCard(
         modifier = modifier,
         title = productService.name,
         meta = productService.description.takeIf { it.isNotBlank() },
-        amount = stringResource(
-            R.string.price_per_un,
-            "$currencySymbol${String.format("%.2f", productService.pricePerUnit)}"
-        ),
+        amount = if (productService.unit.isBlank()) {
+            stringResource(R.string.price_per_un, price)
+        } else {
+            stringResource(R.string.price_per_named_unit, price, productService.unit)
+        },
         leading = { InvAvatar(productService.name) },
         onClick = onClick,
         trailing = { InvRowMenu(actions = actions, contentDescription = menuDescription) }
