@@ -174,4 +174,34 @@ class InvoicePaints(val style: InvoiceStyle) {
         lines += truncate(rest, paint, maxWidth)
         return lines
     }
+
+    /**
+     * Quebra por palavra, para texto livre como as observações da fatura: respeita as quebras
+     * de linha digitadas e não tem limite de linhas (quem desenha vira a página). Palavra
+     * maior que a linha inteira é cortada por caractere.
+     */
+    fun wrapWords(text: String, paint: Paint, maxWidth: Float): List<String> {
+        if (maxWidth <= 0f) return text.lines()
+        val lines = mutableListOf<String>()
+        text.lines().forEach { paragraph ->
+            var line = ""
+            paragraph.split(' ').forEach { original ->
+                val candidate = if (line.isEmpty()) original else "$line $original"
+                if (paint.measureText(candidate) <= maxWidth) {
+                    line = candidate
+                    return@forEach
+                }
+                if (line.isNotEmpty()) lines += line
+                var word = original
+                while (paint.measureText(word) > maxWidth) {
+                    val end = paint.breakText(word, true, maxWidth, null).coerceAtLeast(1)
+                    lines += word.substring(0, end)
+                    word = word.substring(end)
+                }
+                line = word
+            }
+            lines += line
+        }
+        return lines
+    }
 }

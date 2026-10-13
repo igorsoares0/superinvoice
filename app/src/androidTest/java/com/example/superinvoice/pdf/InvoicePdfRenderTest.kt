@@ -260,7 +260,17 @@ class InvoicePdfRenderTest {
         ),
         // Casos de borda: nome longo, endereço longo, muitos itens, valor alto.
         "stress" to Dataset(
-            invoice = invoice(subtotal = 98450.0, tax = 9845.0, total = 108295.0),
+            // Observação longa, com parágrafos e uma palavra maior que a linha: quebra e vira página.
+            invoice = invoice(
+                subtotal = 98450.0,
+                tax = 9845.0,
+                total = 108295.0,
+                notes = "Pagamento em até 15 dias corridos após o recebimento da nota fiscal, " +
+                    "mediante depósito na conta indicada. Após o vencimento, incidem multa de 2% " +
+                    "e juros de 1% ao mês, calculados pro rata die.\n\n" +
+                    "Referência do contrato: CONTRATO-2024-AURORA-BOREAL-CONSULTORIA-ESTRATEGICA-CONTINUADA-0042\n" +
+                    "Dúvidas: financeiro@studiovinte.com"
+            ),
             client = Client(
                 id = 2,
                 name = "Consultoria e Participações Aurora Boreal do Brasil Ltda ME",
@@ -284,13 +294,18 @@ class InvoicePdfRenderTest {
         )
     )
 
-    private fun invoice(subtotal: Double, tax: Double, total: Double) = Invoice(
+    private fun invoice(
+        subtotal: Double,
+        tax: Double,
+        total: Double,
+        notes: String = "Pagamento em até 15 dias corridos após o recebimento."
+    ) = Invoice(
         id = 1,
         number = "042",
         clientId = 1,
         createdDate = FIXED_DATE,
         dueDate = 1735603200000L, // 2024-12-31 UTC
-        notes = "Pagamento em até 15 dias corridos após o recebimento.",
+        notes = notes,
         subtotal = subtotal,
         taxValue = tax,
         taxAmount = tax,

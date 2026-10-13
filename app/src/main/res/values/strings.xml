@@ -527,6 +527,9 @@
     <string name="pdf_pay_online_line">Pay online: %1$s</string>
     <string name="pdf_qr_caption_pix">Pay with Pix</string>
     <string name="pdf_qr_caption_scan">Scan to pay</string>
+    <string name="pdf_notes_title_classic">NOTES:</string>
+    <string name="pdf_notes_title_modern">{ NOTES }</string>
+    <string name="pdf_notes_title_professional">Notes:</string>
     <string name="section_payment_qr_preview">QR on the invoice</string>
     <string name="payment_links_qr_note">Preview without amount. On each invoice, the Pix and PayPal QR already carries the amount due.</string>
     <string name="payment_links_qr_locked">The QR with each invoice amount is a premium feature. The text links appear on the PDF anyway.</string>

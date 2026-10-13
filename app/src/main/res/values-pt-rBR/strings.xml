@@ -529,6 +529,9 @@
     <string name="pdf_pay_online_line">Pagar online: %1$s</string>
     <string name="pdf_qr_caption_pix">Pague com Pix</string>
     <string name="pdf_qr_caption_scan">Escaneie para pagar</string>
+    <string name="pdf_notes_title_classic">OBSERVAÇÕES:</string>
+    <string name="pdf_notes_title_modern">{ OBSERVAÇÕES }</string>
+    <string name="pdf_notes_title_professional">Observações:</string>
     <string name="section_payment_qr_preview">QR na fatura</string>
     <string name="payment_links_qr_note">Prévia sem valor. Em cada fatura, o QR do Pix e do PayPal já leva o valor que falta pagar.</string>
     <string name="payment_links_qr_locked">O QR com o valor de cada fatura é premium. Os links em texto saem no PDF mesmo assim.</string>

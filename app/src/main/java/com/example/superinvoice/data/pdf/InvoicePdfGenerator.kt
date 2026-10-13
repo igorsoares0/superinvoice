@@ -313,6 +313,41 @@ class InvoicePdfGenerator @Inject constructor(
         return y
     }
 
+    /**
+     * Observações da fatura (`Invoice.notes`). O campo existia no formulário e era salvo, mas
+     * nenhum template o desenhava. Vira a página linha a linha, então texto longo não é cortado.
+     * Devolve o y logo abaixo, já com [gapAfter]; sem observações, devolve [yStart].
+     */
+    private fun drawInvoiceNotes(
+        pager: InvoicePager,
+        paints: InvoicePaints,
+        notes: String,
+        title: String,
+        x: Float,
+        yStart: Float,
+        maxWidth: Float,
+        titlePaint: Paint,
+        bodyPaint: Paint,
+        titleStep: Float,
+        lineStep: Float,
+        gapAfter: Float
+    ): Float {
+        val trimmed = notes.trim()
+        if (trimmed.isEmpty()) return yStart
+        val titleHeight = paints.advance(titlePaint, titleStep)
+        val lineHeight = paints.advance(bodyPaint, lineStep)
+        // O título não fica sozinho no pé da página.
+        var y = pager.flowTo(yStart, titleHeight + lineHeight)
+        pager.canvas.drawText(title, x, y, titlePaint)
+        y += titleHeight
+        paints.wrapWords(trimmed, bodyPaint, maxWidth).forEach { line ->
+            y = pager.flowTo(y, lineHeight)
+            pager.canvas.drawText(line, x, y, bodyPaint)
+            y += lineHeight
+        }
+        return y + gapAfter
+    }
+
     private fun cityStateZip(city: String, state: String, zipCode: String): String =
         buildString {
             if (city.isNotEmpty()) append(city)
@@ -1115,6 +1150,12 @@ class InvoicePdfGenerator @Inject constructor(
         }
         yPos += paints.advance(totalPaint, 40f)
 
+        yPos = drawInvoiceNotes(
+            pager, paints, invoice.notes, text(R.string.pdf_notes_title_classic), margin, yPos,
+            maxWidth = pageWidth - 2 * margin, titlePaint = sectionTitlePaint, bodyPaint = bodyPaint,
+            titleStep = 18f, lineStep = 15f, gapAfter = 25f
+        )
+
         // Business signature
         yPos = drawSignature(pager, paints, signaturePath, businessInfo.ownerName, yPos, maxHeight = 40f, fallbackTextSize = 18f)
     }
@@ -1368,6 +1409,12 @@ class InvoicePdfGenerator @Inject constructor(
         pager.canvas.drawText(text(labels.amountDue), totalsX, yPos, amountDuePaint)
         pager.canvas.drawText(money(currencySymbol, amountDue), pageWidth - margin, yPos, amountDueValuePaint)
         yPos += paints.advance(amountDuePaint, 30f)
+
+        yPos = drawInvoiceNotes(
+            pager, paints, invoice.notes, text(R.string.pdf_notes_title_modern), margin, yPos,
+            maxWidth = pageWidth - 2 * margin, titlePaint = bodySmallPaint, bodyPaint = bodyPaint,
+            titleStep = 15f, lineStep = 12f, gapAfter = 20f
+        )
 
         // Payment Information section
         if (hasPaymentBlock(paymentInfo, paymentLinks, paymentQrCodePath)) {
@@ -1783,6 +1830,11 @@ class InvoicePdfGenerator @Inject constructor(
 
         // Signature
         yPos = maxOf(leftYPos, rightYPos) + 30f
+        yPos = drawInvoiceNotes(
+            pager, paints, invoice.notes, text(R.string.pdf_notes_title_professional), leftX, yPos,
+            maxWidth = pageWidth - 2 * margin, titlePaint = labelPaint, bodyPaint = bodySmallPaint,
+            titleStep = 12f, lineStep = 11f, gapAfter = 25f
+        )
         yPos = drawSignature(pager, paints, signaturePath, businessInfo.ownerName, yPos, maxHeight = 35f, fallbackTextSize = 14f)
 
         // Website at bottom center
