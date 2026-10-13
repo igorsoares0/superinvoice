@@ -114,6 +114,9 @@ dependencies {
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // QR de pagamento (Pix, PayPal.me, link) desenhado no PDF
+    implementation(libs.zxing.core)
+
     // RevenueCat
     implementation("com.revenuecat.purchases:purchases:10.18.1")
 

@@ -12,6 +12,7 @@ import com.example.superinvoice.data.billing.BillingManager
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
+import com.example.superinvoice.data.payment.PaymentLinksBuilder
 import com.example.superinvoice.data.repository.SettingsRepository
 import com.example.superinvoice.ui.components.InvoiceFilter
 import com.example.superinvoice.util.shareTextsFor
@@ -120,9 +121,6 @@ class HomeViewModel @Inject constructor(
                     additionalInstructions = settingsRepository.additionalInstructions.first()
                 )
 
-                // Get currency
-                val currency = settingsRepository.currency.first()
-
                 // Get date format
                 val dateFormat = settingsRepository.dateFormat.first()
 
@@ -141,6 +139,12 @@ class HomeViewModel @Inject constructor(
                 val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
+                val paymentLinks = PaymentLinksBuilder.forInvoice(
+                    invoice,
+                    settingsRepository.paymentLinkSettings(),
+                    hasUploadedQr = paymentQrCodePath.isNotEmpty()
+                )
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -148,11 +152,14 @@ class HomeViewModel @Inject constructor(
                     items = items,
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
-                    currency = currency,
+                    // A da fatura, não a padrão: a padrão pode ter mudado depois, e a
+                    // pré-visualização na tela já usava a da fatura.
+                    currency = invoice.currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
+                    paymentLinks = paymentLinks,
                     template = template,
                     isPremium = billingManager.awaitPremiumStatus(),
                     style = settingsRepository.invoiceStyle()
@@ -210,9 +217,6 @@ class HomeViewModel @Inject constructor(
                     additionalInstructions = settingsRepository.additionalInstructions.first()
                 )
 
-                // Get currency
-                val currency = settingsRepository.currency.first()
-
                 // Get date format
                 val dateFormat = settingsRepository.dateFormat.first()
 
@@ -231,6 +235,12 @@ class HomeViewModel @Inject constructor(
                 val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
+                val paymentLinks = PaymentLinksBuilder.forInvoice(
+                    invoice,
+                    settingsRepository.paymentLinkSettings(),
+                    hasUploadedQr = paymentQrCodePath.isNotEmpty()
+                )
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -238,11 +248,14 @@ class HomeViewModel @Inject constructor(
                     items = items,
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
-                    currency = currency,
+                    // A da fatura, não a padrão: a padrão pode ter mudado depois, e a
+                    // pré-visualização na tela já usava a da fatura.
+                    currency = invoice.currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
+                    paymentLinks = paymentLinks,
                     template = template,
                     isPremium = billingManager.awaitPremiumStatus(),
                     style = settingsRepository.invoiceStyle()
@@ -256,7 +269,7 @@ class HomeViewModel @Inject constructor(
                         file
                     )
 
-                    val shareTexts = shareTextsFor(context, invoice)
+                    val shareTexts = shareTextsFor(context, invoice, paymentLinks)
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "application/pdf"
                         putExtra(Intent.EXTRA_STREAM, uri)

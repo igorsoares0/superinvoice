@@ -39,6 +39,7 @@ import com.example.superinvoice.ui.screens.PaywallScreen
 import com.example.superinvoice.ui.screens.PolicyScreen
 import com.example.superinvoice.ui.screens.SupportScreen
 import com.example.superinvoice.ui.screens.TermsScreen
+import com.example.superinvoice.ui.screens.PaymentLinksScreen
 import com.example.superinvoice.ui.screens.ProductsServicesScreen
 import com.example.superinvoice.ui.screens.SettingsScreen
 import com.example.superinvoice.ui.screens.SignatureScreen
@@ -63,6 +64,7 @@ enum class Screen {
     SIGNATURE,
     INVOICE_STYLE,
     PAYMENT_QR_CODE,
+    PAYMENT_LINKS,
     CURRENCY,
     DATE_FORMAT,
     PAYWALL,
@@ -367,6 +369,7 @@ fun AppNavigation(
                 if (isPremium) navigateTo(Screen.INVOICE_STYLE) else navigateToPaywall(PaywallSource.INVOICE_STYLE)
             },
             onNavigateToPaymentQrCode = { navigateTo(Screen.PAYMENT_QR_CODE) },
+            onNavigateToPaymentLinks = { navigateTo(Screen.PAYMENT_LINKS) },
             onNavigateToCurrency = { navigateTo(Screen.CURRENCY) },
             onNavigateToDateFormat = { navigateTo(Screen.DATE_FORMAT) },
             onNavigateToManageClients = {
@@ -452,6 +455,12 @@ fun AppNavigation(
         Screen.PAYMENT_QR_CODE -> PaymentQrCodeScreen(
             onClose = { navigateBack() },
             onSave = { navigateBack() }
+        )
+        Screen.PAYMENT_LINKS -> PaymentLinksScreen(
+            onClose = { navigateBack() },
+            onSave = { navigateBack() },
+            isPremium = isPremium,
+            onUnlockQr = { navigateToPaywall(PaywallSource.PAYMENT_LINK) }
         )
         Screen.CURRENCY -> CurrencyScreen(
             onClose = { navigateBack() },

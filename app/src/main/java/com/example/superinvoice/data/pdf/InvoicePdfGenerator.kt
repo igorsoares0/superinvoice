@@ -23,6 +23,9 @@ import com.example.superinvoice.data.Payment
 import com.example.superinvoice.data.calc.InvoiceCalculator
 import com.example.superinvoice.data.database.entities.AdjustmentType
 import com.example.superinvoice.data.database.entities.DocumentType
+import com.example.superinvoice.data.payment.PaymentLinks
+import com.example.superinvoice.data.payment.PaymentQr
+import com.example.superinvoice.data.payment.PaymentQrSource
 import com.example.superinvoice.util.InvoiceDates
 import com.example.superinvoice.util.formatQuantity
 import com.example.superinvoice.util.getCurrencySymbol
@@ -185,6 +188,131 @@ class InvoicePdfGenerator @Inject constructor(
         if (source !== bitmap) source.recycle()
     }
 
+    /** QR gerado (Pix ou link), em pontos. O Pix com valor dá ~45 módulos: ~1,7 pt por módulo. */
+    private val generatedQrSize = 90f
+
+    /**
+     * Até os links de pagamento o bloco só aparecia com nome de banco, e quem tinha só o QR
+     * enviado não via nada no PDF. Agora basta um meio de pagamento qualquer.
+     */
+    private fun hasPaymentBlock(
+        paymentInfo: PaymentInfo,
+        links: PaymentLinks,
+        qrImagePath: String?
+    ): Boolean =
+        paymentInfo.bankName.isNotEmpty() || links.hasAny || links.qrContent != null ||
+            (qrImagePath != null && File(qrImagePath).exists())
+
+    /**
+     * Pix, PayPal e link, depois dos dados bancários (`docs/spec-links-pagamento.md`, 5.4).
+     * Saem também para quem não é premium: é texto. O copia e cola do Pix não entra (~150
+     * caracteres); ele vai na mensagem de compartilhamento.
+     */
+    private fun drawPaymentLinks(
+        pager: InvoicePager,
+        paints: InvoicePaints,
+        links: PaymentLinks,
+        x: Float,
+        yStart: Float,
+        maxWidth: Float,
+        paint: Paint,
+        step: Float
+    ): Float {
+        val lines = buildList {
+            links.pixKey?.let {
+                add(paints.truncate(text(R.string.pdf_pix_line, it), paint, maxWidth))
+            }
+            links.payPalUrl?.let {
+                add(paints.truncate(text(R.string.pdf_paypal_line, it.removePrefix("https://")), paint, maxWidth))
+            }
+            // URL não tem espaço onde quebrar. Se passar de 3 linhas, o QR leva o link inteiro.
+            links.customUrl?.let {
+                addAll(paints.wrap(text(R.string.pdf_pay_online_line, it), paint, maxWidth, maxLines = 3))
+            }
+        }
+        var y = yStart
+        lines.forEach { line ->
+            pager.canvas.drawText(line, x, y, paint)
+            y += paints.advance(paint, step)
+        }
+        return y
+    }
+
+    /** Quanto o [drawPaymentLinks] e o QR gerado acrescentam a um bloco que reserva espaço. */
+    private fun paymentLinksExtraHeight(links: PaymentLinks, lineStep: Float): Float {
+        val lines = (if (links.pixKey != null) 1 else 0) +
+            (if (links.payPalUrl != null) 1 else 0) +
+            (if (links.customUrl != null) 3 else 0)
+        // A reserva antiga já contava com a imagem de 80 pontos.
+        val qr = if (links.qrContent != null) generatedQrSize + 20f - 80f else 0f
+        return lines * lineStep + qr
+    }
+
+    private fun paymentQrHeight(links: PaymentLinks, qrImagePath: String?): Float = when {
+        links.qrContent != null -> generatedQrSize + 20f
+        qrImagePath != null && File(qrImagePath).exists() -> 90f
+        else -> 0f
+    }
+
+    /**
+     * O QR do bloco de pagamento: o gerado, quando há (premium, decisão L2 da spec), ou a imagem
+     * enviada pelo usuário. Devolve o y logo abaixo.
+     */
+    private fun drawPaymentQr(
+        pager: InvoicePager,
+        paints: InvoicePaints,
+        links: PaymentLinks,
+        qrImagePath: String?,
+        x: Float,
+        yStart: Float
+    ): Float {
+        val matrix = links.qrContent?.let { PaymentQr.encode(it) }
+        if (matrix != null) {
+            val module = generatedQrSize / matrix.width
+            // Sem uma sobreposição mínima, alguns leitores de PDF mostram um fio branco entre
+            // fileiras vizinhas de módulos.
+            val overlap = module * 0.05f
+            val ink = paints.fill(Color.BLACK)
+            PaymentQr.forEachDarkRun(matrix) { row, start, end ->
+                pager.canvas.drawRect(
+                    x + start * module,
+                    yStart + row * module,
+                    x + end * module + overlap,
+                    yStart + (row + 1) * module + overlap,
+                    ink
+                )
+            }
+            val captionPaint = paints.text(7f, color = paints.style.muted, align = Paint.Align.CENTER)
+            val caption = text(
+                if (links.qrSource == PaymentQrSource.PIX) R.string.pdf_qr_caption_pix
+                else R.string.pdf_qr_caption_scan
+            )
+            // A margem branca do QR (4 módulos) já afasta a legenda dos módulos.
+            val captionY = yStart + generatedQrSize - 4 * module + paints.lineHeight(captionPaint)
+            pager.canvas.drawText(caption, x + generatedQrSize / 2f, captionY, captionPaint)
+            return captionY + 10f
+        }
+
+        var y = yStart
+        qrImagePath?.let { qrPath ->
+            try {
+                val qrFile = File(qrPath)
+                if (qrFile.exists()) {
+                    val qrBitmap = BitmapFactory.decodeFile(qrPath)
+                    qrBitmap?.let {
+                        val qrSize = 80f
+                        drawImageAt(pager.canvas, it, x, y, qrSize, qrSize)
+                        y += qrSize + 10f
+                        it.recycle()
+                    }
+                }
+            } catch (e: Exception) {
+                // Error handled silently
+            }
+        }
+        return y
+    }
+
     private fun cityStateZip(city: String, state: String, zipCode: String): String =
         buildString {
             if (city.isNotEmpty()) append(city)
@@ -297,6 +425,7 @@ class InvoicePdfGenerator @Inject constructor(
         logoPath: String? = null,
         signaturePath: String? = null,
         paymentQrCodePath: String? = null,
+        paymentLinks: PaymentLinks = PaymentLinks.NONE,
         template: InvoiceTemplate = InvoiceTemplate.CLASSIC,
         isPremium: Boolean = true,
         style: InvoiceStyle = InvoiceStyle.Default
@@ -312,17 +441,18 @@ class InvoicePdfGenerator @Inject constructor(
                 // Em cada página, por cima do conteúdo.
                 onBeforeFinishPage = if (!isPremium) ({ c -> drawWatermark(c) }) else null
             )
+            val links = paymentLinks.forPlan(isPremium, hasUploadedQr = paymentQrCodePath != null)
 
             // Draw the invoice content based on template
             when (template) {
                 InvoiceTemplate.CLASSIC -> {
-                    drawClassicTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawClassicTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath, links)
                 }
                 InvoiceTemplate.MODERN -> {
-                    drawModernTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawModernTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath, links)
                 }
                 InvoiceTemplate.PROFESSIONAL -> {
-                    drawProfessionalTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawProfessionalTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath, links)
                 }
             }
 
@@ -398,6 +528,7 @@ class InvoicePdfGenerator @Inject constructor(
         logoPath: String? = null,
         signaturePath: String? = null,
         paymentQrCodePath: String? = null,
+        paymentLinks: PaymentLinks = PaymentLinks.NONE,
         template: InvoiceTemplate = InvoiceTemplate.CLASSIC,
         scale: Int = 5,
         isPremium: Boolean = true,
@@ -415,17 +546,18 @@ class InvoicePdfGenerator @Inject constructor(
                 // Em cada página, por cima do conteúdo.
                 onBeforeFinishPage = if (!isPremium) ({ c -> drawWatermark(c) }) else null
             )
+            val links = paymentLinks.forPlan(isPremium, hasUploadedQr = paymentQrCodePath != null)
 
             // Draw the invoice content based on template
             when (template) {
                 InvoiceTemplate.CLASSIC -> {
-                    drawClassicTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawClassicTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath, links)
                 }
                 InvoiceTemplate.MODERN -> {
-                    drawModernTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawModernTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath, links)
                 }
                 InvoiceTemplate.PROFESSIONAL -> {
-                    drawProfessionalTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath)
+                    drawProfessionalTemplate(pager, paints, invoice, client, items, businessInfo, paymentInfo, currency, dateFormat, logoPath, signaturePath, paymentQrCodePath, links)
                 }
             }
 
@@ -681,7 +813,8 @@ class InvoicePdfGenerator @Inject constructor(
         dateFormat: String,
         logoPath: String?,
         signaturePath: String?,
-        paymentQrCodePath: String?
+        paymentQrCodePath: String?,
+        paymentLinks: PaymentLinks
     ) {
         val labels = labelsFor(invoice)
         var yPos = margin
@@ -836,11 +969,13 @@ class InvoicePdfGenerator @Inject constructor(
 
         // PAY TO (right)
         val payRightX = pageWidth / 2f + 20f
-        if (paymentInfo.bankName.isNotEmpty()) {
+        if (hasPaymentBlock(paymentInfo, paymentLinks, paymentQrCodePath)) {
             pager.canvas.drawText(text(R.string.pay_to_label), payRightX, rightYPos, sectionTitlePaint)
             rightYPos += paints.advance(sectionTitlePaint, 18f)
-            pager.canvas.drawText(paymentInfo.bankName, payRightX, rightYPos, bodyPaint)
-            rightYPos += paints.advance(bodyPaint, 15f)
+            if (paymentInfo.bankName.isNotEmpty()) {
+                pager.canvas.drawText(paymentInfo.bankName, payRightX, rightYPos, bodyPaint)
+                rightYPos += paints.advance(bodyPaint, 15f)
+            }
             if (paymentInfo.bankAddress.isNotEmpty()) {
                 pager.canvas.drawText(paymentInfo.bankAddress, payRightX, rightYPos, bodyPaint)
                 rightYPos += paints.advance(bodyPaint, 15f)
@@ -874,23 +1009,12 @@ class InvoicePdfGenerator @Inject constructor(
                 rightYPos += paints.advance(bodyPaint, 15f)
             }
 
-            // QR Code for payment
-            paymentQrCodePath?.let { qrPath ->
-                try {
-                    val qrFile = File(qrPath)
-                    if (qrFile.exists()) {
-                        val qrBitmap = BitmapFactory.decodeFile(qrPath)
-                        qrBitmap?.let {
-                            val qrSize = 80f
-                            drawImageAt(pager.canvas, it, payRightX, rightYPos, qrSize, qrSize)
-                            rightYPos += qrSize + 10f
-                            it.recycle()
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Error handled silently
-                }
-            }
+            rightYPos = drawPaymentLinks(
+                pager, paints, paymentLinks, payRightX, rightYPos,
+                maxWidth = pageWidth - margin - payRightX, paint = bodyPaint, step = 15f
+            )
+
+            rightYPos = drawPaymentQr(pager, paints, paymentLinks, paymentQrCodePath, payRightX, rightYPos)
         }
 
         // Advance to max height
@@ -1007,7 +1131,8 @@ class InvoicePdfGenerator @Inject constructor(
         dateFormat: String,
         logoPath: String?,
         signaturePath: String?,
-        paymentQrCodePath: String?
+        paymentQrCodePath: String?,
+        paymentLinks: PaymentLinks
     ) {
         val labels = labelsFor(invoice)
         val currencySymbol = getCurrencySymbol(currency)
@@ -1245,7 +1370,7 @@ class InvoicePdfGenerator @Inject constructor(
         yPos += paints.advance(amountDuePaint, 30f)
 
         // Payment Information section
-        if (paymentInfo.bankName.isNotEmpty()) {
+        if (hasPaymentBlock(paymentInfo, paymentLinks, paymentQrCodePath)) {
             pager.canvas.drawLine(margin, yPos, pageWidth - margin, yPos, linePaint)
             yPos += 20f
 
@@ -1289,23 +1414,15 @@ class InvoicePdfGenerator @Inject constructor(
                 yPos += paints.advance(bodySmallPaint, 12f)
             }
 
-            // QR Code for payment
-            paymentQrCodePath?.let { qrPath ->
-                try {
-                    val qrFile = File(qrPath)
-                    if (qrFile.exists()) {
-                        val qrBitmap = BitmapFactory.decodeFile(qrPath)
-                        qrBitmap?.let {
-                            val qrSize = 80f
-                            drawImageAt(pager.canvas, it, margin, yPos, qrSize, qrSize)
-                            yPos += qrSize + 10f
-                            it.recycle()
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Error handled silently
-                }
-            }
+            yPos = drawPaymentLinks(
+                pager, paints, paymentLinks, margin, yPos,
+                maxWidth = pageWidth - 2 * margin, paint = bodyPaint, step = 12f
+            )
+
+            // O Modern não reserva espaço para este bloco: o QR vira a página em vez de ser
+            // cortado no pé dela.
+            yPos = pager.flowTo(yPos, paymentQrHeight(paymentLinks, paymentQrCodePath))
+            yPos = drawPaymentQr(pager, paints, paymentLinks, paymentQrCodePath, margin, yPos)
             yPos += 15f
         }
 
@@ -1354,7 +1471,8 @@ class InvoicePdfGenerator @Inject constructor(
         dateFormat: String,
         logoPath: String?,
         signaturePath: String?,
-        paymentQrCodePath: String?
+        paymentQrCodePath: String?,
+        paymentLinks: PaymentLinks
     ) {
         val labels = labelsFor(invoice)
         val currencySymbol = getCurrencySymbol(currency)
@@ -1558,12 +1676,16 @@ class InvoicePdfGenerator @Inject constructor(
 
         // Bottom section: Payment info (left) and Totals (right).
         // O bloco inteiro migra de página se não couber.
-        yPos = pager.flowTo(yPos, 200f + 12f * (professionalRows.size + if (isPartlyPaid) 2 else 0))
+        yPos = pager.flowTo(
+            yPos,
+            200f + 12f * (professionalRows.size + if (isPartlyPaid) 2 else 0) +
+                paymentLinksExtraHeight(paymentLinks, lineStep = 10f)
+        )
         leftYPos = yPos
         rightYPos = yPos
 
         // Left - Payment Info
-        if (paymentInfo.bankName.isNotEmpty()) {
+        if (hasPaymentBlock(paymentInfo, paymentLinks, paymentQrCodePath)) {
             pager.canvas.drawText(text(R.string.payment_info_label), leftX, leftYPos, labelPaint)
             leftYPos += paints.advance(labelPaint, 12f)
             if (paymentInfo.bankName.isNotEmpty()) {
@@ -1603,23 +1725,13 @@ class InvoicePdfGenerator @Inject constructor(
                 leftYPos += paints.advance(bodySmallPaint, 10f)
             }
 
-            // QR Code for payment
-            paymentQrCodePath?.let { qrPath ->
-                try {
-                    val qrFile = File(qrPath)
-                    if (qrFile.exists()) {
-                        val qrBitmap = BitmapFactory.decodeFile(qrPath)
-                        qrBitmap?.let {
-                            val qrSize = 80f
-                            drawImageAt(pager.canvas, it, leftX, leftYPos, qrSize, qrSize)
-                            leftYPos += qrSize + 10f
-                            it.recycle()
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Error handled silently
-                }
-            }
+            leftYPos = drawPaymentLinks(
+                pager, paints, paymentLinks, leftX, leftYPos,
+                // Até a coluna dos totais, com folga.
+                maxWidth = pageWidth - margin - 170f - leftX, paint = bodySmallPaint, step = 10f
+            )
+
+            leftYPos = drawPaymentQr(pager, paints, paymentLinks, paymentQrCodePath, leftX, leftYPos)
         }
 
         // Right - Totals

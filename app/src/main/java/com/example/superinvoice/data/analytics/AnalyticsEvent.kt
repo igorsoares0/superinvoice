@@ -14,7 +14,15 @@ enum class PaywallSource(val id: String) {
     SIGNATURE("signature"),
     INVOICE_STYLE("invoice_style"),
     TEMPLATE("template"),
-    SETTINGS("settings")
+    SETTINGS("settings"),
+    PAYMENT_LINK("payment_link")
+}
+
+/** Qual link de pagamento o usuário copiou na pré-visualização da fatura. Nunca o link. */
+enum class PaymentLinkKind(val id: String) {
+    PIX("pix"),
+    PAYPAL("paypal"),
+    CUSTOM_LINK("custom_link")
 }
 
 enum class PlanType(val id: String) {

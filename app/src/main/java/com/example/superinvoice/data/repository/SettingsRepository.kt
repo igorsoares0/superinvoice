@@ -12,6 +12,8 @@ import com.example.superinvoice.data.pdf.InvoiceAccent
 import com.example.superinvoice.data.pdf.InvoiceFontChoice
 import com.example.superinvoice.data.pdf.InvoiceStyle
 import com.example.superinvoice.data.analytics.ConsentRegion
+import com.example.superinvoice.data.payment.PaymentLinkSettings
+import com.example.superinvoice.data.payment.PixKeyType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -49,6 +51,14 @@ class SettingsRepository @Inject constructor(
     private val PAYMENT_TERMS = stringPreferencesKey("payment_terms")
     private val ADDITIONAL_INSTRUCTIONS = stringPreferencesKey("additional_instructions")
 
+    // Payment Links Keys (docs/spec-links-pagamento.md, seção 3)
+    private val PIX_KEY_TYPE = stringPreferencesKey("pix_key_type")
+    private val PIX_KEY = stringPreferencesKey("pix_key")
+    private val PIX_MERCHANT_NAME = stringPreferencesKey("pix_merchant_name")
+    private val PIX_MERCHANT_CITY = stringPreferencesKey("pix_merchant_city")
+    private val PAYPAL_ME_USERNAME = stringPreferencesKey("paypal_me_username")
+    private val PAYMENT_LINK_URL = stringPreferencesKey("payment_link_url")
+
     // General Settings Keys
     private val CURRENCY = stringPreferencesKey("currency")
     private val DATE_FORMAT = stringPreferencesKey("date_format")
@@ -83,6 +93,16 @@ class SettingsRepository @Inject constructor(
     val bankAddress: Flow<String> = context.dataStore.data.map { it[BANK_ADDRESS] ?: "" }
     val paymentTerms: Flow<String> = context.dataStore.data.map { it[PAYMENT_TERMS] ?: "" }
     val additionalInstructions: Flow<String> = context.dataStore.data.map { it[ADDITIONAL_INSTRUCTIONS] ?: "" }
+
+    // Payment Links Flows
+    val pixKeyType: Flow<PixKeyType> = context.dataStore.data.map { prefs ->
+        PixKeyType.entries.firstOrNull { it.name == prefs[PIX_KEY_TYPE] } ?: PixKeyType.CPF
+    }
+    val pixKey: Flow<String> = context.dataStore.data.map { it[PIX_KEY] ?: "" }
+    val pixMerchantName: Flow<String> = context.dataStore.data.map { it[PIX_MERCHANT_NAME] ?: "" }
+    val pixMerchantCity: Flow<String> = context.dataStore.data.map { it[PIX_MERCHANT_CITY] ?: "" }
+    val payPalUsername: Flow<String> = context.dataStore.data.map { it[PAYPAL_ME_USERNAME] ?: "" }
+    val paymentLinkUrl: Flow<String> = context.dataStore.data.map { it[PAYMENT_LINK_URL] ?: "" }
 
     // General Settings Flows
     val currency: Flow<String> = context.dataStore.data.map { it[CURRENCY] ?: "USD" }
@@ -159,6 +179,41 @@ class SettingsRepository @Inject constructor(
             preferences[PAYMENT_TERMS] = paymentTerms
             preferences[ADDITIONAL_INSTRUCTIONS] = additionalInstructions
         }
+    }
+
+    /** Os valores já chegam normalizados pela tela (`PixKey`, `PayPalMe`, `PaymentLinkUrl`). */
+    suspend fun savePaymentLinks(
+        pixKeyType: PixKeyType,
+        pixKey: String,
+        pixMerchantName: String,
+        pixMerchantCity: String,
+        payPalUsername: String,
+        paymentLinkUrl: String
+    ) {
+        context.dataStore.edit { preferences ->
+            preferences[PIX_KEY_TYPE] = pixKeyType.name
+            preferences[PIX_KEY] = pixKey
+            preferences[PIX_MERCHANT_NAME] = pixMerchantName
+            preferences[PIX_MERCHANT_CITY] = pixMerchantCity
+            preferences[PAYPAL_ME_USERNAME] = payPalUsername
+            preferences[PAYMENT_LINK_URL] = paymentLinkUrl
+        }
+    }
+
+    /**
+     * Os links de pagamento prontos para o `PaymentLinksBuilder`, lidos de uma vez só. Nome e
+     * cidade do Pix vazios caem no nome e na cidade do negócio: quase sempre são os mesmos, e o
+     * usuário só preenche quando o banco mostra outro nome (razão social, por exemplo).
+     */
+    suspend fun paymentLinkSettings(): PaymentLinkSettings {
+        val prefs = context.dataStore.data.first()
+        return PaymentLinkSettings(
+            pixKey = prefs[PIX_KEY] ?: "",
+            pixMerchantName = (prefs[PIX_MERCHANT_NAME] ?: "").ifBlank { prefs[BUSINESS_NAME] ?: "" },
+            pixMerchantCity = (prefs[PIX_MERCHANT_CITY] ?: "").ifBlank { prefs[BUSINESS_CITY] ?: "" },
+            payPalUsername = prefs[PAYPAL_ME_USERNAME] ?: "",
+            paymentLinkUrl = prefs[PAYMENT_LINK_URL] ?: ""
+        )
     }
 
     // Save Currency

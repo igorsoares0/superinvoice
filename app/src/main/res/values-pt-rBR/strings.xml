@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">superinvoice</string>
 
     <!-- Common -->
@@ -484,4 +484,61 @@
         <item quantity="many">%1$s aparece em %2$d faturas ou orçamentos, por isso fica arquivado em vez de ser excluído.</item>
         <item quantity="other">%1$s aparece em %2$d faturas ou orçamentos, por isso fica arquivado em vez de ser excluído.</item>
     </plurals>
+    <!-- Pix e links de pagamento (docs/spec-links-pagamento.md) -->
+    <string name="settings_payment_links">Pix e Links de Pagamento</string>
+    <string name="title_payment_links">Pix e Links de Pagamento</string>
+    <string name="payment_links_description">Aparecem no PDF e na mensagem ao compartilhar a fatura, já com o valor que falta pagar.</string>
+    <string name="section_pix">Pix</string>
+    <string name="pix_key_type_cpf">CPF</string>
+    <string name="pix_key_type_cnpj">CNPJ</string>
+    <string name="pix_key_type_email">E-mail</string>
+    <string name="pix_key_type_phone">Celular</string>
+    <string name="pix_key_type_evp">Aleatória</string>
+    <string name="pix_key">Chave Pix</string>
+    <string name="pix_key_placeholder_cpf" tools:ignore="TypographyDashes">000.000.000-00</string>
+    <string name="pix_key_placeholder_cnpj" tools:ignore="TypographyDashes">00.000.000/0000-00</string>
+    <string name="pix_key_placeholder_email">nome@exemplo.com</string>
+    <string name="pix_key_placeholder_phone" tools:ignore="TypographyDashes">(11) 98765-4321</string>
+    <string name="pix_key_placeholder_evp" tools:ignore="TypographyDashes">123e4567-e89b-12d3-a456-426614174000</string>
+    <string name="error_pix_key_missing">Informe a chave Pix</string>
+    <string name="error_pix_key_cpf">CPF inválido. Confira os dígitos.</string>
+    <string name="error_pix_key_cnpj">CNPJ inválido. Confira os dígitos.</string>
+    <string name="error_pix_key_email">E-mail inválido</string>
+    <string name="error_pix_key_phone">Use um celular do Brasil com DDD</string>
+    <string name="error_pix_key_evp">Chave aleatória inválida. Copie do app do seu banco.</string>
+    <string name="pix_merchant_name">Nome de quem recebe</string>
+    <string name="pix_merchant_name_placeholder">Nome que aparece no seu banco</string>
+    <string name="pix_merchant_city">Cidade de quem recebe</string>
+    <string name="pix_merchant_city_placeholder">ex.: São Paulo</string>
+    <string name="error_pix_merchant_name">Informe o nome que aparece no seu banco</string>
+    <string name="error_pix_merchant_city">Informe a cidade</string>
+    <string name="pix_brl_only_hint">Só aparece em faturas em real (BRL).</string>
+    <string name="pix_test_button">Testar no meu banco</string>
+    <string name="pix_test_copied">Código Pix de R$ 1,00 copiado. Cole no app do seu banco para conferir o nome e a chave.</string>
+    <string name="section_paypal">PayPal</string>
+    <string name="paypal_username">Usuário do PayPal.me</string>
+    <string name="paypal_username_placeholder">seunome</string>
+    <string name="error_paypal_username">Use só o nome depois de paypal.me/</string>
+    <string name="section_other_payment_link">Outro link de pagamento</string>
+    <string name="payment_link_url">Link</string>
+    <string name="payment_link_placeholder">https://buy.stripe.com/…</string>
+    <string name="payment_link_hint">Stripe, Mercado Pago, Wise… Esse link não leva o valor da fatura.</string>
+    <string name="error_payment_link">Use um link que comece com https://</string>
+    <string name="pdf_pix_line">Pix: %1$s</string>
+    <string name="pdf_paypal_line">PayPal: %1$s</string>
+    <string name="pdf_pay_online_line">Pagar online: %1$s</string>
+    <string name="pdf_qr_caption_pix">Pague com Pix</string>
+    <string name="pdf_qr_caption_scan">Escaneie para pagar</string>
+    <string name="section_payment_qr_preview">QR na fatura</string>
+    <string name="payment_links_qr_note">Prévia sem valor. Em cada fatura, o QR do Pix e do PayPal já leva o valor que falta pagar.</string>
+    <string name="payment_links_qr_locked">O QR com o valor de cada fatura é premium. Os links em texto saem no PDF mesmo assim.</string>
+    <string name="payment_links_qr_unlock">Desbloquear QR</string>
+    <string name="payment_links_uploaded_qr_note">Sua imagem de QR enviada continua sendo usada no PDF.</string>
+    <string name="share_pay_with_paypal">Pagar com PayPal: %1$s</string>
+    <string name="share_pay_online">Pagar online: %1$s</string>
+    <string name="share_pix_copy_paste">Pix copia e cola:</string>
+    <string name="copy_pix_code">Copiar código Pix</string>
+    <string name="copy_payment_link">Copiar link de pagamento</string>
+    <string name="pix_code_copied">Código Pix copiado</string>
+    <string name="payment_link_copied">Link de pagamento copiado</string>
 </resources>

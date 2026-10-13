@@ -42,6 +42,9 @@ object Size {
 
     /** Avatar de cliente/produto. */
     val avatar = 40.dp
+
+    /** Prévia do QR de pagamento: grande o bastante para escanear da tela de outro aparelho. */
+    val qrPreview = 160.dp
 }
 
 /** Tamanhos de ícone do guia. */

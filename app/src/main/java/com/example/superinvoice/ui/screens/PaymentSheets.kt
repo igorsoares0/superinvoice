@@ -65,6 +65,7 @@ private fun money(currencySymbol: String, value: Double) =
     "$currencySymbol${String.format("%.2f", value)}"
 
 /** Status, quanto já foi pago e as ações de pagamento, logo abaixo da fatura. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun InvoicePaymentSummary(
     invoice: Invoice,
@@ -72,7 +73,11 @@ fun InvoicePaymentSummary(
     paymentCount: Int,
     onRecordPayment: () -> Unit,
     onShowPayments: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Null quando a fatura não tem Pix (moeda, chave ou saldo). */
+    onCopyPix: (() -> Unit)? = null,
+    /** Null quando não há PayPal nem link configurado. */
+    onCopyPaymentLink: (() -> Unit)? = null
 ) {
     val (statusLabel, statusColor) = paymentStatusLabel(invoice.status)
     val balance = InvoiceCalculator.balanceDue(invoice.totalAmount, invoice.amountPaid)
@@ -107,6 +112,13 @@ fun InvoicePaymentSummary(
             }
             if (paymentCount > 0) {
                 TextAction(stringResource(R.string.payments_count, paymentCount), onShowPayments)
+            }
+        }
+        // Linha própria e com quebra: as quatro ações juntas não cabem num celular de 360dp.
+        if (onCopyPix != null || onCopyPaymentLink != null) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Space.xl)) {
+                onCopyPix?.let { TextAction(stringResource(R.string.copy_pix_code), it) }
+                onCopyPaymentLink?.let { TextAction(stringResource(R.string.copy_payment_link), it) }
             }
         }
     }

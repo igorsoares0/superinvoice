@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Super Invoice</string>
 
     <!-- Common -->
@@ -482,4 +482,61 @@
         <item quantity="one">%1$s appears in %2$d invoice or estimate, so it stays archived instead of being deleted.</item>
         <item quantity="other">%1$s appears in %2$d invoices or estimates, so it stays archived instead of being deleted.</item>
     </plurals>
+    <!-- Pix e links de pagamento (docs/spec-links-pagamento.md) -->
+    <string name="settings_payment_links">Pix &amp; Payment Links</string>
+    <string name="title_payment_links">Pix &amp; Payment Links</string>
+    <string name="payment_links_description">Shown on the PDF and in the message when you share an invoice, already filled with the amount due.</string>
+    <string name="section_pix">Pix (Brazil)</string>
+    <string name="pix_key_type_cpf">CPF</string>
+    <string name="pix_key_type_cnpj">CNPJ</string>
+    <string name="pix_key_type_email">Email</string>
+    <string name="pix_key_type_phone">Phone</string>
+    <string name="pix_key_type_evp">Random key</string>
+    <string name="pix_key">Pix key</string>
+    <string name="pix_key_placeholder_cpf" tools:ignore="TypographyDashes">000.000.000-00</string>
+    <string name="pix_key_placeholder_cnpj" tools:ignore="TypographyDashes">00.000.000/0000-00</string>
+    <string name="pix_key_placeholder_email">name@example.com</string>
+    <string name="pix_key_placeholder_phone" tools:ignore="TypographyDashes">(11) 98765-4321</string>
+    <string name="pix_key_placeholder_evp" tools:ignore="TypographyDashes">123e4567-e89b-12d3-a456-426614174000</string>
+    <string name="error_pix_key_missing">Enter your Pix key</string>
+    <string name="error_pix_key_cpf">Invalid CPF. Check the digits.</string>
+    <string name="error_pix_key_cnpj">Invalid CNPJ. Check the digits.</string>
+    <string name="error_pix_key_email">Invalid email</string>
+    <string name="error_pix_key_phone">Use a Brazilian phone number with area code</string>
+    <string name="error_pix_key_evp">Invalid random key. Copy it from your bank app.</string>
+    <string name="pix_merchant_name">Receiver name</string>
+    <string name="pix_merchant_name_placeholder">Name shown by your bank</string>
+    <string name="pix_merchant_city">Receiver city</string>
+    <string name="pix_merchant_city_placeholder">e.g. São Paulo</string>
+    <string name="error_pix_merchant_name">Enter the name that appears in your bank</string>
+    <string name="error_pix_merchant_city">Enter the city</string>
+    <string name="pix_brl_only_hint">Only shown on invoices in Brazilian real (BRL).</string>
+    <string name="pix_test_button">Test in my bank app</string>
+    <string name="pix_test_copied">Pix code for R$ 1.00 copied. Paste it in your bank app to check the name and key.</string>
+    <string name="section_paypal">PayPal</string>
+    <string name="paypal_username">PayPal.me username</string>
+    <string name="paypal_username_placeholder">yourname</string>
+    <string name="error_paypal_username">Use only the name after paypal.me/</string>
+    <string name="section_other_payment_link">Other payment link</string>
+    <string name="payment_link_url">Link</string>
+    <string name="payment_link_placeholder">https://buy.stripe.com/…</string>
+    <string name="payment_link_hint">Stripe, Mercado Pago, Wise… This link does not carry the invoice amount.</string>
+    <string name="error_payment_link">Use a link that starts with https://</string>
+    <string name="pdf_pix_line">Pix: %1$s</string>
+    <string name="pdf_paypal_line">PayPal: %1$s</string>
+    <string name="pdf_pay_online_line">Pay online: %1$s</string>
+    <string name="pdf_qr_caption_pix">Pay with Pix</string>
+    <string name="pdf_qr_caption_scan">Scan to pay</string>
+    <string name="section_payment_qr_preview">QR on the invoice</string>
+    <string name="payment_links_qr_note">Preview without amount. On each invoice, the Pix and PayPal QR already carries the amount due.</string>
+    <string name="payment_links_qr_locked">The QR with each invoice amount is a premium feature. The text links appear on the PDF anyway.</string>
+    <string name="payment_links_qr_unlock">Unlock QR</string>
+    <string name="payment_links_uploaded_qr_note">Your uploaded QR image is still used on the PDF.</string>
+    <string name="share_pay_with_paypal">Pay with PayPal: %1$s</string>
+    <string name="share_pay_online">Pay online: %1$s</string>
+    <string name="share_pix_copy_paste">Pix copy and paste:</string>
+    <string name="copy_pix_code">Copy Pix code</string>
+    <string name="copy_payment_link">Copy payment link</string>
+    <string name="pix_code_copied">Pix code copied</string>
+    <string name="payment_link_copied">Payment link copied</string>
 </resources>

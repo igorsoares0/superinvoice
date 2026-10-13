@@ -19,6 +19,8 @@ lifecycleViewmodelCompose = "2.10.0"
 # Firebase e preciso subir o Kotlin junto (e com ele kotlin-compose e ksp).
 firebaseBom = "34.10.0"
 googleServices = "4.5.0"
+# Só o core (Java puro, sem Android nem Kotlin): gera a matriz do QR de pagamento.
+zxing = "3.5.3"
 firebaseCrashlyticsPlugin = "3.0.8"
 
 [libraries]
@@ -48,6 +50,7 @@ androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lif
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

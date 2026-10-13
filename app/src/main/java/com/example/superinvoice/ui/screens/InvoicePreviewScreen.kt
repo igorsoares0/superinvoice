@@ -1,5 +1,9 @@
 package com.example.superinvoice.ui.screens
 
+import android.content.ClipData
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import com.example.superinvoice.data.analytics.PaymentLinkKind
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -70,6 +74,7 @@ fun InvoicePreviewScreen(
     val invoice by viewModel.invoice.collectAsStateWithLifecycle()
     val payments by viewModel.payments.collectAsStateWithLifecycle()
     val convertedInvoice by viewModel.convertedInvoice.collectAsStateWithLifecycle()
+    val paymentLinks by viewModel.paymentLinks.collectAsStateWithLifecycle()
     val isEstimate = invoice?.type == DocumentType.ESTIMATE
     val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle()
 
@@ -79,6 +84,16 @@ fun InvoicePreviewScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val clipboard = LocalClipboard.current
+
+    /** Para o usuário mandar o Pix ou o link separado do PDF (spec de links, 5.5). */
+    fun copy(text: String, kind: PaymentLinkKind, confirmation: Int) {
+        scope.launch {
+            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(kind.id, text)))
+            snackbarHostState.showSnackbar(context.getString(confirmation))
+        }
+        viewModel.onPaymentLinkCopied(kind)
+    }
 
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -217,6 +232,12 @@ fun InvoicePreviewScreen(
                 paymentCount = payments.size,
                 onRecordPayment = { showRecordPayment = true },
                 onShowPayments = { showPayments = true },
+                onCopyPix = paymentLinks.pixPayload?.let { pix ->
+                    { copy(pix, PaymentLinkKind.PIX, R.string.pix_code_copied) }
+                },
+                onCopyPaymentLink = (paymentLinks.payPalUrl?.let { it to PaymentLinkKind.PAYPAL }
+                    ?: paymentLinks.customUrl?.let { it to PaymentLinkKind.CUSTOM_LINK })
+                    ?.let { (url, kind) -> { copy(url, kind, R.string.payment_link_copied) } },
                 modifier = Modifier
                     .padding(horizontal = Space.screen)
                     .padding(top = Space.lg)

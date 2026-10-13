@@ -157,4 +157,21 @@ class InvoicePaints(val style: InvoiceStyle) {
         while (end > 0 && text[end - 1] == ' ') end--
         return text.substring(0, end).trimEnd() + ellipsis
     }
+
+    /**
+     * Quebra por caractere, para URL (que não tem espaço onde quebrar), em até [maxLines]
+     * linhas. O que não couber termina com reticências na última.
+     */
+    fun wrap(text: String, paint: Paint, maxWidth: Float, maxLines: Int): List<String> {
+        if (maxWidth <= 0f || maxLines <= 1) return listOf(truncate(text, paint, maxWidth))
+        val lines = mutableListOf<String>()
+        var rest = text
+        while (lines.size < maxLines - 1 && paint.measureText(rest) > maxWidth) {
+            val end = paint.breakText(rest, true, maxWidth, null).coerceAtLeast(1)
+            lines += rest.substring(0, end)
+            rest = rest.substring(end)
+        }
+        lines += truncate(rest, paint, maxWidth)
+        return lines
+    }
 }

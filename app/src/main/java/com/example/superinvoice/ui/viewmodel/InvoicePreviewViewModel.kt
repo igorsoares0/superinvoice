@@ -20,6 +20,10 @@ import com.example.superinvoice.data.database.entities.PaymentMethod
 import com.example.superinvoice.data.pdf.InvoicePdfGenerator
 import com.example.superinvoice.data.repository.ClientRepository
 import com.example.superinvoice.data.repository.InvoiceRepository
+import com.example.superinvoice.data.analytics.PaymentLinkKind
+import com.example.superinvoice.data.payment.PaymentLinks
+import com.example.superinvoice.data.payment.PaymentLinksBuilder
+import com.example.superinvoice.data.payment.PaymentQr
 import com.example.superinvoice.data.repository.SettingsRepository
 import com.example.superinvoice.util.InvoiceDates
 import com.example.superinvoice.util.shareTextsFor
@@ -86,6 +90,10 @@ class InvoicePreviewViewModel @Inject constructor(
     private val _convertedInvoice = MutableStateFlow<Invoice?>(null)
     val convertedInvoice: StateFlow<Invoice?> = _convertedInvoice.asStateFlow()
 
+    /** Pix, PayPal e link desta fatura, para as ações de copiar da tela. */
+    private val _paymentLinks = MutableStateFlow(PaymentLinks.NONE)
+    val paymentLinks: StateFlow<PaymentLinks> = _paymentLinks.asStateFlow()
+
     private val _payments = MutableStateFlow<List<Payment>>(emptyList())
     val payments: StateFlow<List<Payment>> = _payments.asStateFlow()
 
@@ -125,6 +133,13 @@ class InvoicePreviewViewModel @Inject constructor(
                 val paymentQrCodePath = settingsRepository.paymentQrCodePath.first()
                 _paymentQrCodePath.value = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null
 
+                // Recalculado a cada carga: depois de um pagamento, o valor cobrado é o novo saldo.
+                _paymentLinks.value = PaymentLinksBuilder.forInvoice(
+                    loadedInvoice,
+                    settingsRepository.paymentLinkSettings(),
+                    hasUploadedQr = paymentQrCodePath.isNotEmpty()
+                )
+
                 // Load business info
                 _businessInfo.value = loadBusinessInfo()
 
@@ -155,6 +170,7 @@ class InvoicePreviewViewModel @Inject constructor(
                             logoPath = _logoPath.value,
                             signaturePath = _signaturePath.value,
                             paymentQrCodePath = _paymentQrCodePath.value,
+                            paymentLinks = _paymentLinks.value,
                             template = template,
                             isPremium = billingManager.awaitPremiumStatus(),
                             style = settingsRepository.invoiceStyle()
@@ -189,9 +205,6 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get payment info
                 val paymentInfo = loadPaymentInfo()
 
-                // Get currency
-                val currency = settingsRepository.currency.first()
-
                 // Get date format
                 val dateFormat = settingsRepository.dateFormat.first()
 
@@ -210,6 +223,14 @@ class InvoicePreviewViewModel @Inject constructor(
                 val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
+                val paymentLinks = PaymentLinksBuilder.forInvoice(
+                    invoice,
+                    settingsRepository.paymentLinkSettings(),
+                    hasUploadedQr = paymentQrCodePath.isNotEmpty()
+                )
+
+                reportUnencodableQr(paymentLinks)
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -217,11 +238,14 @@ class InvoicePreviewViewModel @Inject constructor(
                     items = items,
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
-                    currency = currency,
+                    // A da fatura, não a padrão: a padrão pode ter mudado depois, e a
+                    // pré-visualização na tela já usava a da fatura.
+                    currency = invoice.currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
+                    paymentLinks = paymentLinks,
                     template = template,
                     isPremium = billingManager.awaitPremiumStatus(),
                     style = settingsRepository.invoiceStyle()
@@ -269,9 +293,6 @@ class InvoicePreviewViewModel @Inject constructor(
                 // Get payment info
                 val paymentInfo = loadPaymentInfo()
 
-                // Get currency
-                val currency = settingsRepository.currency.first()
-
                 // Get date format
                 val dateFormat = settingsRepository.dateFormat.first()
 
@@ -290,6 +311,14 @@ class InvoicePreviewViewModel @Inject constructor(
                 val template = com.example.superinvoice.data.pdf.invoiceTemplateOf(selectedTemplate)
 
 
+                val paymentLinks = PaymentLinksBuilder.forInvoice(
+                    invoice,
+                    settingsRepository.paymentLinkSettings(),
+                    hasUploadedQr = paymentQrCodePath.isNotEmpty()
+                )
+
+                reportUnencodableQr(paymentLinks)
+
                 // Generate PDF
                 val file = pdfGenerator.generateInvoicePdf(
                     invoice = invoice,
@@ -297,11 +326,14 @@ class InvoicePreviewViewModel @Inject constructor(
                     items = items,
                     businessInfo = businessInfo,
                     paymentInfo = paymentInfo,
-                    currency = currency,
+                    // A da fatura, não a padrão: a padrão pode ter mudado depois, e a
+                    // pré-visualização na tela já usava a da fatura.
+                    currency = invoice.currency,
                     dateFormat = dateFormat,
                     logoPath = if (logoPath.isNotEmpty()) logoPath else null,
                     signaturePath = if (signaturePath.isNotEmpty()) signaturePath else null,
                     paymentQrCodePath = if (paymentQrCodePath.isNotEmpty()) paymentQrCodePath else null,
+                    paymentLinks = paymentLinks,
                     template = template,
                     isPremium = billingManager.awaitPremiumStatus(),
                     style = settingsRepository.invoiceStyle()
@@ -315,7 +347,7 @@ class InvoicePreviewViewModel @Inject constructor(
                         file
                     )
 
-                    val shareTexts = shareTextsFor(context, invoice)
+                    val shareTexts = shareTextsFor(context, invoice, paymentLinks)
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "application/pdf"
                         putExtra(Intent.EXTRA_STREAM, uri)
@@ -334,7 +366,12 @@ class InvoicePreviewViewModel @Inject constructor(
                     analyticsManager.logInvoicePdfShared(
                         template = selectedTemplate,
                         hasLogo = logoPath.isNotEmpty(),
-                        hasSignature = signaturePath.isNotEmpty()
+                        hasSignature = signaturePath.isNotEmpty(),
+                        // O QR que saiu no PDF, já com a regra do plano grátis aplicada.
+                        paymentQr = paymentLinks.forPlan(
+                            isPremium = billingManager.awaitPremiumStatus(),
+                            hasUploadedQr = paymentQrCodePath.isNotEmpty()
+                        ).qrSource
                     )
                 } else {
                     analyticsManager.logInvoicePdfFailed("share_null_file")
@@ -370,6 +407,19 @@ class InvoicePreviewViewModel @Inject constructor(
             )
             loadInvoice(invoice.id)
             onRecorded(payment)
+        }
+    }
+
+    fun onPaymentLinkCopied(kind: PaymentLinkKind) = analyticsManager.logPaymentLinkCopied(kind)
+
+    /**
+     * Uma URL longa demais não cabe num QR; o PDF sai sem ele. Só o tipo vai para o
+     * Crashlytics, nunca o conteúdo (chave Pix, usuário, link).
+     */
+    private fun reportUnencodableQr(links: PaymentLinks) {
+        val content = links.qrContent ?: return
+        if (PaymentQr.encode(content) == null) {
+            crashReporter.log("QR de pagamento não gerado: ${links.qrSource.name.lowercase()}")
         }
     }
 

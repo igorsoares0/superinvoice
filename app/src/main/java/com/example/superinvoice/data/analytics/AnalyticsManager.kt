@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import com.example.superinvoice.data.database.entities.AdjustmentType
 import com.example.superinvoice.data.database.entities.PaymentMethod
+import com.example.superinvoice.data.payment.PaymentQrSource
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -60,6 +61,8 @@ class AnalyticsManager @Inject constructor(
         private const val EVENT_RECEIPT_SHARED = "receipt_shared"
         private const val EVENT_ESTIMATE_CREATED = "estimate_created"
         private const val EVENT_ESTIMATE_CONVERTED = "estimate_converted"
+        private const val EVENT_PAYMENT_LINKS_SAVED = "payment_links_saved"
+        private const val EVENT_PAYMENT_LINK_COPIED = "payment_link_copied"
 
         // User properties: nome até 24 caracteres.
         private const val PROP_INVOICE_COUNT_BUCKET = "invoice_count_bucket"
@@ -184,11 +187,18 @@ class AnalyticsManager @Inject constructor(
 
     fun logFirstInvoiceCompleted() = logEvent(EVENT_FIRST_INVOICE_COMPLETED)
 
-    fun logInvoicePdfShared(template: String, hasLogo: Boolean, hasSignature: Boolean) {
+    /** [paymentQr] é de onde veio o QR do PDF (Pix, PayPal, imagem…), nunca o conteúdo dele. */
+    fun logInvoicePdfShared(
+        template: String,
+        hasLogo: Boolean,
+        hasSignature: Boolean,
+        paymentQr: PaymentQrSource
+    ) {
         logEvent(EVENT_INVOICE_PDF_SHARED) {
             putString("template", template)
             putBoolean("has_logo", hasLogo)
             putBoolean("has_signature", hasSignature)
+            putString("payment_qr", paymentQr.name.lowercase())
         }
     }
 
@@ -307,6 +317,21 @@ class AnalyticsManager @Inject constructor(
     }
 
     fun logEstimateConverted() = logEvent(EVENT_ESTIMATE_CONVERTED)
+
+    /** Quais meios ficaram configurados; nunca a chave Pix, o usuário ou o link. */
+    fun logPaymentLinksSaved(hasPix: Boolean, hasPayPal: Boolean, hasCustomLink: Boolean) {
+        logEvent(EVENT_PAYMENT_LINKS_SAVED) {
+            putBoolean("has_pix", hasPix)
+            putBoolean("has_paypal", hasPayPal)
+            putBoolean("has_custom_link", hasCustomLink)
+        }
+    }
+
+    fun logPaymentLinkCopied(kind: PaymentLinkKind) {
+        logEvent(EVENT_PAYMENT_LINK_COPIED) {
+            putString("kind", kind.id)
+        }
+    }
 
     // -------------------------------------------------------------------- interno
 
